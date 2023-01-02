@@ -1,0 +1,239 @@
+---
+title: "Template for contribution to Computo"
+subtitle: "Example based on the quarto system"
+author:
+  - name: "The Computo team"
+    corresponding: true
+    email: computo@sfds.asso.fr
+    url: https://computo.sfds.asso.fr
+    orcid: 0000-0000-0000-0000
+    affiliations:
+      - name: Société Française de Statistique
+        department: Statistique
+        address: IHP
+        city: Paris
+        country: France
+        postal-code: 75005
+        url: https://www.sfds.asso.fr/
+date: last-modified
+description: |
+  This document provides a template based on the quarto system for contributions to Computo, using the jounral extension and the knitr kernel (R user).
+abstract: >+
+  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur posuere vestibulum facilisis. Aenean pretium orci augue, quis lobortis libero accumsan eu. Nam mollis lorem sit amet pellentesque ullamcorper. Curabitur lobortis libero eget malesuada vestibulum. Nam nec nibh massa. Pellentesque porttitor cursus tellus. Mauris urna erat, rhoncus sed faucibus sit amet, venenatis eu ipsum.
+keywords: [key1, key2, key3]
+citation:
+  type: article-journal
+  container-title: "Computo"
+  doi: "xxxx"
+  url: https://computo.sfds.asso.fr/template-computo-quarto
+bibliography: references.bib
+github-user: computorg
+repo: "template-computo-quarto"
+draft: true # set to false once the build is running
+published: false # will be set to true once accepted
+format:
+  computo-html: default
+  computo-pdf: default
+---
+
+# Introduction
+
+## About this document
+
+This document provides a template based on the [quarto system](https://quarto.org/) for contributions to **Computo** @computo. We show how `Python` [@perez2011python] or  `R` [@R-base] code can be included.
+
+## Advice for writting your manuscript
+
+First make sure that you are able to build your manuscript as a regular notebook on your system. Then you can start configure the binder environment.
+
+# Formatting
+
+This section covers basic formatting guidelines. [Quarto](https://quarto.org/) is a versatile  formatting system for authoring HTML based on markdown, integrating LaTeX and various code block interpreted either via Jupyter or Knitr (and thus deal with Python, R and many other langages). It relies on the [Pandoc Markdown](https://rmarkdown.rstudio.com/authoring_pandoc_markdown.html) markup language.
+
+To render/compile a document, run `quarto render`. A document will be generated that includes both content as well as the output of any embedded code chunks within the document:
+
+``` .bash
+quarto render content.qmd # will render to html
+```
+
+## Basic markdown formatting
+
+**Bold text** or _italic_
+
+- This is a list
+- With more elements
+- It isn't numbered.
+
+But we can also do a numbered list
+
+1. This is my first item
+2. This is my second item
+3. This is my third item
+
+## Mathematics
+
+### Mathematical formulae
+
+[LaTeX](https://www.latex-project.org/) code is natively supported[^katex], which makes it possible to use mathematical formulae:
+
+[^katex]: We use [katex](https://katex.org/) for this purpose.
+
+will render
+
+$$
+f(x_1, \dots, x_n; \mu, \sigma^2) =
+\frac{1}{\sigma \sqrt{2\pi}} \exp{\left(- \frac{1}{2\sigma^2}\sum_{i=1}^n(x_i - \mu)^2\right)}
+$$
+
+It is also posible to cross-reference an equation, see @eq-mylabel:
+
+$$
+\begin{aligned}
+D_{x_N} & = \frac12
+\left[\begin{array}{cc}
+x_L^\top & x_N^\top \end{array}\right] \,
+\left[\begin{array}{cc}  L_L & B \\ B^\top & L_N \end{array}\right] \,
+\left[\begin{array}{c}
+x_L \\ x_N \end{array}\right] \\
+& = \frac12 (x_L^\top L_L x_L + 2 x_N^\top B^\top x_L + x_N^\top L_N x_N),
+\end{aligned}
+$$ {#eq-mylabel}
+
+### Theorems and other amsthem-like environments
+
+Quarto includes a nice support for theorems, with predefined prefix labels for theorems, lemmas, proposition, etc. see [this page](https://quarto.org/docs/authoring/cross-references.html#theorems-and-proofs). Here is a simple example:
+
+::: {#thm-slln}
+## Strong law of large numbers
+
+The sample average converges almost surely to the expected value:
+
+$$\overline{X}_n\ \xrightarrow{\text{a.s.}}\ \mu \qquad\textrm{when}\ n \to \infty.$$
+:::
+
+See @thm-slln.
+
+## Code
+
+Quarto uses either Jupyter or knitr to render code chunks. This can be triggered in the yaml header, e.g., for Jupyter (should be installed on your computer) use
+
+``` yaml
+---
+title: "My Document"
+author "Jane Doe"
+jupyter: python3
+---
+```
+
+For knitr (R + knitr must be installed on your computer)
+
+``` yaml
+---
+title: "My Document"
+author "Jane Doe"
+---
+```
+
+You can use Jupyter for Python code and more. And R + KnitR for if you want to mix R with Python (via the package reticulate @R-reticulate).
+
+### R
+
+`R` code [@R-base] chunks may be embedded as follows:
+
+```{r r-code, echo=TRUE}
+x <- rnorm(10)
+```
+
+
+### Python
+
+``` yaml
+---
+title: "My Document"
+author "Jane Doe"
+jupyter: python3
+---
+```
+
+```{python, eval = FALSE}
+import matplotlib.pyplot as plt
+import numpy as np
+
+fig, ax = plt.subplots()
+ax.plot(np.arange(10))
+```
+
+## Figures
+
+Plots can be generated as follows:
+
+```{r pressure, message = FALSE}
+library("ggplot2")
+p <- ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  geom_smooth()
+p
+```
+
+It is also possible to create figures from static images:
+
+:::{#fig-logo}
+
+![](figures/sfds.png)
+
+SFdS logo (c.a. 2021)
+
+:::
+
+
+## Tables
+
+Tables (with label: `@tbl-mylabel` renders @tbl-mylabel) can be generated with markdown as follows
+
+| Tables   |      Are      |  Cool |
+|----------|:-------------:|------:|
+| col 1 is |  left-aligned | $1600 |
+| col 2 is |    centered   |   $12 |
+| col 3 is | right-aligned |    $1 |
+: my table caption {#tbl-mylabel}
+
+Table can also be generated by some code, for instance with knitr here:
+
+```{r cars}
+knitr::kable(summary(cars), caption = "Table caption.")
+```
+
+## Handling references {#sec-references}
+
+### Bibliographic references
+
+References are displayed as footnotes using
+[BibTeX](http://www.bibtex.org/), e.g. `[@computo]` will be displayed
+as [@computo], where `computo` is the bibtex key for this specific
+entry. The bibliographic information is automatically retrieved from
+the `.bib` file specified in the header of this document (here:
+`references.bib`).
+
+### Other cross-references
+
+As already (partially) seen, Quarto includes a mecanism similar to the
+bibliographic references for sections, equations, theorems, figures,
+lists, etc. Have a look at [this
+page](https://quarto.org/docs/authoring/cross-references.html).
+
+::: {.callout-warning}
+
+## For more information
+
+[Check our mock version of the t-SNE paper](https://computo.sfds.asso.fr/published-paper-tsne/) for a full and advanced example using the Jupyter kernel.
+
+[The template available in the Computo Quarto extension  ](https://computo.sfds.asso.fr/published-paper-tsne/) uses advanced features and the KnitR kernel (interactive plots and pseudocode). 
+
+:::
+
+# Session information {.appendix .unnumbered}
+
+```{r session-info}
+sessionInfo()
+```
+
