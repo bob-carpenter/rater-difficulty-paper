@@ -1,34 +1,33 @@
 ---
-title: "Template for contribution to Computo"
-subtitle: "Example based on the quarto system"
+title: "A Bayesian approach to categorical data rating and classification"
 author:
-  - name: "The Computo team"
+  - name: "Bob Carpenter"
     corresponding: true
-    email: computo@sfds.asso.fr
-    url: https://computo.sfds.asso.fr
+    email: bcarpenter@flatironinstitute.org
+    url: https://bob-carpenter.github.io/
     orcid: 0000-0000-0000-0000
     affiliations:
-      - name: Société Française de Statistique
-        department: Statistique
-        address: IHP
-        city: Paris
-        country: France
-        postal-code: 75005
-        url: https://www.sfds.asso.fr/
+      - name: Flatiron Institute
+        department: Center for Computational Mathematics
+        address: 162 Fifth Avenue
+        city: New York, New York
+        country: United States
+        postal-code: 10010
+        url: https://flatironinstitute.org/
 date: last-modified
 description: |
-  This document provides a template based on the quarto system for contributions to Computo, using the jounral extension and the knitr kernel (R user).
+  This is a paper to be submitted to the journal *Computo*.
 abstract: >+
   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur posuere vestibulum facilisis. Aenean pretium orci augue, quis lobortis libero accumsan eu. Nam mollis lorem sit amet pellentesque ullamcorper. Curabitur lobortis libero eget malesuada vestibulum. Nam nec nibh massa. Pellentesque porttitor cursus tellus. Mauris urna erat, rhoncus sed faucibus sit amet, venenatis eu ipsum.
-keywords: [key1, key2, key3]
+keywords: [crowdsourcing, Bayesian, hierarchical, categorical]
 citation:
   type: article-journal
   container-title: "Computo"
   doi: "xxxx"
   url: https://computo.sfds.asso.fr/template-computo-quarto
 bibliography: references.bib
-github-user: computorg
-repo: "template-computo-quarto"
+github-user: bob-carpenter
+repo: "rater-difficulty-paper"
 draft: true # set to false once the build is running
 published: false # will be set to true once accepted
 format:
