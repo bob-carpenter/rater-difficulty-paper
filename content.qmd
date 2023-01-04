@@ -1,5 +1,5 @@
 ---
-title: "A Bayesian hierarchical model of categorical data rating and classification"
+title: "A Bayesian hierarchical model of categorical rating and classification<br/>"
 author:
   - name: "Bob Carpenter"
     corresponding: true
@@ -16,15 +16,15 @@ author:
         url: https://flatironinstitute.org/
 date: last-modified
 description: |
-  This is a paper to be submitted to the journal *Computo*.
+  to be submitted to the journal *Computo*.
 abstract: >+
-  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur posuere vestibulum facilisis. Aenean pretium orci augue, quis lobortis libero accumsan eu. Nam mollis lorem sit amet pellentesque ullamcorper. Curabitur lobortis libero eget malesuada vestibulum. Nam nec nibh massa. Pellentesque porttitor cursus tellus. Mauris urna erat, rhoncus sed faucibus sit amet, venenatis eu ipsum.
-keywords: [crowdsourcing, Bayesian modeling, hierarchical priors, categorical data]
+  We introduce a Bayesian model of categorical data rating and classification.  Rater effects capture raters' accuracy and bias and item-level effects capture the bias introduced by the items being classified such as difficulty.  We show that item-level effects are crucial for ensuring calibrated predictions.  We use multivariate priors to capture mean task accuracy, bias, and correlation among responses, which allows sharper and better calibrated predictions for new data raters as might be found in an ongoing data rating task with crowdsourcing.  Item-level predictors (aka features) can be used to jointly train a classifier, where no predictors results in a prevalence-only model. We show that training a classifier with a probabilistic data set regularizes estimates and improves the calibration of probabilistic classification.
+keywords: [data coding, Bayesian modeling, multivariate priors, classification, item difficulty]
 citation:
   type: article-journal
   container-title: "Computo"
   doi: "xxxx"
-  url: https://computo.sfds.asso.fr/template-computo-quarto
+  url: https://computo.sfds.asso.fr/???
 bibliography: references.bib
 github-user: bob-carpenter
 repo: "rater-difficulty-paper"
@@ -33,13 +33,125 @@ published: false # will be set to true once accepted
 format:
   computo-html: default
   computo-pdf: default
+jupyter: python3
 ---
+
+```{=html}
+<style type="text/css">
+caption, .table-caption {
+  text-align: left;
+}
+</style>
+```
 
 # Introduction
 
-## About this document
+Supervised training of classifiers is based on labeled data sets.  Labeled data typically arises from humans or systems rating the data (also known as "coding" or "annotating" in different literatures).  Because human and machine raters are never 100% accurate, the problem arises as to how to deal with disagreements in ratings.  For example, given a radiology image, one human rater might say it shows a stage 1 cancer tumor and another may say it is nothing or given a social media post, one rater might say it is positive toward a product and another might say it is neutral.  How do we adjudicate these disagreements among raters and get on with building classifiers?  One traditional approach is to vote---use multiple raters and take a majority vote.  Often this is done in stages, where if two raters disagree, a third is brought in to settle the dispute.  This can be problematic when both raters make the same error or when there is disparity in accuracy or correlated bias among the raters.  And in the end, we have no measure of certainty. Another traditional approach is to censor data where there is disagreement---that is, use only items in the training data for which the raters agreed.  This approach may lead to clean data, but it will not be representative of the "wild type" data from which it was selected.  
 
-This document provides a template based on the [quarto system](https://quarto.org/) for contributions to **Computo** @computo. We show how `Python` [@perez2011python] or  `R` [@R-base] code can be included.
+In order to make the best use of our data, we need to appropriately model it to correct for the bias and accuracy of the raters as well as the difficulty and biases introduced by the items being annotated.  In the end, we will be left with a "soft" data set, with probabilities assigned to outcomes for each item.  A traditional data set uses a one-hot encoding (where one category has probabity 1 and the others probability 0) and is often derived by assigning the most probable category.  We will show in this paper that taking the best category is inferior to selecting a category at random based on the probability distribution, which in turn is inferior to training directly with the probabilistic weights.
+
+Among the contributions of this paper are a new crowdsourcing and classifier training model that introduces (1) item-level effects for difficulty and item bias, (2) multivariate priors on item-level and rater-level effects, and (3) joint classifier and data set training with full Bayesian inference.  The model strictly generalizes the model of [@dawid-skene].  We show how the item-level effects are necessary to achieve calibrated prediction on new data, and how training a model jointly with full Bayesian inference is preferable to factoring the problem.
+
+# Data format
+
+## Ratings data
+
+We assume there are $K \in \mathbb{N}$ categories into which items are classified, $I \in \mathbb{N}$ items being rated, and $J \in \mathbb{N}$ raters.  We assume there are $N \in \mathbb{N}$ ratings, with $y_n \in 1{:}K$ being the rating given by rater $jj[n]$ for item $ii[n]$. The result is a long-form table of $N$ rows; the first few rows of an example are shown in @tbl-data-format.\
+
+|`n` | `ii`    |      `jj`    |  `y`    |
+|:-:|:-----:|:----------:|:-----:|
+| 1 | 1     |  1         |  4    |
+| 2 | 1     |  2         |  4    |
+| 3 | 1     |  6         |  3    |
+| 4 | 2     |  3         |  1    |    
+| 5 | 2     |  4         |  1    |
+| 6 | 3     |  2         |  6    |
+| $\vdots$ | $\vdots$ | $\vdots$ | $\vdots$ |
+: Long-form data format for ratings.  Annotation $n$ is for item $ii[n]$ by annotator $jj[n]$, who supplied rating $y[n]$.  For example, rating $n=3$ was made for item $ii[3] = 1$ by rater $jj[3] = 6$, who provided label $y[3] = 6$.  Three raters, with ids 1, 2, and 6, rated item $i = 1$ providing labels 4, 4, and 3 respectively. {#tbl-data-format}
+
+This data format is flexible enough to allow each item to be rated by a zero or more raters.  While it is possible to represent a single rater rating the same item multiple times, our models will treat the ratings as independent.  
+
+
+## Item-level predictors 
+
+In addition to the ratings, we will assume there are $L$ predictors (features, etc.) for each item.  We let $x \in \mathbb{R}^{I \times L}$ be the data matrix, with rows $x_i \in \mathbb{R}^L$ being the $L$-vector of predictors for item $i \in 1{:}I$.  We model intercepts separately and thus do not assume that there is a column of 1s in the matrix $x$.  Although it would be possible to have rater-level predictors, such as the geographical location or age or sex of the rater, we do not consider that extension in this paper.
+
+
+# Data-generating process
+
+We formulate our statistical model generatively in the sense that it is able to generate a complete data set given the items and predictors.  We will start with the model for the items then consider a model for the ratings.
+
+## Prevalence and classification
+
+We will assume that each item $i \in 1{:}I$ has a true category $z_i \in 1{:}K$.  The $z[i]$ are not observed and may be considered missing data and represented by means of a discrete parameter in the model.  We model the category based on item-level predictors using a logistic regression, where we assume $\beta \in \mathbb{R}^{L \times K}$ is our matrix of regression coefficients and $\alpha \in \mathbb{R}^K$ is an intercept.
+$$
+z_i \sim \textrm{categorical}\!\left(\textrm{softmax}(\alpha + x_i \cdot \beta)\right),
+$$
+where $\textrm{softmax}(u) = \exp(u) / \textrm{sum}(\exp(u)) \in \Delta^{K-1}$, with $\exp()$ applied elementwise.  We will be able to use the fitted model to make predictions for new items not in the training set assuming we have their predictor vectors.  That is, the result will be a classifier for new items.
+
+In the case where we have no item-level predictors so that $L = 0$, our model will reduce to an intercept-only model where $\textrm{softmax}(\alpha) \in \Delta^{K - 1}$ represents the simple prevalence of the categorical outcomes.
+
+## Rating and item effects
+
+In order to allow raters to vary in their accuracies and biases, we will model each rater to have their own probabilistic response to items of a given true category.  Specifically, we assume that each rater $j \in 1{:}J$ has a response simplex $\theta_{j, k} \in \Delta^{K-1}$ which says how they respond to items of category $k$, all else being equal.  A perfect rater has $\theta_{j, k, k'}$ equal to 1 if $k = k'$ and 0 otherwise.  That is, $\theta_{j, k, k}$ represents rater $j$'s accuracy on items of category $k$ and the off-diagonal elements of $\theta_j$ represent the biases. 
+
+We will further assume that each item $i \in 1{:}I$ has a vector of effects $\varphi_i \in \mathbb{R}^K$.  If $\varphi_i = 0$, the item has no effect on ratings and raters will just return results according to $\theta_{j, k}$ for items of category $k$.  If $\varphi_{i, z[i]}$ is high, the item is relatively easy to rate, whereas if it's low, the item is difficult to rate, with the other terms determining the response bias.
+
+Given the rating and item-level effects, the generative model for ratings is
+$$
+y_n \sim \mathrm{categorical}\!\left(\textrm{softmax}(\varphi_{z_{ii[n]}} + \theta_{jj[n], \, z_{ii[n]}})\right).
+$$
+Breaking this down, item $ii[n] \in 1{:}I$ is being given a rating of $y_n \in 1{:}K$ by rater $jj[n] \in 1{:}J$.  $z_{ii[n]}$ is the true category of the item $ii[n]$ being rated, so $\varphi_{z_{ii[n]}} \in \mathbb{R}^K$ is the vector of effects for that item.  The second term $\theta_{jj[n], z_{ii[n]}} \in \mathbb{R}^K$ is the response of the rater $jj[n]$ to items of true category $z_{ii[n]}$.  In other words, the rating is a logistic regression with item-level and rater-level effects that depend on the true category of the item.
+
+
+# Priors
+
+## Prior for prevalence
+
+For the prevalence regression coefficients $\beta \in \mathbb{R}^L$, we will use a weakly informative prior to define the scale of expected answers,
+$$
+\beta_l \sim \textrm{normal}(0, 3).
+$$
+
+
+## Prior for item-level effects
+
+The item-level effects $\varphi_i \in \mathbb{R}^K$ are assigned multivariate normal priors based on their true categories $z[i] \in 1{:}K$,
+$$
+\varphi_i \sim \textrm{normal}(\mu^\varphi_{zz[i]}, \Sigma^\varphi_{zz[i]}),
+$$
+where $\mu^\varphi_k \in \mathbb{R}^K$ and $\Sigma^{\varphi}_k$ is a positive definite covariance matrix.  
+
+## Prior for rater-level effects
+
+The rater-level effects $\theta_{j, k} \in \mathbb{R}^K$ also get a prior based on the true category $k$,
+$$
+\theta_{j, k}
+\sim \textrm{normal}(\mu^\theta_k, \Sigma^\theta_k),
+$$
+where $\mu^\theta_k \in \mathbb{R}^K$ is the location parameter and $\Sigma^\theta_k$ is a positive definite covariance matrix.
+
+
+## Hyperpriors
+
+We are now left with location parameters $\mu^\theta_k, \mu^\phi_k$ and covariance matrix parameters $\Sigma^\theta_k, \Sigma^\varphi_k$.  We will give the locations weakly informative priors to determine their scales,
+$$
+\mu^\theta_{k, k'}, \mu^\varphi_{k, k'} \sim \textrm{normal}(0, 3).
+$$
+The covariance matrices are factored into a scaled correlation matrix, with the scales and correlations given independent half-normal priors,
+$$
+\textrm{scale}(\Sigma^\theta_k)_{k'}, \textrm{scale}(\Sigma^\varphi_k)_{k'} \sim \textrm{normal}_+(0, 3),
+$$
+where $\textrm{scale}(\Omega)_k = \sqrt{\Omega_{k, k}}$.  We assign Lewandowski-Kurowicka-Joe (LKJ) priors to the correlation matrix, which concentrate prior mass around the identity,
+
+$$
+\textrm{corr}(\Sigma^\theta_k), \textrm{corr}(\Sigma^\varphi_k) \sim \textrm{LKJ}(5),
+$$
+where $\textrm{corr}(\Omega) = \textrm{diag}^{-1}(\textrm{scale}(\Omega)) \cdot \Omega \cdot \textrm{diag}^{-1}(\textrm{scale}(\Omega))$ is the correlation matrix corresponding to the covariance matrix $\Omega$.
+
+More constructively, we can build up this prior by taking a prior $\sigma \sim \textrm{normal}_+(0, 3)$ on a scale vector and a prior $\Omega \sim \textrm{LKJ}(5)$, and then define $\Sigma = \textrm{diag}(\sigma) \cdot \Omega \cdot \textrm{diag}(\sigma).$
+
+
 
 ## Advice for writting your manuscript
 
@@ -154,7 +266,7 @@ jupyter: python3
 ---
 ```
 
-```{python, eval = FALSE}
+```{python}
 import matplotlib.pyplot as plt
 import numpy as np
 
