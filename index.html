@@ -7,11 +7,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Bob Carpenter">
-<meta name="dcterms.date" content="2023-01-04">
-<meta name="keywords" content="data coding, Bayesian modeling, multivariate priors, classification, item difficulty">
+<meta name="dcterms.date" content="2023-01-05">
+<meta name="keywords" content="data rating, Bayesian modeling, multivariate priors, classification, item difficulty">
 <meta name="description" content="to be submitted to the journal Computo.">
 
-<title>A Bayesian hierarchical model of categorical rating and classification </title>
+<title>A Bayesian hierarchical model of categorical data rating and classification </title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -153,7 +153,7 @@ background: #034E79;
     <div class="quarto-title column-body">
       <div class="quarto-title-block"><div><h1 class="title"><a href="https://computo.sfds.asso.fr">
         <img src="https://computo.sfds.asso.fr/assets/img/logo_notext_white.png" height="60px">
-      </a> &nbsp; A Bayesian hierarchical model of categorical rating and classification<br></h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> source</button></div></div>
+      </a> &nbsp; A Bayesian hierarchical model of categorical data rating and classification<br></h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> source</button></div></div>
             <p><a href="http://creativecommons.org/licenses/by/4.0/"><img src="https://i.creativecommons.org/l/by/4.0/80x15.png" alt="Creative Commons BY License"></a>
 ISSN 2824-7795</p>
             <div>
@@ -186,7 +186,7 @@ ISSN 2824-7795</p>
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">January 4, 2023</p>
+        <p class="date">January 5, 2023</p>
       </div>
     </div>
                                     
@@ -195,7 +195,7 @@ ISSN 2824-7795</p>
       <div>
       <div class="quarto-title-meta-heading">Keywords</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">data coding, Bayesian modeling, multivariate priors, classification, item difficulty</p>
+        <p class="date">data rating, Bayesian modeling, multivariate priors, classification, item difficulty</p>
       </div>
     </div>
     
@@ -224,7 +224,7 @@ ISSN 2824-7795</p>
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="toc-section-number">1</span>  Introduction</a></li>
   <li><a href="#data-format" id="toc-data-format" class="nav-link" data-scroll-target="#data-format"><span class="toc-section-number">2</span>  Data format</a>
   <ul class="collapse">
-  <li><a href="#ratings-data" id="toc-ratings-data" class="nav-link" data-scroll-target="#ratings-data"><span class="toc-section-number">2.1</span>  Ratings data</a></li>
+  <li><a href="#rating-data" id="toc-rating-data" class="nav-link" data-scroll-target="#rating-data"><span class="toc-section-number">2.1</span>  Rating data</a></li>
   <li><a href="#item-level-predictors" id="toc-item-level-predictors" class="nav-link" data-scroll-target="#item-level-predictors"><span class="toc-section-number">2.2</span>  Item-level predictors</a></li>
   </ul></li>
   <li><a href="#data-generating-process" id="toc-data-generating-process" class="nav-link" data-scroll-target="#data-generating-process"><span class="toc-section-number">3</span>  Data-generating process</a>
@@ -237,7 +237,7 @@ ISSN 2824-7795</p>
   <li><a href="#prior-for-prevalence" id="toc-prior-for-prevalence" class="nav-link" data-scroll-target="#prior-for-prevalence"><span class="toc-section-number">4.1</span>  Prior for prevalence</a></li>
   <li><a href="#prior-for-item-level-effects" id="toc-prior-for-item-level-effects" class="nav-link" data-scroll-target="#prior-for-item-level-effects"><span class="toc-section-number">4.2</span>  Prior for item-level effects</a></li>
   <li><a href="#prior-for-rater-level-effects" id="toc-prior-for-rater-level-effects" class="nav-link" data-scroll-target="#prior-for-rater-level-effects"><span class="toc-section-number">4.3</span>  Prior for rater-level effects</a></li>
-  <li><a href="#hyperpriors" id="toc-hyperpriors" class="nav-link" data-scroll-target="#hyperpriors"><span class="toc-section-number">4.4</span>  Hyperpriors</a></li>
+  <li><a href="#hyperpriors-for-effect-location-and-covariance" id="toc-hyperpriors-for-effect-location-and-covariance" class="nav-link" data-scroll-target="#hyperpriors-for-effect-location-and-covariance"><span class="toc-section-number">4.4</span>  Hyperpriors for effect location and covariance</a></li>
   <li><a href="#advice-for-writting-your-manuscript" id="toc-advice-for-writting-your-manuscript" class="nav-link" data-scroll-target="#advice-for-writting-your-manuscript"><span class="toc-section-number">4.5</span>  Advice for writting your manuscript</a></li>
   </ul></li>
   <li><a href="#formatting" id="toc-formatting" class="nav-link" data-scroll-target="#formatting"><span class="toc-section-number">5</span>  Formatting</a>
@@ -284,8 +284,8 @@ caption, .table-caption {
 </section>
 <section id="data-format" class="level1" data-number="2">
 <h1 data-number="2"><span class="header-section-number">2</span> Data format</h1>
-<section id="ratings-data" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="ratings-data"><span class="header-section-number">2.1</span> Ratings data</h2>
+<section id="rating-data" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="rating-data"><span class="header-section-number">2.1</span> Rating data</h2>
 <p>We assume there are <span class="math inline">K \in \mathbb{N}</span> categories into which items are classified, <span class="math inline">I \in \mathbb{N}</span> items being rated, and <span class="math inline">J \in \mathbb{N}</span> raters. We assume there are <span class="math inline">N \in \mathbb{N}</span> ratings, with <span class="math inline">y_n \in 1{:}K</span> being the rating given by rater <span class="math inline">jj[n]</span> for item <span class="math inline">ii[n]</span>. The result is a long-form table of <span class="math inline">N</span> rows; the first few rows of an example are shown in <a href="#tbl-data-format">Table&nbsp;1</a>.<br>
 </p>
 <div id="tbl-data-format" class="anchored">
@@ -383,26 +383,33 @@ y_n \sim \mathrm{categorical}\!\left(\textrm{softmax}(\varphi_{z_{ii[n]}} + \the
 <h2 data-number="4.2" class="anchored" data-anchor-id="prior-for-item-level-effects"><span class="header-section-number">4.2</span> Prior for item-level effects</h2>
 <p>The item-level effects <span class="math inline">\varphi_i \in \mathbb{R}^K</span> are assigned multivariate normal priors based on their true categories <span class="math inline">z[i] \in 1{:}K</span>, <span class="math display">
 \varphi_i \sim \textrm{normal}(\mu^\varphi_{zz[i]}, \Sigma^\varphi_{zz[i]}),
-</span> where <span class="math inline">\mu^\varphi_k \in \mathbb{R}^K</span> and <span class="math inline">\Sigma^{\varphi}_k</span> is a positive definite covariance matrix.</p>
+</span> where <span class="math inline">\mu^\varphi_k \in \mathbb{R}^K</span> is a location parameter and <span class="math inline">\Sigma^{\varphi}_k</span> is a positive definite covariance matrix parameteter for <span class="math inline">k \in 1{:}K</span>.</p>
 </section>
 <section id="prior-for-rater-level-effects" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="prior-for-rater-level-effects"><span class="header-section-number">4.3</span> Prior for rater-level effects</h2>
-<p>The rater-level effects <span class="math inline">\theta_{j, k} \in \mathbb{R}^K</span> also get a prior based on the true category <span class="math inline">k</span>, <span class="math display">
+<p>The rater-level effects <span class="math inline">\theta_{j, k} \in \mathbb{R}^K</span> are assigned to a prior conditioned on the true category <span class="math inline">k</span>, <span class="math display">
 \theta_{j, k}
 \sim \textrm{normal}(\mu^\theta_k, \Sigma^\theta_k),
-</span> where <span class="math inline">\mu^\theta_k \in \mathbb{R}^K</span> is the location parameter and <span class="math inline">\Sigma^\theta_k</span> is a positive definite covariance matrix.</p>
+</span> where <span class="math inline">\mu^\theta_k \in \mathbb{R}^K</span> is the location parameter and <span class="math inline">\Sigma^\theta_k</span> is a positive definite covariance matrix for <span class="math inline">k \in 1{:}K</span>.</p>
 </section>
-<section id="hyperpriors" class="level2" data-number="4.4">
-<h2 data-number="4.4" class="anchored" data-anchor-id="hyperpriors"><span class="header-section-number">4.4</span> Hyperpriors</h2>
-<p>We are now left with location parameters <span class="math inline">\mu^\theta_k, \mu^\phi_k</span> and covariance matrix parameters <span class="math inline">\Sigma^\theta_k, \Sigma^\varphi_k</span>. We will give the locations weakly informative priors to determine their scales, <span class="math display">
-\mu^\theta_{k, k'}, \mu^\varphi_{k, k'} \sim \textrm{normal}(0, 3).
-</span> The covariance matrices are factored into a scaled correlation matrix, with the scales and correlations given independent half-normal priors, <span class="math display">
-\textrm{scale}(\Sigma^\theta_k)_{k'}, \textrm{scale}(\Sigma^\varphi_k)_{k'} \sim \textrm{normal}_+(0, 3),
-</span> where <span class="math inline">\textrm{scale}(\Omega)_k = \sqrt{\Omega_{k, k}}</span>. We assign Lewandowski-Kurowicka-Joe (LKJ) priors to the correlation matrix, which concentrate prior mass around the identity,</p>
+<section id="hyperpriors-for-effect-location-and-covariance" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="hyperpriors-for-effect-location-and-covariance"><span class="header-section-number">4.4</span> Hyperpriors for effect location and covariance</h2>
+<p>We have two sequences of location parameters, <span class="math inline">\mu^\theta_k</span> and <span class="math inline">\mu^\phi_k</span>, for <span class="math inline">k \in 1{:}K</span>. We assign the components of the location parameters independent and weakly informative priors to determine their scales, <span class="math display">
+\mu^\theta_{k, k'}, \mu^\varphi_{k, k'} \sim \textrm{normal}(0, 3),
+</span> for <span class="math inline">k, k' \in 1{:}K</span>.</p>
+<p>We also have two sequences of symmetric, positive-definite covariance parameters, <span class="math inline">\Sigma^\theta_k</span> and <span class="math inline">\Sigma^\varphi_k</span>, for <span class="math inline">k \in 1{:}K</span>. We factor covariance matrices <span class="math inline">\Sigma</span> into a vector <span class="math inline">\sigma</span> of scales and correlation matrix <span class="math inline">\Omega</span> so that <span class="math display">
+\Sigma^\theta_k = \textrm{diag}(\sigma^\theta_k) \cdot \Omega^\theta_k \cdot \textrm{diag}(\sigma^\theta_k)
+</span> and <span class="math display">
+\Sigma^\varphi_k = \textrm{diag}(\sigma^\varphi_k) \cdot \Omega^\varphi_k \cdot \textrm{diag}(\sigma^\varphi_k),
+</span> with <span class="math inline">\sigma^\theta_k, \sigma^\varphi_k \in \mathbb{R}^K</span> and <span class="math inline">\Omega^\theta_k, \Omega^\varphi_k</span> are correlation matrices (i.e., symmetric positive definite with unit diagonal). We consider the scales and correlation matrices as parameters and treat the covariance matrices as derived quantities defined as above.</p>
+<p>The components of the scale parameters are assigned weakly informative priors independently by component, taking <span class="math display">
+\sigma^\theta_{k, k'}, \sigma^\varphi_{k, k'} \sim \textrm{normal}_+(0, 3),
+</span> for <span class="math inline">k, k' \in 1{:}K</span>. We assign Lewandowski-Kurowicka-Joe (LKJ) priors to the correlation matrix,</p>
 <p><span class="math display">
-\textrm{corr}(\Sigma^\theta_k), \textrm{corr}(\Sigma^\varphi_k) \sim \textrm{LKJ}(5),
-</span> where <span class="math inline">\textrm{corr}(\Omega) = \textrm{diag}^{-1}(\textrm{scale}(\Omega)) \cdot \Omega \cdot \textrm{diag}^{-1}(\textrm{scale}(\Omega))</span> is the correlation matrix corresponding to the covariance matrix <span class="math inline">\Omega</span>.</p>
-<p>More constructively, we can build up this prior by taking a prior <span class="math inline">\sigma \sim \textrm{normal}_+(0, 3)</span> on a scale vector and a prior <span class="math inline">\Omega \sim \textrm{LKJ}(5)</span>, and then define <span class="math inline">\Sigma = \textrm{diag}(\sigma) \cdot \Omega \cdot \textrm{diag}(\sigma).</span></p>
+\Omega^\theta_k, \Omega^\varphi_k \sim \textrm{LKJ}(5),
+</span> for <span class="math inline">k \in 1{:}K</span>, where the LKJ density is defined for a symmetric positive-definite, unit-diagonal correlation matrix <span class="math inline">\Omega</span> and shape <span class="math inline">\eta &gt; 0</span> by <span class="math display">
+\textrm{LKJ}(\Omega \mid \eta) \propto \textrm{det}(\Omega)^{\eta - 1}.
+</span> For <span class="math inline">\eta = 1</span>, this distribution is uniform over correlation matrices <span class="math inline">\Omega</span>. For <span class="math inline">\eta &gt; 1</span>, it concentrates mass around the unit correlation matrix. Thus when used as a prior on a correlation matrix parameter, it has the effect of shrinking the correlation estimates (i.e., the off-diagonal elements of an estimated <span class="math inline">\Omega</span>).</p>
 </section>
 <section id="advice-for-writting-your-manuscript" class="level2" data-number="4.5">
 <h2 data-number="4.5" class="anchored" data-anchor-id="advice-for-writting-your-manuscript"><span class="header-section-number">4.5</span> Advice for writting your manuscript</h2>
@@ -498,7 +505,7 @@ x_L \\ x_N \end{array}\right] \\
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>ax.plot(np.arange(<span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="content_files/figure-html/cell-2-output-1.svg" class="img-fluid"></p>
+<p><img src="content_files/figure-html/cell-2-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 </section>
@@ -605,10 +612,10 @@ Ushey, Kevin, JJ Allaire, and Yuan Tang. 2020. <em>Reticulate: Interface to Pyth
 </ol>
 </section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by/4.0/">https://creativecommons.org/licenses/by/4.0/</a></div></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@article{carpenter2023,
   author = {Bob Carpenter},
-  title = {A {Bayesian} Hierarchical Model of Categorical Rating and
-    Classification\textless br/\textgreater{}},
+  title = {A {Bayesian} Hierarchical Model of Categorical Data Rating
+    and Classification\textless br/\textgreater{}},
   journal = {Computo},
-  date = {2023-01-04},
+  date = {2023-01-05},
   url = {https://computo.sfds.asso.fr/???},
   doi = {xxxx},
   langid = {en},
@@ -628,8 +635,8 @@ Ushey, Kevin, JJ Allaire, and Yuan Tang. 2020. <em>Reticulate: Interface to Pyth
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-carpenter2023" class="csl-entry quarto-appendix-citeas" role="doc-biblioentry">
 Bob Carpenter. 2023. <span>“A Bayesian Hierarchical Model of Categorical
-Rating and Classification&lt;br/&gt;.”</span> <em>Computo</em>, January.
-<a href="https://doi.org/xxxx">https://doi.org/xxxx</a>.
+Data Rating and Classification&lt;br/&gt;.”</span> <em>Computo</em>,
+January. <a href="https://doi.org/xxxx">https://doi.org/xxxx</a>.
 </div></div></section></div></main>
 <!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -831,7 +838,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
 <div class="sourceCode" id="cb6" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "A Bayesian hierarchical model of categorical rating and classification&lt;br/&gt;"</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "A Bayesian hierarchical model of categorical data rating and classification&lt;br/&gt;"</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">  - name: "Bob Carpenter"</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">    corresponding: true</span></span>
@@ -851,7 +858,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">  to be submitted to the journal *Computo*.</span></span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="an">abstract:</span><span class="co"> &gt;+</span></span>
 <span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co">  We introduce a Bayesian model of categorical data rating and classification.  Rater effects capture raters' accuracy and bias and item-level effects capture the bias introduced by the items being classified such as difficulty.  We show that item-level effects are crucial for ensuring calibrated predictions.  We use multivariate priors to capture mean task accuracy, bias, and correlation among responses, which allows sharper and better calibrated predictions for new data raters as might be found in an ongoing data rating task with crowdsourcing.  Item-level predictors (aka features) can be used to jointly train a classifier, where no predictors results in a prevalence-only model. We show that training a classifier with a probabilistic data set regularizes estimates and improves the calibration of probabilistic classification.</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="an">keywords:</span><span class="co"> [data coding, Bayesian modeling, multivariate priors, classification, item difficulty]</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="an">keywords:</span><span class="co"> [data rating, Bayesian modeling, multivariate priors, classification, item difficulty]</span></span>
 <span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="an">citation:</span></span>
 <span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="co">  type: article-journal</span></span>
 <span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="co">  container-title: "Computo"</span></span>
@@ -886,7 +893,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a><span class="fu"># Data format</span></span>
 <span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a><span class="fu">## Ratings data</span></span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a><span class="fu">## Rating data</span></span>
 <span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>We assume there are $K \in \mathbb{N}$ categories into which items are classified, $I \in \mathbb{N}$ items being rated, and $J \in \mathbb{N}$ raters.  We assume there are $N \in \mathbb{N}$ ratings, with $y_n \in 1{:}K$ being the rating given by rater $jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$ for item $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$. The result is a long-form table of $N$ rows; the first few rows of an example are shown in @tbl-data-format.\</span>
 <span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a></span>
@@ -952,233 +959,246 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb6-120"><a href="#cb6-120" aria-hidden="true" tabindex="-1"></a>$$</span>
 <span id="cb6-121"><a href="#cb6-121" aria-hidden="true" tabindex="-1"></a>\varphi_i \sim \textrm{normal}(\mu^\varphi_{zz<span class="co">[</span><span class="ot">i</span><span class="co">]</span>}, \Sigma^\varphi_{zz<span class="co">[</span><span class="ot">i</span><span class="co">]</span>}),</span>
 <span id="cb6-122"><a href="#cb6-122" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-123"><a href="#cb6-123" aria-hidden="true" tabindex="-1"></a>where $\mu^\varphi_k \in \mathbb{R}^K$ and $\Sigma^{\varphi}_k$ is a positive definite covariance matrix.  </span>
+<span id="cb6-123"><a href="#cb6-123" aria-hidden="true" tabindex="-1"></a>where $\mu^\varphi_k \in \mathbb{R}^K$ is a location parameter and $\Sigma^{\varphi}_k$ is a positive definite covariance matrix parameteter for $k \in 1{:}K$.</span>
 <span id="cb6-124"><a href="#cb6-124" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-125"><a href="#cb6-125" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for rater-level effects</span></span>
 <span id="cb6-126"><a href="#cb6-126" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-127"><a href="#cb6-127" aria-hidden="true" tabindex="-1"></a>The rater-level effects $\theta_{j, k} \in \mathbb{R}^K$ also get a prior based on the true category $k$,</span>
+<span id="cb6-127"><a href="#cb6-127" aria-hidden="true" tabindex="-1"></a>The rater-level effects $\theta_{j, k} \in \mathbb{R}^K$ are assigned to a prior conditioned on the true category $k$,</span>
 <span id="cb6-128"><a href="#cb6-128" aria-hidden="true" tabindex="-1"></a>$$</span>
 <span id="cb6-129"><a href="#cb6-129" aria-hidden="true" tabindex="-1"></a>\theta_{j, k}</span>
 <span id="cb6-130"><a href="#cb6-130" aria-hidden="true" tabindex="-1"></a>\sim \textrm{normal}(\mu^\theta_k, \Sigma^\theta_k),</span>
 <span id="cb6-131"><a href="#cb6-131" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a>where $\mu^\theta_k \in \mathbb{R}^K$ is the location parameter and $\Sigma^\theta_k$ is a positive definite covariance matrix.</span>
+<span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a>where $\mu^\theta_k \in \mathbb{R}^K$ is the location parameter and $\Sigma^\theta_k$ is a positive definite covariance matrix for $k \in 1{:}K$.</span>
 <span id="cb6-133"><a href="#cb6-133" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-134"><a href="#cb6-134" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-135"><a href="#cb6-135" aria-hidden="true" tabindex="-1"></a><span class="fu">## Hyperpriors</span></span>
+<span id="cb6-135"><a href="#cb6-135" aria-hidden="true" tabindex="-1"></a><span class="fu">## Hyperpriors for effect location and covariance</span></span>
 <span id="cb6-136"><a href="#cb6-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-137"><a href="#cb6-137" aria-hidden="true" tabindex="-1"></a>We are now left with location parameters $\mu^\theta_k, \mu^\phi_k$ and covariance matrix parameters $\Sigma^\theta_k, \Sigma^\varphi_k$.  We will give the locations weakly informative priors to determine their scales,</span>
+<span id="cb6-137"><a href="#cb6-137" aria-hidden="true" tabindex="-1"></a>We have two sequences of location parameters, $\mu^\theta_k$ and $\mu^\phi_k$, for $k \in 1{:}K$.  We assign the components of the location parameters independent and weakly informative priors to determine their scales,</span>
 <span id="cb6-138"><a href="#cb6-138" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-139"><a href="#cb6-139" aria-hidden="true" tabindex="-1"></a>\mu^\theta_{k, k'}, \mu^\varphi_{k, k'} \sim \textrm{normal}(0, 3).</span>
+<span id="cb6-139"><a href="#cb6-139" aria-hidden="true" tabindex="-1"></a>\mu^\theta_{k, k'}, \mu^\varphi_{k, k'} \sim \textrm{normal}(0, 3),</span>
 <span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-141"><a href="#cb6-141" aria-hidden="true" tabindex="-1"></a>The covariance matrices are factored into a scaled correlation matrix, with the scales and correlations given independent half-normal priors,</span>
-<span id="cb6-142"><a href="#cb6-142" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-143"><a href="#cb6-143" aria-hidden="true" tabindex="-1"></a>\textrm{scale}(\Sigma^\theta_k)_{k'}, \textrm{scale}(\Sigma^\varphi_k)_{k'} \sim \textrm{normal}_+(0, 3),</span>
+<span id="cb6-141"><a href="#cb6-141" aria-hidden="true" tabindex="-1"></a>for $k, k' \in 1{:}K$.</span>
+<span id="cb6-142"><a href="#cb6-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-143"><a href="#cb6-143" aria-hidden="true" tabindex="-1"></a>We also have two sequences of symmetric, positive-definite covariance parameters, $\Sigma^\theta_k$ and $\Sigma^\varphi_k$, for $k \in 1{:}K$. We factor covariance matrices $\Sigma$ into a vector $\sigma$ of scales and correlation matrix $\Omega$ so that</span>
 <span id="cb6-144"><a href="#cb6-144" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-145"><a href="#cb6-145" aria-hidden="true" tabindex="-1"></a>where $\textrm{scale}(\Omega)_k = \sqrt{\Omega_{k, k}}$.  We assign Lewandowski-Kurowicka-Joe (LKJ) priors to the correlation matrix, which concentrate prior mass around the identity,</span>
-<span id="cb6-146"><a href="#cb6-146" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-147"><a href="#cb6-147" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-148"><a href="#cb6-148" aria-hidden="true" tabindex="-1"></a>\textrm{corr}(\Sigma^\theta_k), \textrm{corr}(\Sigma^\varphi_k) \sim \textrm{LKJ}(5),</span>
-<span id="cb6-149"><a href="#cb6-149" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-150"><a href="#cb6-150" aria-hidden="true" tabindex="-1"></a>where $\textrm{corr}(\Omega) = \textrm{diag}^{-1}(\textrm{scale}(\Omega)) \cdot \Omega \cdot \textrm{diag}^{-1}(\textrm{scale}(\Omega))$ is the correlation matrix corresponding to the covariance matrix $\Omega$.</span>
-<span id="cb6-151"><a href="#cb6-151" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-152"><a href="#cb6-152" aria-hidden="true" tabindex="-1"></a>More constructively, we can build up this prior by taking a prior $\sigma \sim \textrm{normal}_+(0, 3)$ on a scale vector and a prior $\Omega \sim \textrm{LKJ}(5)$, and then define $\Sigma = \textrm{diag}(\sigma) \cdot \Omega \cdot \textrm{diag}(\sigma).$</span>
-<span id="cb6-153"><a href="#cb6-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-154"><a href="#cb6-154" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-155"><a href="#cb6-155" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-156"><a href="#cb6-156" aria-hidden="true" tabindex="-1"></a><span class="fu">## Advice for writting your manuscript</span></span>
-<span id="cb6-157"><a href="#cb6-157" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-158"><a href="#cb6-158" aria-hidden="true" tabindex="-1"></a>First make sure that you are able to build your manuscript as a regular notebook on your system. Then you can start configure the binder environment.</span>
-<span id="cb6-159"><a href="#cb6-159" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-160"><a href="#cb6-160" aria-hidden="true" tabindex="-1"></a><span class="fu"># Formatting</span></span>
-<span id="cb6-161"><a href="#cb6-161" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-162"><a href="#cb6-162" aria-hidden="true" tabindex="-1"></a>This section covers basic formatting guidelines. <span class="co">[</span><span class="ot">Quarto</span><span class="co">](https://quarto.org/)</span> is a versatile  formatting system for authoring HTML based on markdown, integrating LaTeX and various code block interpreted either via Jupyter or Knitr (and thus deal with Python, R and many other langages). It relies on the <span class="co">[</span><span class="ot">Pandoc Markdown</span><span class="co">](https://rmarkdown.rstudio.com/authoring_pandoc_markdown.html)</span> markup language.</span>
-<span id="cb6-163"><a href="#cb6-163" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-164"><a href="#cb6-164" aria-hidden="true" tabindex="-1"></a>To render/compile a document, run <span class="in">`quarto render`</span>. A document will be generated that includes both content as well as the output of any embedded code chunks within the document:</span>
-<span id="cb6-165"><a href="#cb6-165" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-166"><a href="#cb6-166" aria-hidden="true" tabindex="-1"></a><span class="in">``` .bash</span></span>
-<span id="cb6-167"><a href="#cb6-167" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> render content.qmd <span class="co"># will render to html</span></span>
-<span id="cb6-168"><a href="#cb6-168" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-169"><a href="#cb6-169" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-170"><a href="#cb6-170" aria-hidden="true" tabindex="-1"></a><span class="fu">## Basic markdown formatting</span></span>
-<span id="cb6-171"><a href="#cb6-171" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-172"><a href="#cb6-172" aria-hidden="true" tabindex="-1"></a>**Bold text** or _italic_</span>
-<span id="cb6-173"><a href="#cb6-173" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-174"><a href="#cb6-174" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>This is a list</span>
-<span id="cb6-175"><a href="#cb6-175" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>With more elements</span>
-<span id="cb6-176"><a href="#cb6-176" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>It isn't numbered.</span>
-<span id="cb6-177"><a href="#cb6-177" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-178"><a href="#cb6-178" aria-hidden="true" tabindex="-1"></a>But we can also do a numbered list</span>
-<span id="cb6-179"><a href="#cb6-179" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-180"><a href="#cb6-180" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>This is my first item</span>
-<span id="cb6-181"><a href="#cb6-181" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>This is my second item</span>
-<span id="cb6-182"><a href="#cb6-182" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>This is my third item</span>
-<span id="cb6-183"><a href="#cb6-183" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-184"><a href="#cb6-184" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mathematics</span></span>
-<span id="cb6-185"><a href="#cb6-185" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-186"><a href="#cb6-186" aria-hidden="true" tabindex="-1"></a><span class="fu">### Mathematical formulae</span></span>
-<span id="cb6-187"><a href="#cb6-187" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-188"><a href="#cb6-188" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">LaTeX</span><span class="co">](https://www.latex-project.org/)</span> code is natively supported<span class="ot">[^katex]</span>, which makes it possible to use mathematical formulae:</span>
-<span id="cb6-189"><a href="#cb6-189" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-190"><a href="#cb6-190" aria-hidden="true" tabindex="-1"></a><span class="ot">[^katex]: </span>We use <span class="co">[</span><span class="ot">katex</span><span class="co">](https://katex.org/)</span> for this purpose.</span>
-<span id="cb6-191"><a href="#cb6-191" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-192"><a href="#cb6-192" aria-hidden="true" tabindex="-1"></a>will render</span>
-<span id="cb6-193"><a href="#cb6-193" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-194"><a href="#cb6-194" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-195"><a href="#cb6-195" aria-hidden="true" tabindex="-1"></a>f(x_1, \dots, x_n; \mu, \sigma^2) =</span>
-<span id="cb6-196"><a href="#cb6-196" aria-hidden="true" tabindex="-1"></a>\frac{1}{\sigma \sqrt{2\pi}} \exp{\left(- \frac{1}{2\sigma^2}\sum_{i=1}^n(x_i - \mu)^2\right)}</span>
-<span id="cb6-197"><a href="#cb6-197" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-145"><a href="#cb6-145" aria-hidden="true" tabindex="-1"></a>\Sigma^\theta_k = \textrm{diag}(\sigma^\theta_k) \cdot \Omega^\theta_k \cdot \textrm{diag}(\sigma^\theta_k)</span>
+<span id="cb6-146"><a href="#cb6-146" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-147"><a href="#cb6-147" aria-hidden="true" tabindex="-1"></a>and </span>
+<span id="cb6-148"><a href="#cb6-148" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-149"><a href="#cb6-149" aria-hidden="true" tabindex="-1"></a>\Sigma^\varphi_k = \textrm{diag}(\sigma^\varphi_k) \cdot \Omega^\varphi_k \cdot \textrm{diag}(\sigma^\varphi_k),</span>
+<span id="cb6-150"><a href="#cb6-150" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-151"><a href="#cb6-151" aria-hidden="true" tabindex="-1"></a>with $\sigma^\theta_k, \sigma^\varphi_k \in \mathbb{R}^K$ and $\Omega^\theta_k, \Omega^\varphi_k$ are correlation matrices (i.e., symmetric positive definite with unit diagonal).  We consider the scales and correlation matrices as parameters and treat the covariance matrices as derived quantities defined as above.  </span>
+<span id="cb6-152"><a href="#cb6-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-153"><a href="#cb6-153" aria-hidden="true" tabindex="-1"></a>The components of the scale parameters are assigned weakly informative priors independently by component, taking</span>
+<span id="cb6-154"><a href="#cb6-154" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-155"><a href="#cb6-155" aria-hidden="true" tabindex="-1"></a>\sigma^\theta_{k, k'}, \sigma^\varphi_{k, k'} \sim \textrm{normal}_+(0, 3),</span>
+<span id="cb6-156"><a href="#cb6-156" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-157"><a href="#cb6-157" aria-hidden="true" tabindex="-1"></a>for $k, k' \in 1{:}K$.  We assign Lewandowski-Kurowicka-Joe (LKJ) priors to the correlation matrix, </span>
+<span id="cb6-158"><a href="#cb6-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-159"><a href="#cb6-159" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-160"><a href="#cb6-160" aria-hidden="true" tabindex="-1"></a>\Omega^\theta_k, \Omega^\varphi_k \sim \textrm{LKJ}(5),</span>
+<span id="cb6-161"><a href="#cb6-161" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-162"><a href="#cb6-162" aria-hidden="true" tabindex="-1"></a>for $k \in 1{:}K$, where the LKJ density is defined for a symmetric positive-definite, unit-diagonal correlation matrix $\Omega$ and shape $\eta &gt; 0$ by</span>
+<span id="cb6-163"><a href="#cb6-163" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-164"><a href="#cb6-164" aria-hidden="true" tabindex="-1"></a>\textrm{LKJ}(\Omega \mid \eta) \propto \textrm{det}(\Omega)^{\eta - 1}.</span>
+<span id="cb6-165"><a href="#cb6-165" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-166"><a href="#cb6-166" aria-hidden="true" tabindex="-1"></a>For $\eta = 1$, this distribution is uniform over correlation matrices $\Omega$.  For $\eta &gt; 1$, it concentrates mass around the unit correlation matrix. Thus when used as a prior on a correlation matrix parameter, it has the effect of shrinking the correlation estimates (i.e., the off-diagonal elements of an estimated $\Omega$).</span>
+<span id="cb6-167"><a href="#cb6-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-168"><a href="#cb6-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-169"><a href="#cb6-169" aria-hidden="true" tabindex="-1"></a><span class="fu">## Advice for writting your manuscript</span></span>
+<span id="cb6-170"><a href="#cb6-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-171"><a href="#cb6-171" aria-hidden="true" tabindex="-1"></a>First make sure that you are able to build your manuscript as a regular notebook on your system. Then you can start configure the binder environment.</span>
+<span id="cb6-172"><a href="#cb6-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-173"><a href="#cb6-173" aria-hidden="true" tabindex="-1"></a><span class="fu"># Formatting</span></span>
+<span id="cb6-174"><a href="#cb6-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-175"><a href="#cb6-175" aria-hidden="true" tabindex="-1"></a>This section covers basic formatting guidelines. <span class="co">[</span><span class="ot">Quarto</span><span class="co">](https://quarto.org/)</span> is a versatile  formatting system for authoring HTML based on markdown, integrating LaTeX and various code block interpreted either via Jupyter or Knitr (and thus deal with Python, R and many other langages). It relies on the <span class="co">[</span><span class="ot">Pandoc Markdown</span><span class="co">](https://rmarkdown.rstudio.com/authoring_pandoc_markdown.html)</span> markup language.</span>
+<span id="cb6-176"><a href="#cb6-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-177"><a href="#cb6-177" aria-hidden="true" tabindex="-1"></a>To render/compile a document, run <span class="in">`quarto render`</span>. A document will be generated that includes both content as well as the output of any embedded code chunks within the document:</span>
+<span id="cb6-178"><a href="#cb6-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-179"><a href="#cb6-179" aria-hidden="true" tabindex="-1"></a><span class="in">``` .bash</span></span>
+<span id="cb6-180"><a href="#cb6-180" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> render content.qmd <span class="co"># will render to html</span></span>
+<span id="cb6-181"><a href="#cb6-181" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-182"><a href="#cb6-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-183"><a href="#cb6-183" aria-hidden="true" tabindex="-1"></a><span class="fu">## Basic markdown formatting</span></span>
+<span id="cb6-184"><a href="#cb6-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-185"><a href="#cb6-185" aria-hidden="true" tabindex="-1"></a>**Bold text** or _italic_</span>
+<span id="cb6-186"><a href="#cb6-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-187"><a href="#cb6-187" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>This is a list</span>
+<span id="cb6-188"><a href="#cb6-188" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>With more elements</span>
+<span id="cb6-189"><a href="#cb6-189" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>It isn't numbered.</span>
+<span id="cb6-190"><a href="#cb6-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-191"><a href="#cb6-191" aria-hidden="true" tabindex="-1"></a>But we can also do a numbered list</span>
+<span id="cb6-192"><a href="#cb6-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-193"><a href="#cb6-193" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>This is my first item</span>
+<span id="cb6-194"><a href="#cb6-194" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>This is my second item</span>
+<span id="cb6-195"><a href="#cb6-195" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>This is my third item</span>
+<span id="cb6-196"><a href="#cb6-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-197"><a href="#cb6-197" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mathematics</span></span>
 <span id="cb6-198"><a href="#cb6-198" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-199"><a href="#cb6-199" aria-hidden="true" tabindex="-1"></a>It is also posible to cross-reference an equation, see @eq-mylabel:</span>
+<span id="cb6-199"><a href="#cb6-199" aria-hidden="true" tabindex="-1"></a><span class="fu">### Mathematical formulae</span></span>
 <span id="cb6-200"><a href="#cb6-200" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-201"><a href="#cb6-201" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-202"><a href="#cb6-202" aria-hidden="true" tabindex="-1"></a>\begin{aligned}</span>
-<span id="cb6-203"><a href="#cb6-203" aria-hidden="true" tabindex="-1"></a>D_{x_N} &amp; = \frac12</span>
-<span id="cb6-204"><a href="#cb6-204" aria-hidden="true" tabindex="-1"></a>\left[\begin{array}{cc}</span>
-<span id="cb6-205"><a href="#cb6-205" aria-hidden="true" tabindex="-1"></a>x_L^\top &amp; x_N^\top \end{array}\right] \,</span>
-<span id="cb6-206"><a href="#cb6-206" aria-hidden="true" tabindex="-1"></a>\left<span class="co">[</span><span class="ot">\begin{array}{cc}  L_L &amp; B \\ B^\top &amp; L_N \end{array}\right</span><span class="co">]</span> \,</span>
-<span id="cb6-207"><a href="#cb6-207" aria-hidden="true" tabindex="-1"></a>\left[\begin{array}{c}</span>
-<span id="cb6-208"><a href="#cb6-208" aria-hidden="true" tabindex="-1"></a>x_L <span class="sc">\\</span> x_N \end{array}\right] <span class="sc">\\</span></span>
-<span id="cb6-209"><a href="#cb6-209" aria-hidden="true" tabindex="-1"></a>&amp; = \frac12 (x_L^\top L_L x_L + 2 x_N^\top B^\top x_L + x_N^\top L_N x_N),</span>
-<span id="cb6-210"><a href="#cb6-210" aria-hidden="true" tabindex="-1"></a>\end{aligned}</span>
-<span id="cb6-211"><a href="#cb6-211" aria-hidden="true" tabindex="-1"></a>$$ {#eq-mylabel}</span>
-<span id="cb6-212"><a href="#cb6-212" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-213"><a href="#cb6-213" aria-hidden="true" tabindex="-1"></a><span class="fu">### Theorems and other amsthem-like environments</span></span>
-<span id="cb6-214"><a href="#cb6-214" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-215"><a href="#cb6-215" aria-hidden="true" tabindex="-1"></a>Quarto includes a nice support for theorems, with predefined prefix labels for theorems, lemmas, proposition, etc. see <span class="co">[</span><span class="ot">this page</span><span class="co">](https://quarto.org/docs/authoring/cross-references.html#theorems-and-proofs)</span>. Here is a simple example:</span>
-<span id="cb6-216"><a href="#cb6-216" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-217"><a href="#cb6-217" aria-hidden="true" tabindex="-1"></a>::: {#thm-slln}</span>
-<span id="cb6-218"><a href="#cb6-218" aria-hidden="true" tabindex="-1"></a><span class="fu">## Strong law of large numbers</span></span>
-<span id="cb6-219"><a href="#cb6-219" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-220"><a href="#cb6-220" aria-hidden="true" tabindex="-1"></a>The sample average converges almost surely to the expected value:</span>
-<span id="cb6-221"><a href="#cb6-221" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-222"><a href="#cb6-222" aria-hidden="true" tabindex="-1"></a>$$\overline{X}_n\ \xrightarrow{\text{a.s.}}\ \mu \qquad\textrm{when}\ n \to \infty.$$</span>
-<span id="cb6-223"><a href="#cb6-223" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb6-224"><a href="#cb6-224" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-225"><a href="#cb6-225" aria-hidden="true" tabindex="-1"></a>See @thm-slln.</span>
-<span id="cb6-226"><a href="#cb6-226" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-227"><a href="#cb6-227" aria-hidden="true" tabindex="-1"></a><span class="fu">## Code</span></span>
-<span id="cb6-228"><a href="#cb6-228" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-229"><a href="#cb6-229" aria-hidden="true" tabindex="-1"></a>Quarto uses either Jupyter or knitr to render code chunks. This can be triggered in the yaml header, e.g., for Jupyter (should be installed on your computer) use</span>
-<span id="cb6-230"><a href="#cb6-230" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-231"><a href="#cb6-231" aria-hidden="true" tabindex="-1"></a><span class="in">``` yaml</span></span>
-<span id="cb6-232"><a href="#cb6-232" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
-<span id="cb6-233"><a href="#cb6-233" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"My Document"</span></span>
-<span id="cb6-234"><a href="#cb6-234" aria-hidden="true" tabindex="-1"></a>author<span class="at"> </span>"Jane<span class="at"> </span>Doe"</span>
-<span id="cb6-235"><a href="#cb6-235" aria-hidden="true" tabindex="-1"></a><span class="fu">jupyter</span><span class="kw">:</span><span class="at"> python3</span></span>
-<span id="cb6-236"><a href="#cb6-236" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
-<span id="cb6-237"><a href="#cb6-237" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-238"><a href="#cb6-238" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-239"><a href="#cb6-239" aria-hidden="true" tabindex="-1"></a>For knitr (R + knitr must be installed on your computer)</span>
-<span id="cb6-240"><a href="#cb6-240" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-241"><a href="#cb6-241" aria-hidden="true" tabindex="-1"></a><span class="in">``` yaml</span></span>
-<span id="cb6-242"><a href="#cb6-242" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
-<span id="cb6-243"><a href="#cb6-243" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"My Document"</span></span>
-<span id="cb6-244"><a href="#cb6-244" aria-hidden="true" tabindex="-1"></a>author<span class="at"> </span>"Jane<span class="at"> </span>Doe"</span>
+<span id="cb6-201"><a href="#cb6-201" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">LaTeX</span><span class="co">](https://www.latex-project.org/)</span> code is natively supported<span class="ot">[^katex]</span>, which makes it possible to use mathematical formulae:</span>
+<span id="cb6-202"><a href="#cb6-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-203"><a href="#cb6-203" aria-hidden="true" tabindex="-1"></a><span class="ot">[^katex]: </span>We use <span class="co">[</span><span class="ot">katex</span><span class="co">](https://katex.org/)</span> for this purpose.</span>
+<span id="cb6-204"><a href="#cb6-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-205"><a href="#cb6-205" aria-hidden="true" tabindex="-1"></a>will render</span>
+<span id="cb6-206"><a href="#cb6-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-207"><a href="#cb6-207" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-208"><a href="#cb6-208" aria-hidden="true" tabindex="-1"></a>f(x_1, \dots, x_n; \mu, \sigma^2) =</span>
+<span id="cb6-209"><a href="#cb6-209" aria-hidden="true" tabindex="-1"></a>\frac{1}{\sigma \sqrt{2\pi}} \exp{\left(- \frac{1}{2\sigma^2}\sum_{i=1}^n(x_i - \mu)^2\right)}</span>
+<span id="cb6-210"><a href="#cb6-210" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-211"><a href="#cb6-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-212"><a href="#cb6-212" aria-hidden="true" tabindex="-1"></a>It is also posible to cross-reference an equation, see @eq-mylabel:</span>
+<span id="cb6-213"><a href="#cb6-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-214"><a href="#cb6-214" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-215"><a href="#cb6-215" aria-hidden="true" tabindex="-1"></a>\begin{aligned}</span>
+<span id="cb6-216"><a href="#cb6-216" aria-hidden="true" tabindex="-1"></a>D_{x_N} &amp; = \frac12</span>
+<span id="cb6-217"><a href="#cb6-217" aria-hidden="true" tabindex="-1"></a>\left[\begin{array}{cc}</span>
+<span id="cb6-218"><a href="#cb6-218" aria-hidden="true" tabindex="-1"></a>x_L^\top &amp; x_N^\top \end{array}\right] \,</span>
+<span id="cb6-219"><a href="#cb6-219" aria-hidden="true" tabindex="-1"></a>\left<span class="co">[</span><span class="ot">\begin{array}{cc}  L_L &amp; B \\ B^\top &amp; L_N \end{array}\right</span><span class="co">]</span> \,</span>
+<span id="cb6-220"><a href="#cb6-220" aria-hidden="true" tabindex="-1"></a>\left[\begin{array}{c}</span>
+<span id="cb6-221"><a href="#cb6-221" aria-hidden="true" tabindex="-1"></a>x_L <span class="sc">\\</span> x_N \end{array}\right] <span class="sc">\\</span></span>
+<span id="cb6-222"><a href="#cb6-222" aria-hidden="true" tabindex="-1"></a>&amp; = \frac12 (x_L^\top L_L x_L + 2 x_N^\top B^\top x_L + x_N^\top L_N x_N),</span>
+<span id="cb6-223"><a href="#cb6-223" aria-hidden="true" tabindex="-1"></a>\end{aligned}</span>
+<span id="cb6-224"><a href="#cb6-224" aria-hidden="true" tabindex="-1"></a>$$ {#eq-mylabel}</span>
+<span id="cb6-225"><a href="#cb6-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-226"><a href="#cb6-226" aria-hidden="true" tabindex="-1"></a><span class="fu">### Theorems and other amsthem-like environments</span></span>
+<span id="cb6-227"><a href="#cb6-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-228"><a href="#cb6-228" aria-hidden="true" tabindex="-1"></a>Quarto includes a nice support for theorems, with predefined prefix labels for theorems, lemmas, proposition, etc. see <span class="co">[</span><span class="ot">this page</span><span class="co">](https://quarto.org/docs/authoring/cross-references.html#theorems-and-proofs)</span>. Here is a simple example:</span>
+<span id="cb6-229"><a href="#cb6-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-230"><a href="#cb6-230" aria-hidden="true" tabindex="-1"></a>::: {#thm-slln}</span>
+<span id="cb6-231"><a href="#cb6-231" aria-hidden="true" tabindex="-1"></a><span class="fu">## Strong law of large numbers</span></span>
+<span id="cb6-232"><a href="#cb6-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-233"><a href="#cb6-233" aria-hidden="true" tabindex="-1"></a>The sample average converges almost surely to the expected value:</span>
+<span id="cb6-234"><a href="#cb6-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-235"><a href="#cb6-235" aria-hidden="true" tabindex="-1"></a>$$\overline{X}_n\ \xrightarrow{\text{a.s.}}\ \mu \qquad\textrm{when}\ n \to \infty.$$</span>
+<span id="cb6-236"><a href="#cb6-236" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb6-237"><a href="#cb6-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-238"><a href="#cb6-238" aria-hidden="true" tabindex="-1"></a>See @thm-slln.</span>
+<span id="cb6-239"><a href="#cb6-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-240"><a href="#cb6-240" aria-hidden="true" tabindex="-1"></a><span class="fu">## Code</span></span>
+<span id="cb6-241"><a href="#cb6-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-242"><a href="#cb6-242" aria-hidden="true" tabindex="-1"></a>Quarto uses either Jupyter or knitr to render code chunks. This can be triggered in the yaml header, e.g., for Jupyter (should be installed on your computer) use</span>
+<span id="cb6-243"><a href="#cb6-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-244"><a href="#cb6-244" aria-hidden="true" tabindex="-1"></a><span class="in">``` yaml</span></span>
 <span id="cb6-245"><a href="#cb6-245" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
-<span id="cb6-246"><a href="#cb6-246" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-247"><a href="#cb6-247" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-248"><a href="#cb6-248" aria-hidden="true" tabindex="-1"></a>You can use Jupyter for Python code and more. And R + KnitR for if you want to mix R with Python (via the package reticulate @R-reticulate).</span>
-<span id="cb6-249"><a href="#cb6-249" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-250"><a href="#cb6-250" aria-hidden="true" tabindex="-1"></a><span class="fu">### R</span></span>
+<span id="cb6-246"><a href="#cb6-246" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"My Document"</span></span>
+<span id="cb6-247"><a href="#cb6-247" aria-hidden="true" tabindex="-1"></a>author<span class="at"> </span>"Jane<span class="at"> </span>Doe"</span>
+<span id="cb6-248"><a href="#cb6-248" aria-hidden="true" tabindex="-1"></a><span class="fu">jupyter</span><span class="kw">:</span><span class="at"> python3</span></span>
+<span id="cb6-249"><a href="#cb6-249" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb6-250"><a href="#cb6-250" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb6-251"><a href="#cb6-251" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-252"><a href="#cb6-252" aria-hidden="true" tabindex="-1"></a><span class="in">`R`</span> code <span class="co">[</span><span class="ot">@R-base</span><span class="co">]</span> chunks may be embedded as follows:</span>
+<span id="cb6-252"><a href="#cb6-252" aria-hidden="true" tabindex="-1"></a>For knitr (R + knitr must be installed on your computer)</span>
 <span id="cb6-253"><a href="#cb6-253" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-254"><a href="#cb6-254" aria-hidden="true" tabindex="-1"></a><span class="in">```{r r-code, echo=TRUE}</span></span>
-<span id="cb6-255"><a href="#cb6-255" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">10</span>)</span>
-<span id="cb6-256"><a href="#cb6-256" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-257"><a href="#cb6-257" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-258"><a href="#cb6-258" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-259"><a href="#cb6-259" aria-hidden="true" tabindex="-1"></a><span class="fu">### Python</span></span>
+<span id="cb6-254"><a href="#cb6-254" aria-hidden="true" tabindex="-1"></a><span class="in">``` yaml</span></span>
+<span id="cb6-255"><a href="#cb6-255" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb6-256"><a href="#cb6-256" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"My Document"</span></span>
+<span id="cb6-257"><a href="#cb6-257" aria-hidden="true" tabindex="-1"></a>author<span class="at"> </span>"Jane<span class="at"> </span>Doe"</span>
+<span id="cb6-258"><a href="#cb6-258" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb6-259"><a href="#cb6-259" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb6-260"><a href="#cb6-260" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-261"><a href="#cb6-261" aria-hidden="true" tabindex="-1"></a><span class="in">``` yaml</span></span>
-<span id="cb6-262"><a href="#cb6-262" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
-<span id="cb6-263"><a href="#cb6-263" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"My Document"</span></span>
-<span id="cb6-264"><a href="#cb6-264" aria-hidden="true" tabindex="-1"></a>author<span class="at"> </span>"Jane<span class="at"> </span>Doe"</span>
-<span id="cb6-265"><a href="#cb6-265" aria-hidden="true" tabindex="-1"></a><span class="fu">jupyter</span><span class="kw">:</span><span class="at"> python3</span></span>
-<span id="cb6-266"><a href="#cb6-266" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
-<span id="cb6-267"><a href="#cb6-267" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-268"><a href="#cb6-268" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-271"><a href="#cb6-271" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb6-272"><a href="#cb6-272" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb6-273"><a href="#cb6-273" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb6-274"><a href="#cb6-274" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-275"><a href="#cb6-275" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb6-276"><a href="#cb6-276" aria-hidden="true" tabindex="-1"></a>ax.plot(np.arange(<span class="dv">10</span>))</span>
-<span id="cb6-277"><a href="#cb6-277" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-278"><a href="#cb6-278" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-279"><a href="#cb6-279" aria-hidden="true" tabindex="-1"></a><span class="fu">## Figures</span></span>
-<span id="cb6-280"><a href="#cb6-280" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-281"><a href="#cb6-281" aria-hidden="true" tabindex="-1"></a>Plots can be generated as follows:</span>
-<span id="cb6-282"><a href="#cb6-282" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-283"><a href="#cb6-283" aria-hidden="true" tabindex="-1"></a><span class="in">```{r pressure, message = FALSE}</span></span>
-<span id="cb6-284"><a href="#cb6-284" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"ggplot2"</span>)</span>
-<span id="cb6-285"><a href="#cb6-285" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(mpg, <span class="fu">aes</span>(displ, hwy)) <span class="sc">+</span></span>
-<span id="cb6-286"><a href="#cb6-286" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb6-287"><a href="#cb6-287" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>()</span>
-<span id="cb6-288"><a href="#cb6-288" aria-hidden="true" tabindex="-1"></a>p</span>
-<span id="cb6-289"><a href="#cb6-289" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-290"><a href="#cb6-290" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-291"><a href="#cb6-291" aria-hidden="true" tabindex="-1"></a>It is also possible to create figures from static images:</span>
-<span id="cb6-292"><a href="#cb6-292" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-293"><a href="#cb6-293" aria-hidden="true" tabindex="-1"></a>:::{#fig-logo}</span>
-<span id="cb6-294"><a href="#cb6-294" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-295"><a href="#cb6-295" aria-hidden="true" tabindex="-1"></a><span class="al">![](figures/sfds.png)</span></span>
-<span id="cb6-296"><a href="#cb6-296" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-297"><a href="#cb6-297" aria-hidden="true" tabindex="-1"></a>SFdS logo (c.a. 2021)</span>
-<span id="cb6-298"><a href="#cb6-298" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-299"><a href="#cb6-299" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb6-300"><a href="#cb6-300" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-301"><a href="#cb6-301" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-302"><a href="#cb6-302" aria-hidden="true" tabindex="-1"></a><span class="fu">## Tables</span></span>
+<span id="cb6-261"><a href="#cb6-261" aria-hidden="true" tabindex="-1"></a>You can use Jupyter for Python code and more. And R + KnitR for if you want to mix R with Python (via the package reticulate @R-reticulate).</span>
+<span id="cb6-262"><a href="#cb6-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-263"><a href="#cb6-263" aria-hidden="true" tabindex="-1"></a><span class="fu">### R</span></span>
+<span id="cb6-264"><a href="#cb6-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-265"><a href="#cb6-265" aria-hidden="true" tabindex="-1"></a><span class="in">`R`</span> code <span class="co">[</span><span class="ot">@R-base</span><span class="co">]</span> chunks may be embedded as follows:</span>
+<span id="cb6-266"><a href="#cb6-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-267"><a href="#cb6-267" aria-hidden="true" tabindex="-1"></a><span class="in">```{r r-code, echo=TRUE}</span></span>
+<span id="cb6-268"><a href="#cb6-268" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">10</span>)</span>
+<span id="cb6-269"><a href="#cb6-269" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-270"><a href="#cb6-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-271"><a href="#cb6-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-272"><a href="#cb6-272" aria-hidden="true" tabindex="-1"></a><span class="fu">### Python</span></span>
+<span id="cb6-273"><a href="#cb6-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-274"><a href="#cb6-274" aria-hidden="true" tabindex="-1"></a><span class="in">``` yaml</span></span>
+<span id="cb6-275"><a href="#cb6-275" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb6-276"><a href="#cb6-276" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"My Document"</span></span>
+<span id="cb6-277"><a href="#cb6-277" aria-hidden="true" tabindex="-1"></a>author<span class="at"> </span>"Jane<span class="at"> </span>Doe"</span>
+<span id="cb6-278"><a href="#cb6-278" aria-hidden="true" tabindex="-1"></a><span class="fu">jupyter</span><span class="kw">:</span><span class="at"> python3</span></span>
+<span id="cb6-279"><a href="#cb6-279" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb6-280"><a href="#cb6-280" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-281"><a href="#cb6-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-284"><a href="#cb6-284" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb6-285"><a href="#cb6-285" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb6-286"><a href="#cb6-286" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb6-287"><a href="#cb6-287" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-288"><a href="#cb6-288" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb6-289"><a href="#cb6-289" aria-hidden="true" tabindex="-1"></a>ax.plot(np.arange(<span class="dv">10</span>))</span>
+<span id="cb6-290"><a href="#cb6-290" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-291"><a href="#cb6-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-292"><a href="#cb6-292" aria-hidden="true" tabindex="-1"></a><span class="fu">## Figures</span></span>
+<span id="cb6-293"><a href="#cb6-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-294"><a href="#cb6-294" aria-hidden="true" tabindex="-1"></a>Plots can be generated as follows:</span>
+<span id="cb6-295"><a href="#cb6-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-296"><a href="#cb6-296" aria-hidden="true" tabindex="-1"></a><span class="in">```{r pressure, message = FALSE}</span></span>
+<span id="cb6-297"><a href="#cb6-297" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"ggplot2"</span>)</span>
+<span id="cb6-298"><a href="#cb6-298" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(mpg, <span class="fu">aes</span>(displ, hwy)) <span class="sc">+</span></span>
+<span id="cb6-299"><a href="#cb6-299" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb6-300"><a href="#cb6-300" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>()</span>
+<span id="cb6-301"><a href="#cb6-301" aria-hidden="true" tabindex="-1"></a>p</span>
+<span id="cb6-302"><a href="#cb6-302" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb6-303"><a href="#cb6-303" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-304"><a href="#cb6-304" aria-hidden="true" tabindex="-1"></a>Tables (with label: <span class="in">`@tbl-mylabel`</span> renders @tbl-mylabel) can be generated with markdown as follows</span>
+<span id="cb6-304"><a href="#cb6-304" aria-hidden="true" tabindex="-1"></a>It is also possible to create figures from static images:</span>
 <span id="cb6-305"><a href="#cb6-305" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-306"><a href="#cb6-306" aria-hidden="true" tabindex="-1"></a>| Tables   |      Are      |  Cool |</span>
-<span id="cb6-307"><a href="#cb6-307" aria-hidden="true" tabindex="-1"></a>|----------|:-------------:|------:|</span>
-<span id="cb6-308"><a href="#cb6-308" aria-hidden="true" tabindex="-1"></a>| col 1 is |  left-aligned | $1600 |</span>
-<span id="cb6-309"><a href="#cb6-309" aria-hidden="true" tabindex="-1"></a>| col 2 is |    centered   |   $12 |</span>
-<span id="cb6-310"><a href="#cb6-310" aria-hidden="true" tabindex="-1"></a>| col 3 is | right-aligned |    $1 |</span>
-<span id="cb6-311"><a href="#cb6-311" aria-hidden="true" tabindex="-1"></a>: my table caption {#tbl-mylabel}</span>
-<span id="cb6-312"><a href="#cb6-312" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-313"><a href="#cb6-313" aria-hidden="true" tabindex="-1"></a>Table can also be generated by some code, for instance with knitr here:</span>
+<span id="cb6-306"><a href="#cb6-306" aria-hidden="true" tabindex="-1"></a>:::{#fig-logo}</span>
+<span id="cb6-307"><a href="#cb6-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-308"><a href="#cb6-308" aria-hidden="true" tabindex="-1"></a><span class="al">![](figures/sfds.png)</span></span>
+<span id="cb6-309"><a href="#cb6-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-310"><a href="#cb6-310" aria-hidden="true" tabindex="-1"></a>SFdS logo (c.a. 2021)</span>
+<span id="cb6-311"><a href="#cb6-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-312"><a href="#cb6-312" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb6-313"><a href="#cb6-313" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-314"><a href="#cb6-314" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-315"><a href="#cb6-315" aria-hidden="true" tabindex="-1"></a><span class="in">```{r cars}</span></span>
-<span id="cb6-316"><a href="#cb6-316" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">summary</span>(cars), <span class="at">caption =</span> <span class="st">"Table caption."</span>)</span>
-<span id="cb6-317"><a href="#cb6-317" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-315"><a href="#cb6-315" aria-hidden="true" tabindex="-1"></a><span class="fu">## Tables</span></span>
+<span id="cb6-316"><a href="#cb6-316" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-317"><a href="#cb6-317" aria-hidden="true" tabindex="-1"></a>Tables (with label: <span class="in">`@tbl-mylabel`</span> renders @tbl-mylabel) can be generated with markdown as follows</span>
 <span id="cb6-318"><a href="#cb6-318" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-319"><a href="#cb6-319" aria-hidden="true" tabindex="-1"></a><span class="fu">## Handling references {#sec-references}</span></span>
-<span id="cb6-320"><a href="#cb6-320" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-321"><a href="#cb6-321" aria-hidden="true" tabindex="-1"></a><span class="fu">### Bibliographic references</span></span>
-<span id="cb6-322"><a href="#cb6-322" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-323"><a href="#cb6-323" aria-hidden="true" tabindex="-1"></a>References are displayed as footnotes using</span>
-<span id="cb6-324"><a href="#cb6-324" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">BibTeX</span><span class="co">](http://www.bibtex.org/)</span>, e.g. <span class="in">`[@computo]`</span> will be displayed</span>
-<span id="cb6-325"><a href="#cb6-325" aria-hidden="true" tabindex="-1"></a>as <span class="co">[</span><span class="ot">@computo</span><span class="co">]</span>, where <span class="in">`computo`</span> is the bibtex key for this specific</span>
-<span id="cb6-326"><a href="#cb6-326" aria-hidden="true" tabindex="-1"></a>entry. The bibliographic information is automatically retrieved from</span>
-<span id="cb6-327"><a href="#cb6-327" aria-hidden="true" tabindex="-1"></a>the <span class="in">`.bib`</span> file specified in the header of this document (here:</span>
-<span id="cb6-328"><a href="#cb6-328" aria-hidden="true" tabindex="-1"></a><span class="in">`references.bib`</span>).</span>
-<span id="cb6-329"><a href="#cb6-329" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-330"><a href="#cb6-330" aria-hidden="true" tabindex="-1"></a><span class="fu">### Other cross-references</span></span>
+<span id="cb6-319"><a href="#cb6-319" aria-hidden="true" tabindex="-1"></a>| Tables   |      Are      |  Cool |</span>
+<span id="cb6-320"><a href="#cb6-320" aria-hidden="true" tabindex="-1"></a>|----------|:-------------:|------:|</span>
+<span id="cb6-321"><a href="#cb6-321" aria-hidden="true" tabindex="-1"></a>| col 1 is |  left-aligned | $1600 |</span>
+<span id="cb6-322"><a href="#cb6-322" aria-hidden="true" tabindex="-1"></a>| col 2 is |    centered   |   $12 |</span>
+<span id="cb6-323"><a href="#cb6-323" aria-hidden="true" tabindex="-1"></a>| col 3 is | right-aligned |    $1 |</span>
+<span id="cb6-324"><a href="#cb6-324" aria-hidden="true" tabindex="-1"></a>: my table caption {#tbl-mylabel}</span>
+<span id="cb6-325"><a href="#cb6-325" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-326"><a href="#cb6-326" aria-hidden="true" tabindex="-1"></a>Table can also be generated by some code, for instance with knitr here:</span>
+<span id="cb6-327"><a href="#cb6-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-328"><a href="#cb6-328" aria-hidden="true" tabindex="-1"></a><span class="in">```{r cars}</span></span>
+<span id="cb6-329"><a href="#cb6-329" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">summary</span>(cars), <span class="at">caption =</span> <span class="st">"Table caption."</span>)</span>
+<span id="cb6-330"><a href="#cb6-330" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb6-331"><a href="#cb6-331" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-332"><a href="#cb6-332" aria-hidden="true" tabindex="-1"></a>As already (partially) seen, Quarto includes a mecanism similar to the</span>
-<span id="cb6-333"><a href="#cb6-333" aria-hidden="true" tabindex="-1"></a>bibliographic references for sections, equations, theorems, figures,</span>
-<span id="cb6-334"><a href="#cb6-334" aria-hidden="true" tabindex="-1"></a>lists, etc. Have a look at [this</span>
-<span id="cb6-335"><a href="#cb6-335" aria-hidden="true" tabindex="-1"></a>page](https://quarto.org/docs/authoring/cross-references.html).</span>
-<span id="cb6-336"><a href="#cb6-336" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-337"><a href="#cb6-337" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
-<span id="cb6-338"><a href="#cb6-338" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-339"><a href="#cb6-339" aria-hidden="true" tabindex="-1"></a><span class="fu">## For more information</span></span>
-<span id="cb6-340"><a href="#cb6-340" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-341"><a href="#cb6-341" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Check our mock version of the t-SNE paper</span><span class="co">](https://computo.sfds.asso.fr/published-paper-tsne/)</span> for a full and advanced example using the Jupyter kernel.</span>
+<span id="cb6-332"><a href="#cb6-332" aria-hidden="true" tabindex="-1"></a><span class="fu">## Handling references {#sec-references}</span></span>
+<span id="cb6-333"><a href="#cb6-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-334"><a href="#cb6-334" aria-hidden="true" tabindex="-1"></a><span class="fu">### Bibliographic references</span></span>
+<span id="cb6-335"><a href="#cb6-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-336"><a href="#cb6-336" aria-hidden="true" tabindex="-1"></a>References are displayed as footnotes using</span>
+<span id="cb6-337"><a href="#cb6-337" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">BibTeX</span><span class="co">](http://www.bibtex.org/)</span>, e.g. <span class="in">`[@computo]`</span> will be displayed</span>
+<span id="cb6-338"><a href="#cb6-338" aria-hidden="true" tabindex="-1"></a>as <span class="co">[</span><span class="ot">@computo</span><span class="co">]</span>, where <span class="in">`computo`</span> is the bibtex key for this specific</span>
+<span id="cb6-339"><a href="#cb6-339" aria-hidden="true" tabindex="-1"></a>entry. The bibliographic information is automatically retrieved from</span>
+<span id="cb6-340"><a href="#cb6-340" aria-hidden="true" tabindex="-1"></a>the <span class="in">`.bib`</span> file specified in the header of this document (here:</span>
+<span id="cb6-341"><a href="#cb6-341" aria-hidden="true" tabindex="-1"></a><span class="in">`references.bib`</span>).</span>
 <span id="cb6-342"><a href="#cb6-342" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-343"><a href="#cb6-343" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">The template available in the Computo Quarto extension  </span><span class="co">](https://computo.sfds.asso.fr/published-paper-tsne/)</span> uses advanced features and the KnitR kernel (interactive plots and pseudocode). </span>
+<span id="cb6-343"><a href="#cb6-343" aria-hidden="true" tabindex="-1"></a><span class="fu">### Other cross-references</span></span>
 <span id="cb6-344"><a href="#cb6-344" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-345"><a href="#cb6-345" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb6-346"><a href="#cb6-346" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-347"><a href="#cb6-347" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session information {.appendix .unnumbered}</span></span>
-<span id="cb6-348"><a href="#cb6-348" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-349"><a href="#cb6-349" aria-hidden="true" tabindex="-1"></a><span class="in">```{r session-info}</span></span>
-<span id="cb6-350"><a href="#cb6-350" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb6-351"><a href="#cb6-351" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-345"><a href="#cb6-345" aria-hidden="true" tabindex="-1"></a>As already (partially) seen, Quarto includes a mecanism similar to the</span>
+<span id="cb6-346"><a href="#cb6-346" aria-hidden="true" tabindex="-1"></a>bibliographic references for sections, equations, theorems, figures,</span>
+<span id="cb6-347"><a href="#cb6-347" aria-hidden="true" tabindex="-1"></a>lists, etc. Have a look at [this</span>
+<span id="cb6-348"><a href="#cb6-348" aria-hidden="true" tabindex="-1"></a>page](https://quarto.org/docs/authoring/cross-references.html).</span>
+<span id="cb6-349"><a href="#cb6-349" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-350"><a href="#cb6-350" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb6-351"><a href="#cb6-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-352"><a href="#cb6-352" aria-hidden="true" tabindex="-1"></a><span class="fu">## For more information</span></span>
+<span id="cb6-353"><a href="#cb6-353" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-354"><a href="#cb6-354" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Check our mock version of the t-SNE paper</span><span class="co">](https://computo.sfds.asso.fr/published-paper-tsne/)</span> for a full and advanced example using the Jupyter kernel.</span>
+<span id="cb6-355"><a href="#cb6-355" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-356"><a href="#cb6-356" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">The template available in the Computo Quarto extension  </span><span class="co">](https://computo.sfds.asso.fr/published-paper-tsne/)</span> uses advanced features and the KnitR kernel (interactive plots and pseudocode). </span>
+<span id="cb6-357"><a href="#cb6-357" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-358"><a href="#cb6-358" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb6-359"><a href="#cb6-359" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-360"><a href="#cb6-360" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session information {.appendix .unnumbered}</span></span>
+<span id="cb6-361"><a href="#cb6-361" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-362"><a href="#cb6-362" aria-hidden="true" tabindex="-1"></a><span class="in">```{r session-info}</span></span>
+<span id="cb6-363"><a href="#cb6-363" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb6-364"><a href="#cb6-364" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
