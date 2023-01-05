@@ -1,5 +1,5 @@
 ---
-title: "A Bayesian hierarchical model of categorical rating and classification<br/>"
+title: "A Bayesian hierarchical model of categorical data rating and classification<br/>"
 author:
   - name: "Bob Carpenter"
     corresponding: true
@@ -19,7 +19,7 @@ description: |
   to be submitted to the journal *Computo*.
 abstract: >+
   We introduce a Bayesian model of categorical data rating and classification.  Rater effects capture raters' accuracy and bias and item-level effects capture the bias introduced by the items being classified such as difficulty.  We show that item-level effects are crucial for ensuring calibrated predictions.  We use multivariate priors to capture mean task accuracy, bias, and correlation among responses, which allows sharper and better calibrated predictions for new data raters as might be found in an ongoing data rating task with crowdsourcing.  Item-level predictors (aka features) can be used to jointly train a classifier, where no predictors results in a prevalence-only model. We show that training a classifier with a probabilistic data set regularizes estimates and improves the calibration of probabilistic classification.
-keywords: [data coding, Bayesian modeling, multivariate priors, classification, item difficulty]
+keywords: [data rating, Bayesian modeling, multivariate priors, classification, item difficulty]
 citation:
   type: article-journal
   container-title: "Computo"
@@ -54,7 +54,7 @@ Among the contributions of this paper are a new crowdsourcing and classifier tra
 
 # Data format
 
-## Ratings data
+## Rating data
 
 We assume there are $K \in \mathbb{N}$ categories into which items are classified, $I \in \mathbb{N}$ items being rated, and $J \in \mathbb{N}$ raters.  We assume there are $N \in \mathbb{N}$ ratings, with $y_n \in 1{:}K$ being the rating given by rater $jj[n]$ for item $ii[n]$. The result is a long-form table of $N$ rows; the first few rows of an example are shown in @tbl-data-format.\
 
@@ -120,37 +120,50 @@ The item-level effects $\varphi_i \in \mathbb{R}^K$ are assigned multivariate no
 $$
 \varphi_i \sim \textrm{normal}(\mu^\varphi_{zz[i]}, \Sigma^\varphi_{zz[i]}),
 $$
-where $\mu^\varphi_k \in \mathbb{R}^K$ and $\Sigma^{\varphi}_k$ is a positive definite covariance matrix.  
+where $\mu^\varphi_k \in \mathbb{R}^K$ is a location parameter and $\Sigma^{\varphi}_k$ is a positive definite covariance matrix parameteter for $k \in 1{:}K$.
 
 ## Prior for rater-level effects
 
-The rater-level effects $\theta_{j, k} \in \mathbb{R}^K$ also get a prior based on the true category $k$,
+The rater-level effects $\theta_{j, k} \in \mathbb{R}^K$ are assigned to a prior conditioned on the true category $k$,
 $$
 \theta_{j, k}
 \sim \textrm{normal}(\mu^\theta_k, \Sigma^\theta_k),
 $$
-where $\mu^\theta_k \in \mathbb{R}^K$ is the location parameter and $\Sigma^\theta_k$ is a positive definite covariance matrix.
+where $\mu^\theta_k \in \mathbb{R}^K$ is the location parameter and $\Sigma^\theta_k$ is a positive definite covariance matrix for $k \in 1{:}K$.
 
 
-## Hyperpriors
+## Hyperpriors for effect location and covariance
 
-We are now left with location parameters $\mu^\theta_k, \mu^\phi_k$ and covariance matrix parameters $\Sigma^\theta_k, \Sigma^\varphi_k$.  We will give the locations weakly informative priors to determine their scales,
+We have two sequences of location parameters, $\mu^\theta_k$ and $\mu^\phi_k$, for $k \in 1{:}K$.  We assign the components of the location parameters independent and weakly informative priors to determine their scales,
 $$
-\mu^\theta_{k, k'}, \mu^\varphi_{k, k'} \sim \textrm{normal}(0, 3).
+\mu^\theta_{k, k'}, \mu^\varphi_{k, k'} \sim \textrm{normal}(0, 3),
 $$
-The covariance matrices are factored into a scaled correlation matrix, with the scales and correlations given independent half-normal priors,
+for $k, k' \in 1{:}K$.
+
+We also have two sequences of symmetric, positive-definite covariance parameters, $\Sigma^\theta_k$ and $\Sigma^\varphi_k$, for $k \in 1{:}K$. We factor covariance matrices $\Sigma$ into a vector $\sigma$ of scales and correlation matrix $\Omega$ so that
 $$
-\textrm{scale}(\Sigma^\theta_k)_{k'}, \textrm{scale}(\Sigma^\varphi_k)_{k'} \sim \textrm{normal}_+(0, 3),
+\Sigma^\theta_k = \textrm{diag}(\sigma^\theta_k) \cdot \Omega^\theta_k \cdot \textrm{diag}(\sigma^\theta_k)
 $$
-where $\textrm{scale}(\Omega)_k = \sqrt{\Omega_{k, k}}$.  We assign Lewandowski-Kurowicka-Joe (LKJ) priors to the correlation matrix, which concentrate prior mass around the identity,
+and 
+$$
+\Sigma^\varphi_k = \textrm{diag}(\sigma^\varphi_k) \cdot \Omega^\varphi_k \cdot \textrm{diag}(\sigma^\varphi_k),
+$$
+with $\sigma^\theta_k, \sigma^\varphi_k \in \mathbb{R}^K$ and $\Omega^\theta_k, \Omega^\varphi_k$ are correlation matrices (i.e., symmetric positive definite with unit diagonal).  We consider the scales and correlation matrices as parameters and treat the covariance matrices as derived quantities defined as above.  
+
+The components of the scale parameters are assigned weakly informative priors independently by component, taking
+$$
+\sigma^\theta_{k, k'}, \sigma^\varphi_{k, k'} \sim \textrm{normal}_+(0, 3),
+$$
+for $k, k' \in 1{:}K$.  We assign Lewandowski-Kurowicka-Joe (LKJ) priors to the correlation matrix, 
 
 $$
-\textrm{corr}(\Sigma^\theta_k), \textrm{corr}(\Sigma^\varphi_k) \sim \textrm{LKJ}(5),
+\Omega^\theta_k, \Omega^\varphi_k \sim \textrm{LKJ}(5),
 $$
-where $\textrm{corr}(\Omega) = \textrm{diag}^{-1}(\textrm{scale}(\Omega)) \cdot \Omega \cdot \textrm{diag}^{-1}(\textrm{scale}(\Omega))$ is the correlation matrix corresponding to the covariance matrix $\Omega$.
-
-More constructively, we can build up this prior by taking a prior $\sigma \sim \textrm{normal}_+(0, 3)$ on a scale vector and a prior $\Omega \sim \textrm{LKJ}(5)$, and then define $\Sigma = \textrm{diag}(\sigma) \cdot \Omega \cdot \textrm{diag}(\sigma).$
-
+for $k \in 1{:}K$, where the LKJ density is defined for a symmetric positive-definite, unit-diagonal correlation matrix $\Omega$ and shape $\eta > 0$ by
+$$
+\textrm{LKJ}(\Omega \mid \eta) \propto \textrm{det}(\Omega)^{\eta - 1}.
+$$
+For $\eta = 1$, this distribution is uniform over correlation matrices $\Omega$.  For $\eta > 1$, it concentrates mass around the unit correlation matrix. Thus when used as a prior on a correlation matrix parameter, it has the effect of shrinking the correlation estimates (i.e., the off-diagonal elements of an estimated $\Omega$).
 
 
 ## Advice for writting your manuscript
