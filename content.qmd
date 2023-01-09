@@ -178,7 +178,7 @@ where $\Sigma^\theta_k$ is a positive definite covariance matrix for $k \in 1{:}
 
 We have symmetric, positive-definite covariance parameters $\Sigma^\varphi$ and $\Sigma^\theta_k$ for $k \in 1{:}K$. We factor covariance matrices into a vector of scales and a correlation matrix,
 $$
-\Sigma^\varphi = \textrm{diag}(\sigma^\varphi) \cdot \Omega^\varphi \cdot \textrm{diag}(\sigma^\varphi),
+\Sigma^\varphi xtrm{diag}(\sigma^\varphi) \cdot \Omega^\varphi \cdot \textrm{diag}(\sigma^\varphi),
 $$
 for strictly positive $\sigma^\varphi \in \mathbb{R}_+^K$ and a correlation matrix $\Omega^\varphi$ (i.e., a symmetric, positive definite matrix with unit diagonal).  We factor the rater-level covariances by category $k$, taking
 $$
