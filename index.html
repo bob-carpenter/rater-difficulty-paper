@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Bob Carpenter">
-<meta name="dcterms.date" content="2023-01-08">
+<meta name="dcterms.date" content="2023-01-09">
 <meta name="keywords" content="data rating, Bayesian modeling, multivariate priors, classification, item difficulty">
 <meta name="description" content="to be submitted to the journal Computo.">
 
@@ -186,7 +186,7 @@ ISSN 2824-7795</p>
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">January 8, 2023</p>
+        <p class="date">January 9, 2023</p>
       </div>
     </div>
                                     
@@ -230,15 +230,25 @@ ISSN 2824-7795</p>
   <li><a href="#data-generating-process" id="toc-data-generating-process" class="nav-link" data-scroll-target="#data-generating-process"><span class="toc-section-number">3</span>  Data-generating process</a>
   <ul class="collapse">
   <li><a href="#prevalence-and-classification" id="toc-prevalence-and-classification" class="nav-link" data-scroll-target="#prevalence-and-classification"><span class="toc-section-number">3.1</span>  Prevalence and classification</a></li>
-  <li><a href="#rating-and-item-effects" id="toc-rating-and-item-effects" class="nav-link" data-scroll-target="#rating-and-item-effects"><span class="toc-section-number">3.2</span>  Rating and item effects</a></li>
+  <li><a href="#generative-model-for-ratings" id="toc-generative-model-for-ratings" class="nav-link" data-scroll-target="#generative-model-for-ratings"><span class="toc-section-number">3.2</span>  Generative model for ratings</a>
+  <ul class="collapse">
+  <li><a href="#intercept-for-global-bias" id="toc-intercept-for-global-bias" class="nav-link" data-scroll-target="#intercept-for-global-bias"><span class="toc-section-number">3.2.1</span>  Intercept for global bias</a></li>
+  <li><a href="#true-category-effect" id="toc-true-category-effect" class="nav-link" data-scroll-target="#true-category-effect"><span class="toc-section-number">3.2.2</span>  True category effect</a></li>
+  <li><a href="#rater-effects" id="toc-rater-effects" class="nav-link" data-scroll-target="#rater-effects"><span class="toc-section-number">3.2.3</span>  Rater effects</a></li>
+  <li><a href="#item-effects" id="toc-item-effects" class="nav-link" data-scroll-target="#item-effects"><span class="toc-section-number">3.2.4</span>  Item effects</a></li>
+  <li><a href="#sampling-distribution-for-ratings" id="toc-sampling-distribution-for-ratings" class="nav-link" data-scroll-target="#sampling-distribution-for-ratings"><span class="toc-section-number">3.2.5</span>  Sampling distribution for ratings</a></li>
+  </ul></li>
   </ul></li>
   <li><a href="#priors" id="toc-priors" class="nav-link" data-scroll-target="#priors"><span class="toc-section-number">4</span>  Priors</a>
   <ul class="collapse">
-  <li><a href="#prior-for-prevalence" id="toc-prior-for-prevalence" class="nav-link" data-scroll-target="#prior-for-prevalence"><span class="toc-section-number">4.1</span>  Prior for prevalence</a></li>
-  <li><a href="#prior-for-item-level-effects" id="toc-prior-for-item-level-effects" class="nav-link" data-scroll-target="#prior-for-item-level-effects"><span class="toc-section-number">4.2</span>  Prior for item-level effects</a></li>
-  <li><a href="#prior-for-rater-level-effects" id="toc-prior-for-rater-level-effects" class="nav-link" data-scroll-target="#prior-for-rater-level-effects"><span class="toc-section-number">4.3</span>  Prior for rater-level effects</a></li>
-  <li><a href="#hyperpriors-for-effect-location-and-covariance" id="toc-hyperpriors-for-effect-location-and-covariance" class="nav-link" data-scroll-target="#hyperpriors-for-effect-location-and-covariance"><span class="toc-section-number">4.4</span>  Hyperpriors for effect location and covariance</a></li>
-  <li><a href="#advice-for-writting-your-manuscript" id="toc-advice-for-writting-your-manuscript" class="nav-link" data-scroll-target="#advice-for-writting-your-manuscript"><span class="toc-section-number">4.5</span>  Advice for writting your manuscript</a></li>
+  <li><a href="#prior-for-prevalence-regression-coefficients" id="toc-prior-for-prevalence-regression-coefficients" class="nav-link" data-scroll-target="#prior-for-prevalence-regression-coefficients"><span class="toc-section-number">4.1</span>  Prior for prevalence regression coefficients</a></li>
+  <li><a href="#sum-to-zero-constraint-for-unconstrained-simplex-parameters" id="toc-sum-to-zero-constraint-for-unconstrained-simplex-parameters" class="nav-link" data-scroll-target="#sum-to-zero-constraint-for-unconstrained-simplex-parameters"><span class="toc-section-number">4.2</span>  Sum-to-zero constraint for unconstrained simplex parameters</a></li>
+  <li><a href="#prior-for-global-effect" id="toc-prior-for-global-effect" class="nav-link" data-scroll-target="#prior-for-global-effect"><span class="toc-section-number">4.3</span>  Prior for global effect</a></li>
+  <li><a href="#prior-for-category-level-effects" id="toc-prior-for-category-level-effects" class="nav-link" data-scroll-target="#prior-for-category-level-effects"><span class="toc-section-number">4.4</span>  Prior for category-level effects</a></li>
+  <li><a href="#prior-for-item-level-effects" id="toc-prior-for-item-level-effects" class="nav-link" data-scroll-target="#prior-for-item-level-effects"><span class="toc-section-number">4.5</span>  Prior for item-level effects</a></li>
+  <li><a href="#prior-for-rater-level-effects" id="toc-prior-for-rater-level-effects" class="nav-link" data-scroll-target="#prior-for-rater-level-effects"><span class="toc-section-number">4.6</span>  Prior for rater-level effects</a></li>
+  <li><a href="#hyperpriors-for-effect-location-and-covariance" id="toc-hyperpriors-for-effect-location-and-covariance" class="nav-link" data-scroll-target="#hyperpriors-for-effect-location-and-covariance"><span class="toc-section-number">4.7</span>  Hyperpriors for effect location and covariance</a></li>
+  <li><a href="#advice-for-writting-your-manuscript" id="toc-advice-for-writting-your-manuscript" class="nav-link" data-scroll-target="#advice-for-writting-your-manuscript"><span class="toc-section-number">4.8</span>  Advice for writting your manuscript</a></li>
   </ul></li>
   <li><a href="#formatting" id="toc-formatting" class="nav-link" data-scroll-target="#formatting"><span class="toc-section-number">5</span>  Formatting</a>
   <ul class="collapse">
@@ -358,42 +368,79 @@ caption, .table-caption {
 <section id="prevalence-and-classification" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="prevalence-and-classification"><span class="header-section-number">3.1</span> Prevalence and classification</h2>
 <p>We will assume that each item <span class="math inline">i \in 1{:}I</span> has a true category <span class="math inline">z_i \in 1{:}K</span>. The <span class="math inline">z[i]</span> are not observed and may be considered missing data and represented by means of a discrete parameter in the model. We model the category based on item-level predictors using a logistic regression, where we assume <span class="math inline">\beta \in \mathbb{R}^{L \times K}</span> is our matrix of regression coefficients and <span class="math inline">\alpha \in \mathbb{R}^K</span> is an intercept. <span class="math display">
-z_i \sim \textrm{categorical}\!\left(\textrm{softmax}(\alpha + x_i \cdot \beta)\right),
-</span> where <span class="math inline">\textrm{softmax}(u) = \exp(u) / \textrm{sum}(\exp(u)) \in \Delta^{K-1}</span>, with <span class="math inline">\exp()</span> applied elementwise. We will be able to use the fitted model to make predictions for new items not in the training set assuming we have their predictor vectors. That is, the result will be a classifier for new items.</p>
-<p>In the case where we have no item-level predictors so that <span class="math inline">L = 0</span>, our model will reduce to an intercept-only model where <span class="math inline">\textrm{softmax}(\alpha) \in \Delta^{K - 1}</span> represents the simple prevalence of the categorical outcomes.</p>
+z_i \sim \textrm{categorical}\!\left(\textrm{softmax}(\alpha + \beta \cdot x_i^{\top})\right),
+</span> where <span class="math inline">x_i</span> is the <span class="math inline">i</span>-th row of the matrix <span class="math inline">x</span> and <span class="math inline">\textrm{softmax}(u) = \exp(u) / \textrm{sum}(\exp(u)) \in \Delta^{K-1}</span>, with <span class="math inline">\exp()</span> applied elementwise. We will be able to use the fitted model to make predictions for new items not in the training set assuming we have their predictor vectors. That is, the result will be a classifier for new items.</p>
+<p>In the case where we have no item-level predictors (i.e., <span class="math inline">L = 0</span>), our model reduces to an intercept-only model where <span class="math inline">\textrm{softmax}(\alpha) \in \Delta^{K - 1}</span> represents the simple prevalence of the categorical outcomes.</p>
 </section>
-<section id="rating-and-item-effects" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="rating-and-item-effects"><span class="header-section-number">3.2</span> Rating and item effects</h2>
+<section id="generative-model-for-ratings" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="generative-model-for-ratings"><span class="header-section-number">3.2</span> Generative model for ratings</h2>
+<p>We will model the sampling distribution for rating using a logistic regression with effects for the item being rated and the rater performing the rating. This section describes the four types of effects we assume on that rating. All of the effects are vector parameters in <span class="math inline">\mathbb{R}^K</span> (i.e., the size of the number of categories).</p>
+<section id="intercept-for-global-bias" class="level3" data-number="3.2.1">
+<h3 data-number="3.2.1" class="anchored" data-anchor-id="intercept-for-global-bias"><span class="header-section-number">3.2.1</span> Intercept for global bias</h3>
+<p>In order to model potential biases in ratings that are independent of the category of the item being rated, we will assume there is an intercept term in our logistic regression, <span class="math inline">\xi \in \mathbb{R}^K</span>. A high value for <span class="math inline">\xi_k</span> means there is an overall bias toward category <span class="math inline">k</span> whereas a low value represents an overall bias away from category <span class="math inline">k</span>.</p>
+</section>
+<section id="true-category-effect" class="level3" data-number="3.2.2">
+<h3 data-number="3.2.2" class="anchored" data-anchor-id="true-category-effect"><span class="header-section-number">3.2.2</span> True category effect</h3>
+<p>The category assigned to item <span class="math inline">i</span> by a rater is strongly influenced by the true category <span class="math inline">z_i</span> of that item. We thus assume there is an effect <span class="math inline">\psi_k</span> based on the true category <span class="math inline">k</span> of the item being rated. This will contribute a term <span class="math inline">\psi_{z_{ii[n]]}}</span> for the <span class="math inline">n</span>-th rating, which has category <span class="math inline">ii[n]</span> and true category <span class="math inline">z_{ii[n]}</span>. Another way to consider the true category effect is as the prior location for the item effects for an item of category <span class="math inline">k</span> and as a prior location for rater responses to items of true category <span class="math inline">k</span>.</p>
+</section>
+<section id="rater-effects" class="level3" data-number="3.2.3">
+<h3 data-number="3.2.3" class="anchored" data-anchor-id="rater-effects"><span class="header-section-number">3.2.3</span> Rater effects</h3>
 <p>In order to allow raters to vary in their accuracies and biases, we will model each rater to have their own probabilistic response to items of a given true category. Specifically, we assume that each rater <span class="math inline">j \in 1{:}J</span> has a response simplex <span class="math inline">\theta_{j, k} \in \Delta^{K-1}</span> which says how they respond to items of category <span class="math inline">k</span>, all else being equal. A perfect rater has <span class="math inline">\theta_{j, k, k'}</span> equal to 1 if <span class="math inline">k = k'</span> and 0 otherwise. That is, <span class="math inline">\theta_{j, k, k}</span> represents rater <span class="math inline">j</span>’s accuracy on items of category <span class="math inline">k</span> and the off-diagonal elements of <span class="math inline">\theta_j</span> represent the biases.</p>
+</section>
+<section id="item-effects" class="level3" data-number="3.2.4">
+<h3 data-number="3.2.4" class="anchored" data-anchor-id="item-effects"><span class="header-section-number">3.2.4</span> Item effects</h3>
 <p>We will further assume that each item <span class="math inline">i \in 1{:}I</span> has a vector of effects <span class="math inline">\varphi_i \in \mathbb{R}^K</span>. If <span class="math inline">\varphi_i = 0</span>, the item has no effect on ratings and raters will just return results according to <span class="math inline">\theta_{j, k}</span> for items of category <span class="math inline">k</span>. If <span class="math inline">\varphi_{i, z[i]}</span> is high, the item is relatively easy to rate, whereas if it’s low, the item is difficult to rate, with the other terms determining the response bias.</p>
-<p>Given the rating and item-level effects, the generative model for ratings is <span class="math display">
-y_n \sim \mathrm{categorical}\!\left(\textrm{softmax}(\varphi_{z_{ii[n]}} + \theta_{jj[n], \, z_{ii[n]}})\right).
-</span> Breaking this down, item <span class="math inline">ii[n] \in 1{:}I</span> is being given a rating of <span class="math inline">y_n \in 1{:}K</span> by rater <span class="math inline">jj[n] \in 1{:}J</span>. <span class="math inline">z_{ii[n]}</span> is the true category of the item <span class="math inline">ii[n]</span> being rated, so <span class="math inline">\varphi_{z_{ii[n]}} \in \mathbb{R}^K</span> is the vector of effects for that item. The second term <span class="math inline">\theta_{jj[n], z_{ii[n]}} \in \mathbb{R}^K</span> is the response of the rater <span class="math inline">jj[n]</span> to items of true category <span class="math inline">z_{ii[n]}</span>. In other words, the rating is a logistic regression with item-level and rater-level effects that depend on the true category of the item.</p>
+</section>
+<section id="sampling-distribution-for-ratings" class="level3" data-number="3.2.5">
+<h3 data-number="3.2.5" class="anchored" data-anchor-id="sampling-distribution-for-ratings"><span class="header-section-number">3.2.5</span> Sampling distribution for ratings</h3>
+<p>Given the rating and item-level effects, the generative model for ratings is a multi-logit regression, <span class="math display">
+y_n \sim \mathrm{categorical}\!\left(\textrm{softmax}\!\left(\xi + \psi_{z_{ii[n]}} + \varphi_{ii[n]} + \theta_{jj[n], \, z_{ii[n]}}\right)\right).
+</span> Breaking this down, item <span class="math inline">ii[n] \in 1{:}I</span> is being given a rating of <span class="math inline">y_n \in 1{:}K</span> by rater <span class="math inline">jj[n] \in 1{:}J</span>. The true rating for item <span class="math inline">ii[n]</span> is <span class="math inline">z_{ii[n]} \in 1{:}K</span>. The effects being added are vectors in <span class="math inline">\mathbb{R}^K</span>. The <span class="math inline">\textrm{softmax}()</span> function transforms the unconstrained vector to a simplex, which means the vector components are on the log probability scale. The first effect is the intercept <span class="math inline">\xi</span>, which accounts for overall bias in response by the raters. The second term <span class="math inline">\psi_{z_{ii[n]}}</span> is the effect of the true category <span class="math inline">z{ii[n]}</span>. The third term <span class="math inline">\varphi_{ii[n]}</span> is the effect of the item being rated. The final term <span class="math inline">\theta_{jj[n], \, z_{ii[n]}}</span> is the effect of rater <span class="math inline">jj[n]</span> responding to an item whose true category is <span class="math inline">z_{ii[n]}</span>.</p>
+</section>
 </section>
 </section>
 <section id="priors" class="level1" data-number="4">
 <h1 data-number="4"><span class="header-section-number">4</span> Priors</h1>
-<section id="prior-for-prevalence" class="level2" data-number="4.1">
-<h2 data-number="4.1" class="anchored" data-anchor-id="prior-for-prevalence"><span class="header-section-number">4.1</span> Prior for prevalence</h2>
-<p>For the prevalence regression coefficients <span class="math inline">\beta \in \mathbb{R}^L</span>, we will use a weakly informative prior to define the scale of expected answers, <span class="math display">
-\beta_l \sim \textrm{normal}(0, 3).
+<section id="prior-for-prevalence-regression-coefficients" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="prior-for-prevalence-regression-coefficients"><span class="header-section-number">4.1</span> Prior for prevalence regression coefficients</h2>
+<p>For the prevalence regression, we provide weakly informative priors for the components of the intercept <span class="math inline">\alpha \in \mathbb{R}^K</span>, <span class="math display">
+\alpha_k \sim \textrm{normal}(0, 3),
+</span> and the components of the slopes <span class="math inline">\beta \in \mathbb{R}^{L \times K}</span>, <span class="math display">
+\beta_{l, k} \sim \textrm{normal}(0, 3).
 </span></p>
 </section>
-<section id="prior-for-item-level-effects" class="level2" data-number="4.2">
-<h2 data-number="4.2" class="anchored" data-anchor-id="prior-for-item-level-effects"><span class="header-section-number">4.2</span> Prior for item-level effects</h2>
-<p>The item-level effects <span class="math inline">\varphi_i \in \mathbb{R}^K</span> are assigned multivariate normal priors based on their true categories <span class="math inline">z[i] \in 1{:}K</span>, <span class="math display">
-\varphi_i \sim \textrm{normal}(\mu^\varphi_{zz[i]}, \Sigma^\varphi_{zz[i]}),
-</span> where <span class="math inline">\mu^\varphi_k \in \mathbb{R}^K</span> is a location parameter and <span class="math inline">\Sigma^{\varphi}_k</span> is a positive definite covariance matrix parameteter for <span class="math inline">k \in 1{:}K</span>.</p>
+<section id="sum-to-zero-constraint-for-unconstrained-simplex-parameters" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="sum-to-zero-constraint-for-unconstrained-simplex-parameters"><span class="header-section-number">4.2</span> Sum-to-zero constraint for unconstrained simplex parameters</h2>
+<p>The underlying dimensionality of a simplex is one less than the number of categories it ranges over. In order to match our unconstrained parameterization on the log odds scale to the dimensionality of a simplex, we will constrain it to sum to zero. This removes what would otherwise be an additive non-identifiability in the regression that would allow us to add a constant <span class="math inline">c</span> to every dimension any of the effects without changing the sampling distribution.</p>
 </section>
-<section id="prior-for-rater-level-effects" class="level2" data-number="4.3">
-<h2 data-number="4.3" class="anchored" data-anchor-id="prior-for-rater-level-effects"><span class="header-section-number">4.3</span> Prior for rater-level effects</h2>
+<section id="prior-for-global-effect" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="prior-for-global-effect"><span class="header-section-number">4.3</span> Prior for global effect</h2>
+<p>We assign the global intercept a weakly informative prior, <span class="math display">
+\xi \sim \textrm{normal}(0, 3 \cdot \textrm{I}),
+</span></p>
+<p>where <span class="math inline">\textrm{I}</span> is the identity matrix.</p>
+</section>
+<section id="prior-for-category-level-effects" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="prior-for-category-level-effects"><span class="header-section-number">4.4</span> Prior for category-level effects</h2>
+<p>Without any prior knowledge of which categories are likely to be correlated with category <span class="math inline">k</span>, we will assume a weakly inforamtive prior on the category-level effects, <span class="math display">
+\psi_k \sim \textrm{normal}(0, 3 \cdot \textrm{I}),
+</span> for <span class="math inline">k \in 1{:}K</span>.</p>
+</section>
+<section id="prior-for-item-level-effects" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="prior-for-item-level-effects"><span class="header-section-number">4.5</span> Prior for item-level effects</h2>
+<p>The item-level effects <span class="math inline">\varphi_i \in \mathbb{R}^K</span> are assigned multivariate normal priors based on their true categories <span class="math inline">z[i] \in 1{:}K</span>, <span class="math display">
+\varphi_i \sim \textrm{normal}(0, \Sigma^\varphi_{z[i]}),
+</span> for <span class="math inline">i \in 1{:}I</span>, where <span class="math inline">\Sigma^{\varphi}_k</span> is a positive definite covariance matrix parameteter for <span class="math inline">k \in 1{:}K</span>.</p>
+</section>
+<section id="prior-for-rater-level-effects" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="prior-for-rater-level-effects"><span class="header-section-number">4.6</span> Prior for rater-level effects</h2>
 <p>The rater-level effects <span class="math inline">\theta_{j, k} \in \mathbb{R}^K</span> are assigned to a prior conditioned on the true category <span class="math inline">k</span>, <span class="math display">
 \theta_{j, k}
-\sim \textrm{normal}(\mu^\theta_k, \Sigma^\theta_k),
-</span> where <span class="math inline">\mu^\theta_k \in \mathbb{R}^K</span> is the location parameter and <span class="math inline">\Sigma^\theta_k</span> is a positive definite covariance matrix for <span class="math inline">k \in 1{:}K</span>.</p>
+\sim \textrm{normal}(0, \Sigma^\theta_k),
+</span> where <span class="math inline">\Sigma^\theta_k</span> is a positive definite covariance matrix for <span class="math inline">k \in 1{:}K</span>.</p>
 </section>
-<section id="hyperpriors-for-effect-location-and-covariance" class="level2" data-number="4.4">
-<h2 data-number="4.4" class="anchored" data-anchor-id="hyperpriors-for-effect-location-and-covariance"><span class="header-section-number">4.4</span> Hyperpriors for effect location and covariance</h2>
+<section id="hyperpriors-for-effect-location-and-covariance" class="level2" data-number="4.7">
+<h2 data-number="4.7" class="anchored" data-anchor-id="hyperpriors-for-effect-location-and-covariance"><span class="header-section-number">4.7</span> Hyperpriors for effect location and covariance</h2>
 <p>We have two sequences of location parameters, <span class="math inline">\mu^\theta_k</span> and <span class="math inline">\mu^\phi_k</span>, for <span class="math inline">k \in 1{:}K</span>. We assign the components of the location parameters independent and weakly informative priors to determine their scales, <span class="math display">
 \mu^\theta_{k, k'}, \mu^\varphi_{k, k'} \sim \textrm{normal}(0, 3),
 </span> for <span class="math inline">k, k' \in 1{:}K</span>.</p>
@@ -411,8 +458,8 @@ y_n \sim \mathrm{categorical}\!\left(\textrm{softmax}(\varphi_{z_{ii[n]}} + \the
 \textrm{LKJ}(\Omega \mid \eta) \propto \textrm{det}(\Omega)^{\eta - 1}.
 </span> For <span class="math inline">\eta = 1</span>, this distribution is uniform over correlation matrices <span class="math inline">\Omega</span>. For <span class="math inline">\eta &gt; 1</span>, it concentrates mass around the unit correlation matrix. Thus when used as a prior on a correlation matrix parameter, it has the effect of shrinking the correlation estimates (i.e., the off-diagonal elements of an estimated <span class="math inline">\Omega</span>).</p>
 </section>
-<section id="advice-for-writting-your-manuscript" class="level2" data-number="4.5">
-<h2 data-number="4.5" class="anchored" data-anchor-id="advice-for-writting-your-manuscript"><span class="header-section-number">4.5</span> Advice for writting your manuscript</h2>
+<section id="advice-for-writting-your-manuscript" class="level2" data-number="4.8">
+<h2 data-number="4.8" class="anchored" data-anchor-id="advice-for-writting-your-manuscript"><span class="header-section-number">4.8</span> Advice for writting your manuscript</h2>
 <p>First make sure that you are able to build your manuscript as a regular notebook on your system. Then you can start configure the binder environment.</p>
 </section>
 </section>
@@ -615,7 +662,7 @@ Ushey, Kevin, JJ Allaire, and Yuan Tang. 2020. <em>Reticulate: Interface to Pyth
   title = {A {Bayesian} Hierarchical Model of Categorical Data Rating
     and Classification\textless br/\textgreater{}},
   journal = {Computo},
-  date = {2023-01-08},
+  date = {2023-01-09},
   url = {https://computo.sfds.asso.fr/???},
   doi = {xxxx},
   langid = {en},
@@ -924,281 +971,323 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>We will assume that each item $i \in 1{:}I$ has a true category $z_i \in 1{:}K$.  The $z<span class="co">[</span><span class="ot">i</span><span class="co">]</span>$ are not observed and may be considered missing data and represented by means of a discrete parameter in the model.  We model the category based on item-level predictors using a logistic regression, where we assume $\beta \in \mathbb{R}^{L \times K}$ is our matrix of regression coefficients and $\alpha \in \mathbb{R}^K$ is an intercept.</span>
 <span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>z_i \sim \textrm{categorical}<span class="sc">\!</span>\left(\textrm{softmax}(\alpha + x_i \cdot \beta)\right),</span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>z_i \sim \textrm{categorical}<span class="sc">\!</span>\left(\textrm{softmax}(\alpha + \beta \cdot x_i^{\top})\right),</span>
 <span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>where $\textrm{softmax}(u) = \exp(u) / \textrm{sum}(\exp(u)) \in \Delta^{K-1}$, with $\exp()$ applied elementwise.  We will be able to use the fitted model to make predictions for new items not in the training set assuming we have their predictor vectors.  That is, the result will be a classifier for new items.</span>
+<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>where $x_i$ is the $i$-th row of the matrix $x$ and $\textrm{softmax}(u) = \exp(u) / \textrm{sum}(\exp(u)) \in \Delta^{K-1}$, with $\exp()$ applied elementwise.  We will be able to use the fitted model to make predictions for new items not in the training set assuming we have their predictor vectors.  That is, the result will be a classifier for new items.</span>
 <span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>In the case where we have no item-level predictors so that $L = 0$, our model will reduce to an intercept-only model where $\textrm{softmax}(\alpha) \in \Delta^{K - 1}$ represents the simple prevalence of the categorical outcomes.</span>
+<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>In the case where we have no item-level predictors (i.e., $L = 0$), our model reduces to an intercept-only model where $\textrm{softmax}(\alpha) \in \Delta^{K - 1}$ represents the simple prevalence of the categorical outcomes.</span>
 <span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a><span class="fu">## Rating and item effects</span></span>
+<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a><span class="fu">## Generative model for ratings</span></span>
 <span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>In order to allow raters to vary in their accuracies and biases, we will model each rater to have their own probabilistic response to items of a given true category.  Specifically, we assume that each rater $j \in 1{:}J$ has a response simplex $\theta_{j, k} \in \Delta^{K-1}$ which says how they respond to items of category $k$, all else being equal.  A perfect rater has $\theta_{j, k, k'}$ equal to 1 if $k = k'$ and 0 otherwise.  That is, $\theta_{j, k, k}$ represents rater $j$'s accuracy on items of category $k$ and the off-diagonal elements of $\theta_j$ represent the biases. </span>
+<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>We will model the sampling distribution for rating using a logistic regression with effects for the item being rated and the rater performing the rating.  This section describes the four types of effects we assume on that rating.  All of the effects are vector parameters in $\mathbb{R}^K$ (i.e., the size of the number of categories).</span>
 <span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a>We will further assume that each item $i \in 1{:}I$ has a vector of effects $\varphi_i \in \mathbb{R}^K$.  If $\varphi_i = 0$, the item has no effect on ratings and raters will just return results according to $\theta_{j, k}$ for items of category $k$.  If $\varphi_{i, z<span class="co">[</span><span class="ot">i</span><span class="co">]</span>}$ is high, the item is relatively easy to rate, whereas if it's low, the item is difficult to rate, with the other terms determining the response bias.</span>
+<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a><span class="fu">### Intercept for global bias</span></span>
 <span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>Given the rating and item-level effects, the generative model for ratings is</span>
-<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a>y_n \sim \mathrm{categorical}<span class="sc">\!</span>\left(\textrm{softmax}(\varphi_{z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}} + \theta_{jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span>, \, z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}})\right).</span>
-<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a>Breaking this down, item $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span> \in 1{:}I$ is being given a rating of $y_n \in 1{:}K$ by rater $jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span> \in 1{:}J$.  $z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}$ is the true category of the item $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$ being rated, so $\varphi_{z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}} \in \mathbb{R}^K$ is the vector of effects for that item.  The second term $\theta_{jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span>, z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}} \in \mathbb{R}^K$ is the response of the rater $jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$ to items of true category $z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}$.  In other words, the rating is a logistic regression with item-level and rater-level effects that depend on the true category of the item.</span>
+<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>In order to model potential biases in ratings that are independent of the category of the item being rated, we will assume there is an intercept term in our logistic regression, $\xi \in \mathbb{R}^K$.  A high value for $\xi_k$ means there is an overall bias toward category $k$ whereas a low value represents an overall bias away from category $k$.</span>
+<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a><span class="fu">### True category effect</span></span>
+<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a>The category assigned to item $i$ by a rater is strongly influenced by the true category $z_i$ of that item.  We thus assume there is an effect $\psi_k$ based on the true category $k$ of the item being rated.  This will contribute a term $\psi_{z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>]}}$ for the $n$-th rating, which has category $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$ and true category $z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}$.  Another way to consider the true category effect is as the prior location for the item effects for an item of category $k$ and as a prior location for rater responses to items of true category $k$.</span>
 <span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-107"><a href="#cb6-107" aria-hidden="true" tabindex="-1"></a><span class="fu"># Priors</span></span>
-<span id="cb6-108"><a href="#cb6-108" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-109"><a href="#cb6-109" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for prevalence</span></span>
+<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a><span class="fu">### Rater effects</span></span>
+<span id="cb6-107"><a href="#cb6-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-108"><a href="#cb6-108" aria-hidden="true" tabindex="-1"></a>In order to allow raters to vary in their accuracies and biases, we will model each rater to have their own probabilistic response to items of a given true category.  Specifically, we assume that each rater $j \in 1{:}J$ has a response simplex $\theta_{j, k} \in \Delta^{K-1}$ which says how they respond to items of category $k$, all else being equal.  A perfect rater has $\theta_{j, k, k'}$ equal to 1 if $k = k'$ and 0 otherwise.  That is, $\theta_{j, k, k}$ represents rater $j$'s accuracy on items of category $k$ and the off-diagonal elements of $\theta_j$ represent the biases. </span>
+<span id="cb6-109"><a href="#cb6-109" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-110"><a href="#cb6-110" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-111"><a href="#cb6-111" aria-hidden="true" tabindex="-1"></a>For the prevalence regression coefficients $\beta \in \mathbb{R}^L$, we will use a weakly informative prior to define the scale of expected answers,</span>
-<span id="cb6-112"><a href="#cb6-112" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-113"><a href="#cb6-113" aria-hidden="true" tabindex="-1"></a>\beta_l \sim \textrm{normal}(0, 3).</span>
-<span id="cb6-114"><a href="#cb6-114" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-111"><a href="#cb6-111" aria-hidden="true" tabindex="-1"></a><span class="fu">### Item effects</span></span>
+<span id="cb6-112"><a href="#cb6-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-113"><a href="#cb6-113" aria-hidden="true" tabindex="-1"></a>We will further assume that each item $i \in 1{:}I$ has a vector of effects $\varphi_i \in \mathbb{R}^K$.  If $\varphi_i = 0$, the item has no effect on ratings and raters will just return results according to $\theta_{j, k}$ for items of category $k$.  If $\varphi_{i, z<span class="co">[</span><span class="ot">i</span><span class="co">]</span>}$ is high, the item is relatively easy to rate, whereas if it's low, the item is difficult to rate, with the other terms determining the response bias.</span>
+<span id="cb6-114"><a href="#cb6-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a><span class="fu">### Sampling distribution for ratings</span></span>
 <span id="cb6-116"><a href="#cb6-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-117"><a href="#cb6-117" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for item-level effects</span></span>
-<span id="cb6-118"><a href="#cb6-118" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-119"><a href="#cb6-119" aria-hidden="true" tabindex="-1"></a>The item-level effects $\varphi_i \in \mathbb{R}^K$ are assigned multivariate normal priors based on their true categories $z<span class="co">[</span><span class="ot">i</span><span class="co">]</span> \in 1{:}K$,</span>
+<span id="cb6-117"><a href="#cb6-117" aria-hidden="true" tabindex="-1"></a>Given the rating and item-level effects, the generative model for ratings is a multi-logit regression,</span>
+<span id="cb6-118"><a href="#cb6-118" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-119"><a href="#cb6-119" aria-hidden="true" tabindex="-1"></a>y_n \sim \mathrm{categorical}<span class="sc">\!</span>\left(\textrm{softmax}<span class="sc">\!</span>\left(\xi + \psi_{z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}} + \varphi_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>} + \theta_{jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span>, \, z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}}\right)\right).</span>
 <span id="cb6-120"><a href="#cb6-120" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-121"><a href="#cb6-121" aria-hidden="true" tabindex="-1"></a>\varphi_i \sim \textrm{normal}(\mu^\varphi_{zz<span class="co">[</span><span class="ot">i</span><span class="co">]</span>}, \Sigma^\varphi_{zz<span class="co">[</span><span class="ot">i</span><span class="co">]</span>}),</span>
-<span id="cb6-122"><a href="#cb6-122" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-123"><a href="#cb6-123" aria-hidden="true" tabindex="-1"></a>where $\mu^\varphi_k \in \mathbb{R}^K$ is a location parameter and $\Sigma^{\varphi}_k$ is a positive definite covariance matrix parameteter for $k \in 1{:}K$.</span>
-<span id="cb6-124"><a href="#cb6-124" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-125"><a href="#cb6-125" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for rater-level effects</span></span>
-<span id="cb6-126"><a href="#cb6-126" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-127"><a href="#cb6-127" aria-hidden="true" tabindex="-1"></a>The rater-level effects $\theta_{j, k} \in \mathbb{R}^K$ are assigned to a prior conditioned on the true category $k$,</span>
-<span id="cb6-128"><a href="#cb6-128" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-129"><a href="#cb6-129" aria-hidden="true" tabindex="-1"></a>\theta_{j, k}</span>
-<span id="cb6-130"><a href="#cb6-130" aria-hidden="true" tabindex="-1"></a>\sim \textrm{normal}(\mu^\theta_k, \Sigma^\theta_k),</span>
+<span id="cb6-121"><a href="#cb6-121" aria-hidden="true" tabindex="-1"></a>Breaking this down, item $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span> \in 1{:}I$ is being given a rating of $y_n \in 1{:}K$ by rater $jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span> \in 1{:}J$. The true rating for item $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$ is $z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>} \in 1{:}K$.  The effects being added are vectors in $\mathbb{R}^K$.  The $\textrm{softmax}()$ function transforms the unconstrained vector to a simplex, which means the vector components are on the log probability scale.  The first effect is the intercept $\xi$, which accounts for overall bias in response by the raters.  The second term $\psi_{z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}}$ is the effect of the true category $z{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}$.  The third term $\varphi_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}$ is the effect of the item being rated.  The final term $\theta_{jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span>, \, z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}}$ is the effect of rater $jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$ responding to an item whose true category is $z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}$.</span>
+<span id="cb6-122"><a href="#cb6-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-123"><a href="#cb6-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-124"><a href="#cb6-124" aria-hidden="true" tabindex="-1"></a><span class="fu"># Priors</span></span>
+<span id="cb6-125"><a href="#cb6-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-126"><a href="#cb6-126" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for prevalence regression coefficients</span></span>
+<span id="cb6-127"><a href="#cb6-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-128"><a href="#cb6-128" aria-hidden="true" tabindex="-1"></a>For the prevalence regression, we provide weakly informative priors for the components of the intercept $\alpha \in \mathbb{R}^K$,</span>
+<span id="cb6-129"><a href="#cb6-129" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-130"><a href="#cb6-130" aria-hidden="true" tabindex="-1"></a>\alpha_k \sim \textrm{normal}(0, 3),</span>
 <span id="cb6-131"><a href="#cb6-131" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a>where $\mu^\theta_k \in \mathbb{R}^K$ is the location parameter and $\Sigma^\theta_k$ is a positive definite covariance matrix for $k \in 1{:}K$.</span>
-<span id="cb6-133"><a href="#cb6-133" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-134"><a href="#cb6-134" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-135"><a href="#cb6-135" aria-hidden="true" tabindex="-1"></a><span class="fu">## Hyperpriors for effect location and covariance</span></span>
+<span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a>and the components of the slopes $\beta \in \mathbb{R}^{L \times K}$,</span>
+<span id="cb6-133"><a href="#cb6-133" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-134"><a href="#cb6-134" aria-hidden="true" tabindex="-1"></a>\beta_{l, k} \sim \textrm{normal}(0, 3).</span>
+<span id="cb6-135"><a href="#cb6-135" aria-hidden="true" tabindex="-1"></a>$$</span>
 <span id="cb6-136"><a href="#cb6-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-137"><a href="#cb6-137" aria-hidden="true" tabindex="-1"></a>We have two sequences of location parameters, $\mu^\theta_k$ and $\mu^\phi_k$, for $k \in 1{:}K$.  We assign the components of the location parameters independent and weakly informative priors to determine their scales,</span>
-<span id="cb6-138"><a href="#cb6-138" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-139"><a href="#cb6-139" aria-hidden="true" tabindex="-1"></a>\mu^\theta_{k, k'}, \mu^\varphi_{k, k'} \sim \textrm{normal}(0, 3),</span>
-<span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-141"><a href="#cb6-141" aria-hidden="true" tabindex="-1"></a>for $k, k' \in 1{:}K$.</span>
+<span id="cb6-137"><a href="#cb6-137" aria-hidden="true" tabindex="-1"></a><span class="fu">## Sum-to-zero constraint for unconstrained simplex parameters</span></span>
+<span id="cb6-138"><a href="#cb6-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-139"><a href="#cb6-139" aria-hidden="true" tabindex="-1"></a>The underlying dimensionality of a simplex is one less than the number of categories it ranges over.  In order to match our unconstrained parameterization on the log odds scale to the dimensionality of a simplex, we will constrain it to sum to zero.  This removes what would otherwise be an additive non-identifiability in the regression that would allow us to add a constant $c$ to every dimension any of the effects without changing the sampling distribution.</span>
+<span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-141"><a href="#cb6-141" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for global effect</span></span>
 <span id="cb6-142"><a href="#cb6-142" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-143"><a href="#cb6-143" aria-hidden="true" tabindex="-1"></a>We also have two sequences of symmetric, positive-definite covariance parameters, $\Sigma^\theta_k$ and $\Sigma^\varphi_k$, for $k \in 1{:}K$. We factor covariance matrices $\Sigma$ into a vector $\sigma$ of scales and correlation matrix $\Omega$ so that</span>
+<span id="cb6-143"><a href="#cb6-143" aria-hidden="true" tabindex="-1"></a>We assign the global intercept a weakly informative prior,</span>
 <span id="cb6-144"><a href="#cb6-144" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-145"><a href="#cb6-145" aria-hidden="true" tabindex="-1"></a>\Sigma^\theta_k = \textrm{diag}(\sigma^\theta_k) \cdot \Omega^\theta_k \cdot \textrm{diag}(\sigma^\theta_k)</span>
+<span id="cb6-145"><a href="#cb6-145" aria-hidden="true" tabindex="-1"></a>\xi \sim \textrm{normal}(0, 3 \cdot \textrm{I}),</span>
 <span id="cb6-146"><a href="#cb6-146" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-147"><a href="#cb6-147" aria-hidden="true" tabindex="-1"></a>and </span>
-<span id="cb6-148"><a href="#cb6-148" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-149"><a href="#cb6-149" aria-hidden="true" tabindex="-1"></a>\Sigma^\varphi_k = \textrm{diag}(\sigma^\varphi_k) \cdot \Omega^\varphi_k \cdot \textrm{diag}(\sigma^\varphi_k),</span>
-<span id="cb6-150"><a href="#cb6-150" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-151"><a href="#cb6-151" aria-hidden="true" tabindex="-1"></a>with $\sigma^\theta_k, \sigma^\varphi_k \in \mathbb{R}^K$ and $\Omega^\theta_k, \Omega^\varphi_k$ are correlation matrices (i.e., symmetric positive definite with unit diagonal).  We consider the scales and correlation matrices as parameters and treat the covariance matrices as derived quantities defined as above.  </span>
-<span id="cb6-152"><a href="#cb6-152" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-153"><a href="#cb6-153" aria-hidden="true" tabindex="-1"></a>The components of the scale parameters are assigned weakly informative priors independently by component, taking</span>
-<span id="cb6-154"><a href="#cb6-154" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-155"><a href="#cb6-155" aria-hidden="true" tabindex="-1"></a>\sigma^\theta_{k, k'}, \sigma^\varphi_{k, k'} \sim \textrm{normal}_+(0, 3),</span>
-<span id="cb6-156"><a href="#cb6-156" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-157"><a href="#cb6-157" aria-hidden="true" tabindex="-1"></a>for $k, k' \in 1{:}K$.  We assign Lewandowski-Kurowicka-Joe (LKJ) priors to the correlation matrix, </span>
+<span id="cb6-147"><a href="#cb6-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-148"><a href="#cb6-148" aria-hidden="true" tabindex="-1"></a>where $\textrm{I}$ is the identity matrix.</span>
+<span id="cb6-149"><a href="#cb6-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-150"><a href="#cb6-150" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for category-level effects</span></span>
+<span id="cb6-151"><a href="#cb6-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-152"><a href="#cb6-152" aria-hidden="true" tabindex="-1"></a>Without any prior knowledge of which categories are likely to be correlated with category $k$, we will assume a weakly inforamtive prior on the category-level effects,</span>
+<span id="cb6-153"><a href="#cb6-153" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-154"><a href="#cb6-154" aria-hidden="true" tabindex="-1"></a>\psi_k \sim \textrm{normal}(0, 3 \cdot \textrm{I}),</span>
+<span id="cb6-155"><a href="#cb6-155" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-156"><a href="#cb6-156" aria-hidden="true" tabindex="-1"></a>for $k \in 1{:}K$.</span>
+<span id="cb6-157"><a href="#cb6-157" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-158"><a href="#cb6-158" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-159"><a href="#cb6-159" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-160"><a href="#cb6-160" aria-hidden="true" tabindex="-1"></a>\Omega^\theta_k, \Omega^\varphi_k \sim \textrm{LKJ}(5),</span>
-<span id="cb6-161"><a href="#cb6-161" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-162"><a href="#cb6-162" aria-hidden="true" tabindex="-1"></a>for $k \in 1{:}K$, where the LKJ density is defined for a symmetric positive-definite, unit-diagonal correlation matrix $\Omega$ and shape $\eta &gt; 0$ by</span>
-<span id="cb6-163"><a href="#cb6-163" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-164"><a href="#cb6-164" aria-hidden="true" tabindex="-1"></a>\textrm{LKJ}(\Omega \mid \eta) \propto \textrm{det}(\Omega)^{\eta - 1}.</span>
-<span id="cb6-165"><a href="#cb6-165" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-166"><a href="#cb6-166" aria-hidden="true" tabindex="-1"></a>For $\eta = 1$, this distribution is uniform over correlation matrices $\Omega$.  For $\eta &gt; 1$, it concentrates mass around the unit correlation matrix. Thus when used as a prior on a correlation matrix parameter, it has the effect of shrinking the correlation estimates (i.e., the off-diagonal elements of an estimated $\Omega$).</span>
-<span id="cb6-167"><a href="#cb6-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-159"><a href="#cb6-159" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for item-level effects</span></span>
+<span id="cb6-160"><a href="#cb6-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-161"><a href="#cb6-161" aria-hidden="true" tabindex="-1"></a>The item-level effects $\varphi_i \in \mathbb{R}^K$ are assigned multivariate normal priors based on their true categories $z<span class="co">[</span><span class="ot">i</span><span class="co">]</span> \in 1{:}K$,</span>
+<span id="cb6-162"><a href="#cb6-162" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-163"><a href="#cb6-163" aria-hidden="true" tabindex="-1"></a>\varphi_i \sim \textrm{normal}(0, \Sigma^\varphi_{z<span class="co">[</span><span class="ot">i</span><span class="co">]</span>}),</span>
+<span id="cb6-164"><a href="#cb6-164" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-165"><a href="#cb6-165" aria-hidden="true" tabindex="-1"></a>for $i \in 1{:}I$, where $\Sigma^{\varphi}_k$ is a positive definite covariance matrix parameteter for $k \in 1{:}K$.</span>
+<span id="cb6-166"><a href="#cb6-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-167"><a href="#cb6-167" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for rater-level effects</span></span>
 <span id="cb6-168"><a href="#cb6-168" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-169"><a href="#cb6-169" aria-hidden="true" tabindex="-1"></a><span class="fu">## Advice for writting your manuscript</span></span>
-<span id="cb6-170"><a href="#cb6-170" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-171"><a href="#cb6-171" aria-hidden="true" tabindex="-1"></a>First make sure that you are able to build your manuscript as a regular notebook on your system. Then you can start configure the binder environment.</span>
-<span id="cb6-172"><a href="#cb6-172" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-173"><a href="#cb6-173" aria-hidden="true" tabindex="-1"></a><span class="fu"># Formatting</span></span>
-<span id="cb6-174"><a href="#cb6-174" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-175"><a href="#cb6-175" aria-hidden="true" tabindex="-1"></a>This section covers basic formatting guidelines. <span class="co">[</span><span class="ot">Quarto</span><span class="co">](https://quarto.org/)</span> is a versatile  formatting system for authoring HTML based on markdown, integrating LaTeX and various code block interpreted either via Jupyter or Knitr (and thus deal with Python, R and many other langages). It relies on the <span class="co">[</span><span class="ot">Pandoc Markdown</span><span class="co">](https://rmarkdown.rstudio.com/authoring_pandoc_markdown.html)</span> markup language.</span>
+<span id="cb6-169"><a href="#cb6-169" aria-hidden="true" tabindex="-1"></a>The rater-level effects $\theta_{j, k} \in \mathbb{R}^K$ are assigned to a prior conditioned on the true category $k$,</span>
+<span id="cb6-170"><a href="#cb6-170" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-171"><a href="#cb6-171" aria-hidden="true" tabindex="-1"></a>\theta_{j, k}</span>
+<span id="cb6-172"><a href="#cb6-172" aria-hidden="true" tabindex="-1"></a>\sim \textrm{normal}(0, \Sigma^\theta_k),</span>
+<span id="cb6-173"><a href="#cb6-173" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-174"><a href="#cb6-174" aria-hidden="true" tabindex="-1"></a>where $\Sigma^\theta_k$ is a positive definite covariance matrix for $k \in 1{:}K$.</span>
+<span id="cb6-175"><a href="#cb6-175" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-176"><a href="#cb6-176" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-177"><a href="#cb6-177" aria-hidden="true" tabindex="-1"></a>To render/compile a document, run <span class="in">`quarto render`</span>. A document will be generated that includes both content as well as the output of any embedded code chunks within the document:</span>
+<span id="cb6-177"><a href="#cb6-177" aria-hidden="true" tabindex="-1"></a><span class="fu">## Hyperpriors for effect location and covariance</span></span>
 <span id="cb6-178"><a href="#cb6-178" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-179"><a href="#cb6-179" aria-hidden="true" tabindex="-1"></a><span class="in">``` .bash</span></span>
-<span id="cb6-180"><a href="#cb6-180" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> render content.qmd <span class="co"># will render to html</span></span>
-<span id="cb6-181"><a href="#cb6-181" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-182"><a href="#cb6-182" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-183"><a href="#cb6-183" aria-hidden="true" tabindex="-1"></a><span class="fu">## Basic markdown formatting</span></span>
+<span id="cb6-179"><a href="#cb6-179" aria-hidden="true" tabindex="-1"></a>We have two sequences of location parameters, $\mu^\theta_k$ and $\mu^\phi_k$, for $k \in 1{:}K$.  We assign the components of the location parameters independent and weakly informative priors to determine their scales,</span>
+<span id="cb6-180"><a href="#cb6-180" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-181"><a href="#cb6-181" aria-hidden="true" tabindex="-1"></a>\mu^\theta_{k, k'}, \mu^\varphi_{k, k'} \sim \textrm{normal}(0, 3),</span>
+<span id="cb6-182"><a href="#cb6-182" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-183"><a href="#cb6-183" aria-hidden="true" tabindex="-1"></a>for $k, k' \in 1{:}K$.</span>
 <span id="cb6-184"><a href="#cb6-184" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-185"><a href="#cb6-185" aria-hidden="true" tabindex="-1"></a>**Bold text** or _italic_</span>
-<span id="cb6-186"><a href="#cb6-186" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-187"><a href="#cb6-187" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>This is a list</span>
-<span id="cb6-188"><a href="#cb6-188" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>With more elements</span>
-<span id="cb6-189"><a href="#cb6-189" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>It isn't numbered.</span>
-<span id="cb6-190"><a href="#cb6-190" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-191"><a href="#cb6-191" aria-hidden="true" tabindex="-1"></a>But we can also do a numbered list</span>
-<span id="cb6-192"><a href="#cb6-192" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-193"><a href="#cb6-193" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>This is my first item</span>
-<span id="cb6-194"><a href="#cb6-194" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>This is my second item</span>
-<span id="cb6-195"><a href="#cb6-195" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>This is my third item</span>
-<span id="cb6-196"><a href="#cb6-196" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-197"><a href="#cb6-197" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mathematics</span></span>
-<span id="cb6-198"><a href="#cb6-198" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-199"><a href="#cb6-199" aria-hidden="true" tabindex="-1"></a><span class="fu">### Mathematical formulae</span></span>
+<span id="cb6-185"><a href="#cb6-185" aria-hidden="true" tabindex="-1"></a>We also have two sequences of symmetric, positive-definite covariance parameters, $\Sigma^\theta_k$ and $\Sigma^\varphi_k$, for $k \in 1{:}K$. We factor covariance matrices $\Sigma$ into a vector $\sigma$ of scales and correlation matrix $\Omega$ so that</span>
+<span id="cb6-186"><a href="#cb6-186" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-187"><a href="#cb6-187" aria-hidden="true" tabindex="-1"></a>\Sigma^\theta_k = \textrm{diag}(\sigma^\theta_k) \cdot \Omega^\theta_k \cdot \textrm{diag}(\sigma^\theta_k)</span>
+<span id="cb6-188"><a href="#cb6-188" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-189"><a href="#cb6-189" aria-hidden="true" tabindex="-1"></a>and </span>
+<span id="cb6-190"><a href="#cb6-190" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-191"><a href="#cb6-191" aria-hidden="true" tabindex="-1"></a>\Sigma^\varphi_k = \textrm{diag}(\sigma^\varphi_k) \cdot \Omega^\varphi_k \cdot \textrm{diag}(\sigma^\varphi_k),</span>
+<span id="cb6-192"><a href="#cb6-192" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-193"><a href="#cb6-193" aria-hidden="true" tabindex="-1"></a>with $\sigma^\theta_k, \sigma^\varphi_k \in \mathbb{R}^K$ and $\Omega^\theta_k, \Omega^\varphi_k$ are correlation matrices (i.e., symmetric positive definite with unit diagonal).  We consider the scales and correlation matrices as parameters and treat the covariance matrices as derived quantities defined as above.  </span>
+<span id="cb6-194"><a href="#cb6-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-195"><a href="#cb6-195" aria-hidden="true" tabindex="-1"></a>The components of the scale parameters are assigned weakly informative priors independently by component, taking</span>
+<span id="cb6-196"><a href="#cb6-196" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-197"><a href="#cb6-197" aria-hidden="true" tabindex="-1"></a>\sigma^\theta_{k, k'}, \sigma^\varphi_{k, k'} \sim \textrm{normal}_+(0, 3),</span>
+<span id="cb6-198"><a href="#cb6-198" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-199"><a href="#cb6-199" aria-hidden="true" tabindex="-1"></a>for $k, k' \in 1{:}K$.  We assign Lewandowski-Kurowicka-Joe (LKJ) priors to the correlation matrix, </span>
 <span id="cb6-200"><a href="#cb6-200" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-201"><a href="#cb6-201" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">LaTeX</span><span class="co">](https://www.latex-project.org/)</span> code is natively supported<span class="ot">[^katex]</span>, which makes it possible to use mathematical formulae:</span>
-<span id="cb6-202"><a href="#cb6-202" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-203"><a href="#cb6-203" aria-hidden="true" tabindex="-1"></a><span class="ot">[^katex]: </span>We use <span class="co">[</span><span class="ot">katex</span><span class="co">](https://katex.org/)</span> for this purpose.</span>
-<span id="cb6-204"><a href="#cb6-204" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-205"><a href="#cb6-205" aria-hidden="true" tabindex="-1"></a>will render</span>
-<span id="cb6-206"><a href="#cb6-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-201"><a href="#cb6-201" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-202"><a href="#cb6-202" aria-hidden="true" tabindex="-1"></a>\Omega^\theta_k, \Omega^\varphi_k \sim \textrm{LKJ}(5),</span>
+<span id="cb6-203"><a href="#cb6-203" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-204"><a href="#cb6-204" aria-hidden="true" tabindex="-1"></a>for $k \in 1{:}K$, where the LKJ density is defined for a symmetric positive-definite, unit-diagonal correlation matrix $\Omega$ and shape $\eta &gt; 0$ by</span>
+<span id="cb6-205"><a href="#cb6-205" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-206"><a href="#cb6-206" aria-hidden="true" tabindex="-1"></a>\textrm{LKJ}(\Omega \mid \eta) \propto \textrm{det}(\Omega)^{\eta - 1}.</span>
 <span id="cb6-207"><a href="#cb6-207" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-208"><a href="#cb6-208" aria-hidden="true" tabindex="-1"></a>f(x_1, \dots, x_n; \mu, \sigma^2) =</span>
-<span id="cb6-209"><a href="#cb6-209" aria-hidden="true" tabindex="-1"></a>\frac{1}{\sigma \sqrt{2\pi}} \exp{\left(- \frac{1}{2\sigma^2}\sum_{i=1}^n(x_i - \mu)^2\right)}</span>
-<span id="cb6-210"><a href="#cb6-210" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-211"><a href="#cb6-211" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-212"><a href="#cb6-212" aria-hidden="true" tabindex="-1"></a>It is also posible to cross-reference an equation, see @eq-mylabel:</span>
-<span id="cb6-213"><a href="#cb6-213" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-214"><a href="#cb6-214" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb6-215"><a href="#cb6-215" aria-hidden="true" tabindex="-1"></a>\begin{aligned}</span>
-<span id="cb6-216"><a href="#cb6-216" aria-hidden="true" tabindex="-1"></a>D_{x_N} &amp; = \frac12</span>
-<span id="cb6-217"><a href="#cb6-217" aria-hidden="true" tabindex="-1"></a>\left[\begin{array}{cc}</span>
-<span id="cb6-218"><a href="#cb6-218" aria-hidden="true" tabindex="-1"></a>x_L^\top &amp; x_N^\top \end{array}\right] \,</span>
-<span id="cb6-219"><a href="#cb6-219" aria-hidden="true" tabindex="-1"></a>\left<span class="co">[</span><span class="ot">\begin{array}{cc}  L_L &amp; B \\ B^\top &amp; L_N \end{array}\right</span><span class="co">]</span> \,</span>
-<span id="cb6-220"><a href="#cb6-220" aria-hidden="true" tabindex="-1"></a>\left[\begin{array}{c}</span>
-<span id="cb6-221"><a href="#cb6-221" aria-hidden="true" tabindex="-1"></a>x_L <span class="sc">\\</span> x_N \end{array}\right] <span class="sc">\\</span></span>
-<span id="cb6-222"><a href="#cb6-222" aria-hidden="true" tabindex="-1"></a>&amp; = \frac12 (x_L^\top L_L x_L + 2 x_N^\top B^\top x_L + x_N^\top L_N x_N),</span>
-<span id="cb6-223"><a href="#cb6-223" aria-hidden="true" tabindex="-1"></a>\end{aligned}</span>
-<span id="cb6-224"><a href="#cb6-224" aria-hidden="true" tabindex="-1"></a>$$ {#eq-mylabel}</span>
-<span id="cb6-225"><a href="#cb6-225" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-226"><a href="#cb6-226" aria-hidden="true" tabindex="-1"></a><span class="fu">### Theorems and other amsthem-like environments</span></span>
-<span id="cb6-227"><a href="#cb6-227" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-228"><a href="#cb6-228" aria-hidden="true" tabindex="-1"></a>Quarto includes a nice support for theorems, with predefined prefix labels for theorems, lemmas, proposition, etc. see <span class="co">[</span><span class="ot">this page</span><span class="co">](https://quarto.org/docs/authoring/cross-references.html#theorems-and-proofs)</span>. Here is a simple example:</span>
-<span id="cb6-229"><a href="#cb6-229" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-230"><a href="#cb6-230" aria-hidden="true" tabindex="-1"></a>::: {#thm-slln}</span>
-<span id="cb6-231"><a href="#cb6-231" aria-hidden="true" tabindex="-1"></a><span class="fu">## Strong law of large numbers</span></span>
+<span id="cb6-208"><a href="#cb6-208" aria-hidden="true" tabindex="-1"></a>For $\eta = 1$, this distribution is uniform over correlation matrices $\Omega$.  For $\eta &gt; 1$, it concentrates mass around the unit correlation matrix. Thus when used as a prior on a correlation matrix parameter, it has the effect of shrinking the correlation estimates (i.e., the off-diagonal elements of an estimated $\Omega$).</span>
+<span id="cb6-209"><a href="#cb6-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-210"><a href="#cb6-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-211"><a href="#cb6-211" aria-hidden="true" tabindex="-1"></a><span class="fu">## Advice for writting your manuscript</span></span>
+<span id="cb6-212"><a href="#cb6-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-213"><a href="#cb6-213" aria-hidden="true" tabindex="-1"></a>First make sure that you are able to build your manuscript as a regular notebook on your system. Then you can start configure the binder environment.</span>
+<span id="cb6-214"><a href="#cb6-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-215"><a href="#cb6-215" aria-hidden="true" tabindex="-1"></a><span class="fu"># Formatting</span></span>
+<span id="cb6-216"><a href="#cb6-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-217"><a href="#cb6-217" aria-hidden="true" tabindex="-1"></a>This section covers basic formatting guidelines. <span class="co">[</span><span class="ot">Quarto</span><span class="co">](https://quarto.org/)</span> is a versatile  formatting system for authoring HTML based on markdown, integrating LaTeX and various code block interpreted either via Jupyter or Knitr (and thus deal with Python, R and many other langages). It relies on the <span class="co">[</span><span class="ot">Pandoc Markdown</span><span class="co">](https://rmarkdown.rstudio.com/authoring_pandoc_markdown.html)</span> markup language.</span>
+<span id="cb6-218"><a href="#cb6-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-219"><a href="#cb6-219" aria-hidden="true" tabindex="-1"></a>To render/compile a document, run <span class="in">`quarto render`</span>. A document will be generated that includes both content as well as the output of any embedded code chunks within the document:</span>
+<span id="cb6-220"><a href="#cb6-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-221"><a href="#cb6-221" aria-hidden="true" tabindex="-1"></a><span class="in">``` .bash</span></span>
+<span id="cb6-222"><a href="#cb6-222" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> render content.qmd <span class="co"># will render to html</span></span>
+<span id="cb6-223"><a href="#cb6-223" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-224"><a href="#cb6-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-225"><a href="#cb6-225" aria-hidden="true" tabindex="-1"></a><span class="fu">## Basic markdown formatting</span></span>
+<span id="cb6-226"><a href="#cb6-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-227"><a href="#cb6-227" aria-hidden="true" tabindex="-1"></a>**Bold text** or _italic_</span>
+<span id="cb6-228"><a href="#cb6-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-229"><a href="#cb6-229" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>This is a list</span>
+<span id="cb6-230"><a href="#cb6-230" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>With more elements</span>
+<span id="cb6-231"><a href="#cb6-231" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>It isn't numbered.</span>
 <span id="cb6-232"><a href="#cb6-232" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-233"><a href="#cb6-233" aria-hidden="true" tabindex="-1"></a>The sample average converges almost surely to the expected value:</span>
+<span id="cb6-233"><a href="#cb6-233" aria-hidden="true" tabindex="-1"></a>But we can also do a numbered list</span>
 <span id="cb6-234"><a href="#cb6-234" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-235"><a href="#cb6-235" aria-hidden="true" tabindex="-1"></a>$$\overline{X}_n\ \xrightarrow{\text{a.s.}}\ \mu \qquad\textrm{when}\ n \to \infty.$$</span>
-<span id="cb6-236"><a href="#cb6-236" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb6-237"><a href="#cb6-237" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-238"><a href="#cb6-238" aria-hidden="true" tabindex="-1"></a>See @thm-slln.</span>
-<span id="cb6-239"><a href="#cb6-239" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-240"><a href="#cb6-240" aria-hidden="true" tabindex="-1"></a><span class="fu">## Code</span></span>
-<span id="cb6-241"><a href="#cb6-241" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-242"><a href="#cb6-242" aria-hidden="true" tabindex="-1"></a>Quarto uses either Jupyter or knitr to render code chunks. This can be triggered in the yaml header, e.g., for Jupyter (should be installed on your computer) use</span>
-<span id="cb6-243"><a href="#cb6-243" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-244"><a href="#cb6-244" aria-hidden="true" tabindex="-1"></a><span class="in">``` yaml</span></span>
-<span id="cb6-245"><a href="#cb6-245" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
-<span id="cb6-246"><a href="#cb6-246" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"My Document"</span></span>
-<span id="cb6-247"><a href="#cb6-247" aria-hidden="true" tabindex="-1"></a>author<span class="at"> </span>"Jane<span class="at"> </span>Doe"</span>
-<span id="cb6-248"><a href="#cb6-248" aria-hidden="true" tabindex="-1"></a><span class="fu">jupyter</span><span class="kw">:</span><span class="at"> python3</span></span>
-<span id="cb6-249"><a href="#cb6-249" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
-<span id="cb6-250"><a href="#cb6-250" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-251"><a href="#cb6-251" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-252"><a href="#cb6-252" aria-hidden="true" tabindex="-1"></a>For knitr (R + knitr must be installed on your computer)</span>
+<span id="cb6-235"><a href="#cb6-235" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>This is my first item</span>
+<span id="cb6-236"><a href="#cb6-236" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>This is my second item</span>
+<span id="cb6-237"><a href="#cb6-237" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>This is my third item</span>
+<span id="cb6-238"><a href="#cb6-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-239"><a href="#cb6-239" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mathematics</span></span>
+<span id="cb6-240"><a href="#cb6-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-241"><a href="#cb6-241" aria-hidden="true" tabindex="-1"></a><span class="fu">### Mathematical formulae</span></span>
+<span id="cb6-242"><a href="#cb6-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-243"><a href="#cb6-243" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">LaTeX</span><span class="co">](https://www.latex-project.org/)</span> code is natively supported<span class="ot">[^katex]</span>, which makes it possible to use mathematical formulae:</span>
+<span id="cb6-244"><a href="#cb6-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-245"><a href="#cb6-245" aria-hidden="true" tabindex="-1"></a><span class="ot">[^katex]: </span>We use <span class="co">[</span><span class="ot">katex</span><span class="co">](https://katex.org/)</span> for this purpose.</span>
+<span id="cb6-246"><a href="#cb6-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-247"><a href="#cb6-247" aria-hidden="true" tabindex="-1"></a>will render</span>
+<span id="cb6-248"><a href="#cb6-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-249"><a href="#cb6-249" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-250"><a href="#cb6-250" aria-hidden="true" tabindex="-1"></a>f(x_1, \dots, x_n; \mu, \sigma^2) =</span>
+<span id="cb6-251"><a href="#cb6-251" aria-hidden="true" tabindex="-1"></a>\frac{1}{\sigma \sqrt{2\pi}} \exp{\left(- \frac{1}{2\sigma^2}\sum_{i=1}^n(x_i - \mu)^2\right)}</span>
+<span id="cb6-252"><a href="#cb6-252" aria-hidden="true" tabindex="-1"></a>$$</span>
 <span id="cb6-253"><a href="#cb6-253" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-254"><a href="#cb6-254" aria-hidden="true" tabindex="-1"></a><span class="in">``` yaml</span></span>
-<span id="cb6-255"><a href="#cb6-255" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
-<span id="cb6-256"><a href="#cb6-256" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"My Document"</span></span>
-<span id="cb6-257"><a href="#cb6-257" aria-hidden="true" tabindex="-1"></a>author<span class="at"> </span>"Jane<span class="at"> </span>Doe"</span>
-<span id="cb6-258"><a href="#cb6-258" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
-<span id="cb6-259"><a href="#cb6-259" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-260"><a href="#cb6-260" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-261"><a href="#cb6-261" aria-hidden="true" tabindex="-1"></a>You can use Jupyter for Python code and more. And R + KnitR for if you want to mix R with Python (via the package reticulate @R-reticulate).</span>
-<span id="cb6-262"><a href="#cb6-262" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-263"><a href="#cb6-263" aria-hidden="true" tabindex="-1"></a><span class="fu">### R</span></span>
-<span id="cb6-264"><a href="#cb6-264" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-265"><a href="#cb6-265" aria-hidden="true" tabindex="-1"></a><span class="in">`R`</span> code <span class="co">[</span><span class="ot">@R-base</span><span class="co">]</span> chunks may be embedded as follows:</span>
-<span id="cb6-266"><a href="#cb6-266" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-267"><a href="#cb6-267" aria-hidden="true" tabindex="-1"></a><span class="in">```{r r-code, echo=TRUE}</span></span>
-<span id="cb6-268"><a href="#cb6-268" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">10</span>)</span>
-<span id="cb6-269"><a href="#cb6-269" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-270"><a href="#cb6-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-254"><a href="#cb6-254" aria-hidden="true" tabindex="-1"></a>It is also posible to cross-reference an equation, see @eq-mylabel:</span>
+<span id="cb6-255"><a href="#cb6-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-256"><a href="#cb6-256" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb6-257"><a href="#cb6-257" aria-hidden="true" tabindex="-1"></a>\begin{aligned}</span>
+<span id="cb6-258"><a href="#cb6-258" aria-hidden="true" tabindex="-1"></a>D_{x_N} &amp; = \frac12</span>
+<span id="cb6-259"><a href="#cb6-259" aria-hidden="true" tabindex="-1"></a>\left[\begin{array}{cc}</span>
+<span id="cb6-260"><a href="#cb6-260" aria-hidden="true" tabindex="-1"></a>x_L^\top &amp; x_N^\top \end{array}\right] \,</span>
+<span id="cb6-261"><a href="#cb6-261" aria-hidden="true" tabindex="-1"></a>\left<span class="co">[</span><span class="ot">\begin{array}{cc}  L_L &amp; B \\ B^\top &amp; L_N \end{array}\right</span><span class="co">]</span> \,</span>
+<span id="cb6-262"><a href="#cb6-262" aria-hidden="true" tabindex="-1"></a>\left[\begin{array}{c}</span>
+<span id="cb6-263"><a href="#cb6-263" aria-hidden="true" tabindex="-1"></a>x_L <span class="sc">\\</span> x_N \end{array}\right] <span class="sc">\\</span></span>
+<span id="cb6-264"><a href="#cb6-264" aria-hidden="true" tabindex="-1"></a>&amp; = \frac12 (x_L^\top L_L x_L + 2 x_N^\top B^\top x_L + x_N^\top L_N x_N),</span>
+<span id="cb6-265"><a href="#cb6-265" aria-hidden="true" tabindex="-1"></a>\end{aligned}</span>
+<span id="cb6-266"><a href="#cb6-266" aria-hidden="true" tabindex="-1"></a>$$ {#eq-mylabel}</span>
+<span id="cb6-267"><a href="#cb6-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-268"><a href="#cb6-268" aria-hidden="true" tabindex="-1"></a><span class="fu">### Theorems and other amsthem-like environments</span></span>
+<span id="cb6-269"><a href="#cb6-269" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-270"><a href="#cb6-270" aria-hidden="true" tabindex="-1"></a>Quarto includes a nice support for theorems, with predefined prefix labels for theorems, lemmas, proposition, etc. see <span class="co">[</span><span class="ot">this page</span><span class="co">](https://quarto.org/docs/authoring/cross-references.html#theorems-and-proofs)</span>. Here is a simple example:</span>
 <span id="cb6-271"><a href="#cb6-271" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-272"><a href="#cb6-272" aria-hidden="true" tabindex="-1"></a><span class="fu">### Python</span></span>
-<span id="cb6-273"><a href="#cb6-273" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-274"><a href="#cb6-274" aria-hidden="true" tabindex="-1"></a><span class="in">``` yaml</span></span>
-<span id="cb6-275"><a href="#cb6-275" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
-<span id="cb6-276"><a href="#cb6-276" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"My Document"</span></span>
-<span id="cb6-277"><a href="#cb6-277" aria-hidden="true" tabindex="-1"></a>author<span class="at"> </span>"Jane<span class="at"> </span>Doe"</span>
-<span id="cb6-278"><a href="#cb6-278" aria-hidden="true" tabindex="-1"></a><span class="fu">jupyter</span><span class="kw">:</span><span class="at"> python3</span></span>
-<span id="cb6-279"><a href="#cb6-279" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
-<span id="cb6-280"><a href="#cb6-280" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-272"><a href="#cb6-272" aria-hidden="true" tabindex="-1"></a>::: {#thm-slln}</span>
+<span id="cb6-273"><a href="#cb6-273" aria-hidden="true" tabindex="-1"></a><span class="fu">## Strong law of large numbers</span></span>
+<span id="cb6-274"><a href="#cb6-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-275"><a href="#cb6-275" aria-hidden="true" tabindex="-1"></a>The sample average converges almost surely to the expected value:</span>
+<span id="cb6-276"><a href="#cb6-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-277"><a href="#cb6-277" aria-hidden="true" tabindex="-1"></a>$$\overline{X}_n\ \xrightarrow{\text{a.s.}}\ \mu \qquad\textrm{when}\ n \to \infty.$$</span>
+<span id="cb6-278"><a href="#cb6-278" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb6-279"><a href="#cb6-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-280"><a href="#cb6-280" aria-hidden="true" tabindex="-1"></a>See @thm-slln.</span>
 <span id="cb6-281"><a href="#cb6-281" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-284"><a href="#cb6-284" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb6-285"><a href="#cb6-285" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb6-286"><a href="#cb6-286" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb6-287"><a href="#cb6-287" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-288"><a href="#cb6-288" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb6-289"><a href="#cb6-289" aria-hidden="true" tabindex="-1"></a>ax.plot(np.arange(<span class="dv">10</span>))</span>
-<span id="cb6-290"><a href="#cb6-290" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-291"><a href="#cb6-291" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-292"><a href="#cb6-292" aria-hidden="true" tabindex="-1"></a><span class="fu">## Figures</span></span>
+<span id="cb6-282"><a href="#cb6-282" aria-hidden="true" tabindex="-1"></a><span class="fu">## Code</span></span>
+<span id="cb6-283"><a href="#cb6-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-284"><a href="#cb6-284" aria-hidden="true" tabindex="-1"></a>Quarto uses either Jupyter or knitr to render code chunks. This can be triggered in the yaml header, e.g., for Jupyter (should be installed on your computer) use</span>
+<span id="cb6-285"><a href="#cb6-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-286"><a href="#cb6-286" aria-hidden="true" tabindex="-1"></a><span class="in">``` yaml</span></span>
+<span id="cb6-287"><a href="#cb6-287" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb6-288"><a href="#cb6-288" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"My Document"</span></span>
+<span id="cb6-289"><a href="#cb6-289" aria-hidden="true" tabindex="-1"></a>author<span class="at"> </span>"Jane<span class="at"> </span>Doe"</span>
+<span id="cb6-290"><a href="#cb6-290" aria-hidden="true" tabindex="-1"></a><span class="fu">jupyter</span><span class="kw">:</span><span class="at"> python3</span></span>
+<span id="cb6-291"><a href="#cb6-291" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb6-292"><a href="#cb6-292" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb6-293"><a href="#cb6-293" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-294"><a href="#cb6-294" aria-hidden="true" tabindex="-1"></a>Plots can be generated as follows:</span>
+<span id="cb6-294"><a href="#cb6-294" aria-hidden="true" tabindex="-1"></a>For knitr (R + knitr must be installed on your computer)</span>
 <span id="cb6-295"><a href="#cb6-295" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-296"><a href="#cb6-296" aria-hidden="true" tabindex="-1"></a><span class="in">```{r pressure, message = FALSE}</span></span>
-<span id="cb6-297"><a href="#cb6-297" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"ggplot2"</span>)</span>
-<span id="cb6-298"><a href="#cb6-298" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(mpg, <span class="fu">aes</span>(displ, hwy)) <span class="sc">+</span></span>
-<span id="cb6-299"><a href="#cb6-299" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb6-300"><a href="#cb6-300" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>()</span>
-<span id="cb6-301"><a href="#cb6-301" aria-hidden="true" tabindex="-1"></a>p</span>
-<span id="cb6-302"><a href="#cb6-302" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-303"><a href="#cb6-303" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-304"><a href="#cb6-304" aria-hidden="true" tabindex="-1"></a>It is also possible to create figures from static images:</span>
-<span id="cb6-305"><a href="#cb6-305" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-306"><a href="#cb6-306" aria-hidden="true" tabindex="-1"></a>:::{#fig-logo}</span>
-<span id="cb6-307"><a href="#cb6-307" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-308"><a href="#cb6-308" aria-hidden="true" tabindex="-1"></a><span class="al">![](figures/sfds.png)</span></span>
-<span id="cb6-309"><a href="#cb6-309" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-310"><a href="#cb6-310" aria-hidden="true" tabindex="-1"></a>SFdS logo (c.a. 2021)</span>
-<span id="cb6-311"><a href="#cb6-311" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-312"><a href="#cb6-312" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb6-296"><a href="#cb6-296" aria-hidden="true" tabindex="-1"></a><span class="in">``` yaml</span></span>
+<span id="cb6-297"><a href="#cb6-297" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb6-298"><a href="#cb6-298" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"My Document"</span></span>
+<span id="cb6-299"><a href="#cb6-299" aria-hidden="true" tabindex="-1"></a>author<span class="at"> </span>"Jane<span class="at"> </span>Doe"</span>
+<span id="cb6-300"><a href="#cb6-300" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb6-301"><a href="#cb6-301" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-302"><a href="#cb6-302" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-303"><a href="#cb6-303" aria-hidden="true" tabindex="-1"></a>You can use Jupyter for Python code and more. And R + KnitR for if you want to mix R with Python (via the package reticulate @R-reticulate).</span>
+<span id="cb6-304"><a href="#cb6-304" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-305"><a href="#cb6-305" aria-hidden="true" tabindex="-1"></a><span class="fu">### R</span></span>
+<span id="cb6-306"><a href="#cb6-306" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-307"><a href="#cb6-307" aria-hidden="true" tabindex="-1"></a><span class="in">`R`</span> code <span class="co">[</span><span class="ot">@R-base</span><span class="co">]</span> chunks may be embedded as follows:</span>
+<span id="cb6-308"><a href="#cb6-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-309"><a href="#cb6-309" aria-hidden="true" tabindex="-1"></a><span class="in">```{r r-code, echo=TRUE}</span></span>
+<span id="cb6-310"><a href="#cb6-310" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">10</span>)</span>
+<span id="cb6-311"><a href="#cb6-311" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-312"><a href="#cb6-312" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-313"><a href="#cb6-313" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-314"><a href="#cb6-314" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-315"><a href="#cb6-315" aria-hidden="true" tabindex="-1"></a><span class="fu">## Tables</span></span>
-<span id="cb6-316"><a href="#cb6-316" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-317"><a href="#cb6-317" aria-hidden="true" tabindex="-1"></a>Tables (with label: <span class="in">`@tbl-mylabel`</span> renders @tbl-mylabel) can be generated with markdown as follows</span>
-<span id="cb6-318"><a href="#cb6-318" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-319"><a href="#cb6-319" aria-hidden="true" tabindex="-1"></a>| Tables   |      Are      |  Cool |</span>
-<span id="cb6-320"><a href="#cb6-320" aria-hidden="true" tabindex="-1"></a>|----------|:-------------:|------:|</span>
-<span id="cb6-321"><a href="#cb6-321" aria-hidden="true" tabindex="-1"></a>| col 1 is |  left-aligned | $1600 |</span>
-<span id="cb6-322"><a href="#cb6-322" aria-hidden="true" tabindex="-1"></a>| col 2 is |    centered   |   $12 |</span>
-<span id="cb6-323"><a href="#cb6-323" aria-hidden="true" tabindex="-1"></a>| col 3 is | right-aligned |    $1 |</span>
-<span id="cb6-324"><a href="#cb6-324" aria-hidden="true" tabindex="-1"></a>: my table caption {#tbl-mylabel}</span>
-<span id="cb6-325"><a href="#cb6-325" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-326"><a href="#cb6-326" aria-hidden="true" tabindex="-1"></a>Table can also be generated by some code, for instance with knitr here:</span>
-<span id="cb6-327"><a href="#cb6-327" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-328"><a href="#cb6-328" aria-hidden="true" tabindex="-1"></a><span class="in">```{r cars}</span></span>
-<span id="cb6-329"><a href="#cb6-329" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">summary</span>(cars), <span class="at">caption =</span> <span class="st">"Table caption."</span>)</span>
-<span id="cb6-330"><a href="#cb6-330" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-331"><a href="#cb6-331" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-332"><a href="#cb6-332" aria-hidden="true" tabindex="-1"></a><span class="fu">## Handling references {#sec-references}</span></span>
+<span id="cb6-314"><a href="#cb6-314" aria-hidden="true" tabindex="-1"></a><span class="fu">### Python</span></span>
+<span id="cb6-315"><a href="#cb6-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-316"><a href="#cb6-316" aria-hidden="true" tabindex="-1"></a><span class="in">``` yaml</span></span>
+<span id="cb6-317"><a href="#cb6-317" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb6-318"><a href="#cb6-318" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"My Document"</span></span>
+<span id="cb6-319"><a href="#cb6-319" aria-hidden="true" tabindex="-1"></a>author<span class="at"> </span>"Jane<span class="at"> </span>Doe"</span>
+<span id="cb6-320"><a href="#cb6-320" aria-hidden="true" tabindex="-1"></a><span class="fu">jupyter</span><span class="kw">:</span><span class="at"> python3</span></span>
+<span id="cb6-321"><a href="#cb6-321" aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb6-322"><a href="#cb6-322" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-323"><a href="#cb6-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-326"><a href="#cb6-326" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb6-327"><a href="#cb6-327" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb6-328"><a href="#cb6-328" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb6-329"><a href="#cb6-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-330"><a href="#cb6-330" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb6-331"><a href="#cb6-331" aria-hidden="true" tabindex="-1"></a>ax.plot(np.arange(<span class="dv">10</span>))</span>
+<span id="cb6-332"><a href="#cb6-332" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb6-333"><a href="#cb6-333" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-334"><a href="#cb6-334" aria-hidden="true" tabindex="-1"></a><span class="fu">### Bibliographic references</span></span>
+<span id="cb6-334"><a href="#cb6-334" aria-hidden="true" tabindex="-1"></a><span class="fu">## Figures</span></span>
 <span id="cb6-335"><a href="#cb6-335" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-336"><a href="#cb6-336" aria-hidden="true" tabindex="-1"></a>References are displayed as footnotes using</span>
-<span id="cb6-337"><a href="#cb6-337" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">BibTeX</span><span class="co">](http://www.bibtex.org/)</span>, e.g. <span class="in">`[@computo]`</span> will be displayed</span>
-<span id="cb6-338"><a href="#cb6-338" aria-hidden="true" tabindex="-1"></a>as <span class="co">[</span><span class="ot">@computo</span><span class="co">]</span>, where <span class="in">`computo`</span> is the bibtex key for this specific</span>
-<span id="cb6-339"><a href="#cb6-339" aria-hidden="true" tabindex="-1"></a>entry. The bibliographic information is automatically retrieved from</span>
-<span id="cb6-340"><a href="#cb6-340" aria-hidden="true" tabindex="-1"></a>the <span class="in">`.bib`</span> file specified in the header of this document (here:</span>
-<span id="cb6-341"><a href="#cb6-341" aria-hidden="true" tabindex="-1"></a><span class="in">`references.bib`</span>).</span>
-<span id="cb6-342"><a href="#cb6-342" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-343"><a href="#cb6-343" aria-hidden="true" tabindex="-1"></a><span class="fu">### Other cross-references</span></span>
-<span id="cb6-344"><a href="#cb6-344" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-345"><a href="#cb6-345" aria-hidden="true" tabindex="-1"></a>As already (partially) seen, Quarto includes a mecanism similar to the</span>
-<span id="cb6-346"><a href="#cb6-346" aria-hidden="true" tabindex="-1"></a>bibliographic references for sections, equations, theorems, figures,</span>
-<span id="cb6-347"><a href="#cb6-347" aria-hidden="true" tabindex="-1"></a>lists, etc. Have a look at [this</span>
-<span id="cb6-348"><a href="#cb6-348" aria-hidden="true" tabindex="-1"></a>page](https://quarto.org/docs/authoring/cross-references.html).</span>
+<span id="cb6-336"><a href="#cb6-336" aria-hidden="true" tabindex="-1"></a>Plots can be generated as follows:</span>
+<span id="cb6-337"><a href="#cb6-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-338"><a href="#cb6-338" aria-hidden="true" tabindex="-1"></a><span class="in">```{r pressure, message = FALSE}</span></span>
+<span id="cb6-339"><a href="#cb6-339" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"ggplot2"</span>)</span>
+<span id="cb6-340"><a href="#cb6-340" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(mpg, <span class="fu">aes</span>(displ, hwy)) <span class="sc">+</span></span>
+<span id="cb6-341"><a href="#cb6-341" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb6-342"><a href="#cb6-342" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>()</span>
+<span id="cb6-343"><a href="#cb6-343" aria-hidden="true" tabindex="-1"></a>p</span>
+<span id="cb6-344"><a href="#cb6-344" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-345"><a href="#cb6-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-346"><a href="#cb6-346" aria-hidden="true" tabindex="-1"></a>It is also possible to create figures from static images:</span>
+<span id="cb6-347"><a href="#cb6-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-348"><a href="#cb6-348" aria-hidden="true" tabindex="-1"></a>:::{#fig-logo}</span>
 <span id="cb6-349"><a href="#cb6-349" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-350"><a href="#cb6-350" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb6-350"><a href="#cb6-350" aria-hidden="true" tabindex="-1"></a><span class="al">![](figures/sfds.png)</span></span>
 <span id="cb6-351"><a href="#cb6-351" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-352"><a href="#cb6-352" aria-hidden="true" tabindex="-1"></a><span class="fu">## For more information</span></span>
+<span id="cb6-352"><a href="#cb6-352" aria-hidden="true" tabindex="-1"></a>SFdS logo (c.a. 2021)</span>
 <span id="cb6-353"><a href="#cb6-353" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-354"><a href="#cb6-354" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Check our mock version of the t-SNE paper</span><span class="co">](https://computo.sfds.asso.fr/published-paper-tsne/)</span> for a full and advanced example using the Jupyter kernel.</span>
+<span id="cb6-354"><a href="#cb6-354" aria-hidden="true" tabindex="-1"></a>:::</span>
 <span id="cb6-355"><a href="#cb6-355" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-356"><a href="#cb6-356" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">The template available in the Computo Quarto extension  </span><span class="co">](https://computo.sfds.asso.fr/published-paper-tsne/)</span> uses advanced features and the KnitR kernel (interactive plots and pseudocode). </span>
-<span id="cb6-357"><a href="#cb6-357" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-358"><a href="#cb6-358" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb6-359"><a href="#cb6-359" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-360"><a href="#cb6-360" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session information {.appendix .unnumbered}</span></span>
-<span id="cb6-361"><a href="#cb6-361" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-362"><a href="#cb6-362" aria-hidden="true" tabindex="-1"></a><span class="in">```{r session-info}</span></span>
-<span id="cb6-363"><a href="#cb6-363" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb6-364"><a href="#cb6-364" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-356"><a href="#cb6-356" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-357"><a href="#cb6-357" aria-hidden="true" tabindex="-1"></a><span class="fu">## Tables</span></span>
+<span id="cb6-358"><a href="#cb6-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-359"><a href="#cb6-359" aria-hidden="true" tabindex="-1"></a>Tables (with label: <span class="in">`@tbl-mylabel`</span> renders @tbl-mylabel) can be generated with markdown as follows</span>
+<span id="cb6-360"><a href="#cb6-360" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-361"><a href="#cb6-361" aria-hidden="true" tabindex="-1"></a>| Tables   |      Are      |  Cool |</span>
+<span id="cb6-362"><a href="#cb6-362" aria-hidden="true" tabindex="-1"></a>|----------|:-------------:|------:|</span>
+<span id="cb6-363"><a href="#cb6-363" aria-hidden="true" tabindex="-1"></a>| col 1 is |  left-aligned | $1600 |</span>
+<span id="cb6-364"><a href="#cb6-364" aria-hidden="true" tabindex="-1"></a>| col 2 is |    centered   |   $12 |</span>
+<span id="cb6-365"><a href="#cb6-365" aria-hidden="true" tabindex="-1"></a>| col 3 is | right-aligned |    $1 |</span>
+<span id="cb6-366"><a href="#cb6-366" aria-hidden="true" tabindex="-1"></a>: my table caption {#tbl-mylabel}</span>
+<span id="cb6-367"><a href="#cb6-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-368"><a href="#cb6-368" aria-hidden="true" tabindex="-1"></a>Table can also be generated by some code, for instance with knitr here:</span>
+<span id="cb6-369"><a href="#cb6-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-370"><a href="#cb6-370" aria-hidden="true" tabindex="-1"></a><span class="in">```{r cars}</span></span>
+<span id="cb6-371"><a href="#cb6-371" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">summary</span>(cars), <span class="at">caption =</span> <span class="st">"Table caption."</span>)</span>
+<span id="cb6-372"><a href="#cb6-372" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-373"><a href="#cb6-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-374"><a href="#cb6-374" aria-hidden="true" tabindex="-1"></a><span class="fu">## Handling references {#sec-references}</span></span>
+<span id="cb6-375"><a href="#cb6-375" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-376"><a href="#cb6-376" aria-hidden="true" tabindex="-1"></a><span class="fu">### Bibliographic references</span></span>
+<span id="cb6-377"><a href="#cb6-377" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-378"><a href="#cb6-378" aria-hidden="true" tabindex="-1"></a>References are displayed as footnotes using</span>
+<span id="cb6-379"><a href="#cb6-379" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">BibTeX</span><span class="co">](http://www.bibtex.org/)</span>, e.g. <span class="in">`[@computo]`</span> will be displayed</span>
+<span id="cb6-380"><a href="#cb6-380" aria-hidden="true" tabindex="-1"></a>as <span class="co">[</span><span class="ot">@computo</span><span class="co">]</span>, where <span class="in">`computo`</span> is the bibtex key for this specific</span>
+<span id="cb6-381"><a href="#cb6-381" aria-hidden="true" tabindex="-1"></a>entry. The bibliographic information is automatically retrieved from</span>
+<span id="cb6-382"><a href="#cb6-382" aria-hidden="true" tabindex="-1"></a>the <span class="in">`.bib`</span> file specified in the header of this document (here:</span>
+<span id="cb6-383"><a href="#cb6-383" aria-hidden="true" tabindex="-1"></a><span class="in">`references.bib`</span>).</span>
+<span id="cb6-384"><a href="#cb6-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-385"><a href="#cb6-385" aria-hidden="true" tabindex="-1"></a><span class="fu">### Other cross-references</span></span>
+<span id="cb6-386"><a href="#cb6-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-387"><a href="#cb6-387" aria-hidden="true" tabindex="-1"></a>As already (partially) seen, Quarto includes a mecanism similar to the</span>
+<span id="cb6-388"><a href="#cb6-388" aria-hidden="true" tabindex="-1"></a>bibliographic references for sections, equations, theorems, figures,</span>
+<span id="cb6-389"><a href="#cb6-389" aria-hidden="true" tabindex="-1"></a>lists, etc. Have a look at [this</span>
+<span id="cb6-390"><a href="#cb6-390" aria-hidden="true" tabindex="-1"></a>page](https://quarto.org/docs/authoring/cross-references.html).</span>
+<span id="cb6-391"><a href="#cb6-391" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-392"><a href="#cb6-392" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb6-393"><a href="#cb6-393" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-394"><a href="#cb6-394" aria-hidden="true" tabindex="-1"></a><span class="fu">## For more information</span></span>
+<span id="cb6-395"><a href="#cb6-395" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-396"><a href="#cb6-396" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Check our mock version of the t-SNE paper</span><span class="co">](https://computo.sfds.asso.fr/published-paper-tsne/)</span> for a full and advanced example using the Jupyter kernel.</span>
+<span id="cb6-397"><a href="#cb6-397" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-398"><a href="#cb6-398" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">The template available in the Computo Quarto extension  </span><span class="co">](https://computo.sfds.asso.fr/published-paper-tsne/)</span> uses advanced features and the KnitR kernel (interactive plots and pseudocode). </span>
+<span id="cb6-399"><a href="#cb6-399" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-400"><a href="#cb6-400" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb6-401"><a href="#cb6-401" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-402"><a href="#cb6-402" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session information {.appendix .unnumbered}</span></span>
+<span id="cb6-403"><a href="#cb6-403" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-404"><a href="#cb6-404" aria-hidden="true" tabindex="-1"></a><span class="in">```{r session-info}</span></span>
+<span id="cb6-405"><a href="#cb6-405" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb6-406"><a href="#cb6-406" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
