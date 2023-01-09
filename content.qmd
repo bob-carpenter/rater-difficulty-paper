@@ -158,11 +158,11 @@ for $k \in 1{:}K$.
 
 ## Prior for item-level effects
 
-The item-level effects $\varphi_i \in \mathbb{R}^K$ are assigned multivariate normal priors based on their true categories $z[i] \in 1{:}K$,
+The item-level effects $\varphi_i \in \mathbb{R}^K$ are assigned multivariate normal priors centered at zero,
 $$
-\varphi_i \sim \textrm{normal}(0, \Sigma^\varphi_{z[i]}),
+\varphi_i \sim \textrm{normal}(0, \Sigma^\varphi),
 $$
-for $i \in 1{:}I$, where $\Sigma^{\varphi}_k$ is a positive definite covariance matrix parameteter for $k \in 1{:}K$.
+for $i \in 1{:}I$, where $\Sigma^{\varphi}$ is a symmetric, positive-definite covariance matrix parameteter.
 
 ## Prior for rater-level effects
 
@@ -174,27 +174,21 @@ $$
 where $\Sigma^\theta_k$ is a positive definite covariance matrix for $k \in 1{:}K$.
 
 
-## Hyperpriors for effect location and covariance
+## Hyperpriors for the covariance of varying effects
 
-We have two sequences of location parameters, $\mu^\theta_k$ and $\mu^\phi_k$, for $k \in 1{:}K$.  We assign the components of the location parameters independent and weakly informative priors to determine their scales,
+We have symmetric, positive-definite covariance parameters $\Sigma^\varphi$ and $\Sigma^\theta_k$ for $k \in 1{:}K$. We factor covariance matrices into a vector of scales and a correlation matrix,
 $$
-\mu^\theta_{k, k'}, \mu^\varphi_{k, k'} \sim \textrm{normal}(0, 3),
+\Sigma^\varphi = \textrm{diag}(\sigma^\varphi) \cdot \Omega^\varphi \cdot \textrm{diag}(\sigma^\varphi),
 $$
-for $k, k' \in 1{:}K$.
-
-We also have two sequences of symmetric, positive-definite covariance parameters, $\Sigma^\theta_k$ and $\Sigma^\varphi_k$, for $k \in 1{:}K$. We factor covariance matrices $\Sigma$ into a vector $\sigma$ of scales and correlation matrix $\Omega$ so that
+for strictly positive $\sigma^\varphi \in \mathbb{R}_+^K$ and a correlation matrix $\Omega^\varphi$ (i.e., a symmetric, positive definite matrix with unit diagonal).  We factor the rater-level covariances by category $k$, taking
 $$
 \Sigma^\theta_k = \textrm{diag}(\sigma^\theta_k) \cdot \Omega^\theta_k \cdot \textrm{diag}(\sigma^\theta_k)
 $$
-and 
-$$
-\Sigma^\varphi_k = \textrm{diag}(\sigma^\varphi_k) \cdot \Omega^\varphi_k \cdot \textrm{diag}(\sigma^\varphi_k),
-$$
-with $\sigma^\theta_k, \sigma^\varphi_k \in \mathbb{R}^K$ and $\Omega^\theta_k, \Omega^\varphi_k$ are correlation matrices (i.e., symmetric positive definite with unit diagonal).  We consider the scales and correlation matrices as parameters and treat the covariance matrices as derived quantities defined as above.  
+for $k \in 1{:}K$, where $\sigma^\theta_k \in \mathbb{R}_+^K$ is a vector of strictly positive scales and $\Omega^\theta_k$ is a correlation matrix.  
 
-The components of the scale parameters are assigned weakly informative priors independently by component, taking
+The components of the scale parameters are assigned weakly informative half-normal priors independently by component, taking
 $$
-\sigma^\theta_{k, k'}, \sigma^\varphi_{k, k'} \sim \textrm{normal}_+(0, 3),
+\sigma^\theta_{k, k'}, \sigma^\varphi_k \sim \textrm{normal}_+(0, 3),
 $$
 for $k, k' \in 1{:}K$.  We assign Lewandowski-Kurowicka-Joe (LKJ) priors to the correlation matrix, 
 
@@ -205,197 +199,12 @@ for $k \in 1{:}K$, where the LKJ density is defined for a symmetric positive-def
 $$
 \textrm{LKJ}(\Omega \mid \eta) \propto \textrm{det}(\Omega)^{\eta - 1}.
 $$
-For $\eta = 1$, this distribution is uniform over correlation matrices $\Omega$.  For $\eta > 1$, it concentrates mass around the unit correlation matrix. Thus when used as a prior on a correlation matrix parameter, it has the effect of shrinking the correlation estimates (i.e., the off-diagonal elements of an estimated $\Omega$).
+For $\eta = 1$, the LKJ distribution is uniform over correlation matrices $\Omega$.  For $\eta > 1$, it concentrates mass around the unit correlation matrix (with $\eta < 0$ it concentrates toward the boundaries). Thus when used as a prior on a correlation matrix parameter, it has the effect of shrinking the correlation estimates (i.e., the off-diagonal elements of an estimated $\Omega$).
 
 
-## Advice for writting your manuscript
 
-First make sure that you are able to build your manuscript as a regular notebook on your system. Then you can start configure the binder environment.
+# Full data and marginal likelihood
 
-# Formatting
-
-This section covers basic formatting guidelines. [Quarto](https://quarto.org/) is a versatile  formatting system for authoring HTML based on markdown, integrating LaTeX and various code block interpreted either via Jupyter or Knitr (and thus deal with Python, R and many other langages). It relies on the [Pandoc Markdown](https://rmarkdown.rstudio.com/authoring_pandoc_markdown.html) markup language.
-
-To render/compile a document, run `quarto render`. A document will be generated that includes both content as well as the output of any embedded code chunks within the document:
-
-``` .bash
-quarto render content.qmd # will render to html
-```
-
-## Basic markdown formatting
-
-**Bold text** or _italic_
-
-- This is a list
-- With more elements
-- It isn't numbered.
-
-But we can also do a numbered list
-
-1. This is my first item
-2. This is my second item
-3. This is my third item
-
-## Mathematics
-
-### Mathematical formulae
-
-[LaTeX](https://www.latex-project.org/) code is natively supported[^katex], which makes it possible to use mathematical formulae:
-
-[^katex]: We use [katex](https://katex.org/) for this purpose.
-
-will render
-
-$$
-f(x_1, \dots, x_n; \mu, \sigma^2) =
-\frac{1}{\sigma \sqrt{2\pi}} \exp{\left(- \frac{1}{2\sigma^2}\sum_{i=1}^n(x_i - \mu)^2\right)}
-$$
-
-It is also posible to cross-reference an equation, see @eq-mylabel:
-
-$$
-\begin{aligned}
-D_{x_N} & = \frac12
-\left[\begin{array}{cc}
-x_L^\top & x_N^\top \end{array}\right] \,
-\left[\begin{array}{cc}  L_L & B \\ B^\top & L_N \end{array}\right] \,
-\left[\begin{array}{c}
-x_L \\ x_N \end{array}\right] \\
-& = \frac12 (x_L^\top L_L x_L + 2 x_N^\top B^\top x_L + x_N^\top L_N x_N),
-\end{aligned}
-$$ {#eq-mylabel}
-
-### Theorems and other amsthem-like environments
-
-Quarto includes a nice support for theorems, with predefined prefix labels for theorems, lemmas, proposition, etc. see [this page](https://quarto.org/docs/authoring/cross-references.html#theorems-and-proofs). Here is a simple example:
-
-::: {#thm-slln}
-## Strong law of large numbers
-
-The sample average converges almost surely to the expected value:
-
-$$\overline{X}_n\ \xrightarrow{\text{a.s.}}\ \mu \qquad\textrm{when}\ n \to \infty.$$
-:::
-
-See @thm-slln.
-
-## Code
-
-Quarto uses either Jupyter or knitr to render code chunks. This can be triggered in the yaml header, e.g., for Jupyter (should be installed on your computer) use
-
-``` yaml
----
-title: "My Document"
-author "Jane Doe"
-jupyter: python3
----
-```
-
-For knitr (R + knitr must be installed on your computer)
-
-``` yaml
----
-title: "My Document"
-author "Jane Doe"
----
-```
-
-You can use Jupyter for Python code and more. And R + KnitR for if you want to mix R with Python (via the package reticulate @R-reticulate).
-
-### R
-
-`R` code [@R-base] chunks may be embedded as follows:
-
-```{r r-code, echo=TRUE}
-x <- rnorm(10)
-```
-
-
-### Python
-
-``` yaml
----
-title: "My Document"
-author "Jane Doe"
-jupyter: python3
----
-```
-
-```{python}
-import matplotlib.pyplot as plt
-import numpy as np
-
-fig, ax = plt.subplots()
-ax.plot(np.arange(10))
-```
-
-## Figures
-
-Plots can be generated as follows:
-
-```{r pressure, message = FALSE}
-library("ggplot2")
-p <- ggplot(mpg, aes(displ, hwy)) +
-  geom_point() +
-  geom_smooth()
-p
-```
-
-It is also possible to create figures from static images:
-
-:::{#fig-logo}
-
-![](figures/sfds.png)
-
-SFdS logo (c.a. 2021)
-
-:::
-
-
-## Tables
-
-Tables (with label: `@tbl-mylabel` renders @tbl-mylabel) can be generated with markdown as follows
-
-| Tables   |      Are      |  Cool |
-|----------|:-------------:|------:|
-| col 1 is |  left-aligned | $1600 |
-| col 2 is |    centered   |   $12 |
-| col 3 is | right-aligned |    $1 |
-: my table caption {#tbl-mylabel}
-
-Table can also be generated by some code, for instance with knitr here:
-
-```{r cars}
-knitr::kable(summary(cars), caption = "Table caption.")
-```
-
-## Handling references {#sec-references}
-
-### Bibliographic references
-
-References are displayed as footnotes using
-[BibTeX](http://www.bibtex.org/), e.g. `[@computo]` will be displayed
-as [@computo], where `computo` is the bibtex key for this specific
-entry. The bibliographic information is automatically retrieved from
-the `.bib` file specified in the header of this document (here:
-`references.bib`).
-
-### Other cross-references
-
-As already (partially) seen, Quarto includes a mecanism similar to the
-bibliographic references for sections, equations, theorems, figures,
-lists, etc. Have a look at [this
-page](https://quarto.org/docs/authoring/cross-references.html).
-
-::: {.callout-warning}
-
-## For more information
-
-[Check our mock version of the t-SNE paper](https://computo.sfds.asso.fr/published-paper-tsne/) for a full and advanced example using the Jupyter kernel.
-
-[The template available in the Computo Quarto extension  ](https://computo.sfds.asso.fr/published-paper-tsne/) uses advanced features and the KnitR kernel (interactive plots and pseudocode). 
-
-:::
 
 # Session information {.appendix .unnumbered}
 
