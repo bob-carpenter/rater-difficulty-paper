@@ -85,51 +85,93 @@ We formulate our statistical model generatively in the sense that it is able to 
 
 We will assume that each item $i \in 1{:}I$ has a true category $z_i \in 1{:}K$.  The $z[i]$ are not observed and may be considered missing data and represented by means of a discrete parameter in the model.  We model the category based on item-level predictors using a logistic regression, where we assume $\beta \in \mathbb{R}^{L \times K}$ is our matrix of regression coefficients and $\alpha \in \mathbb{R}^K$ is an intercept.
 $$
-z_i \sim \textrm{categorical}\!\left(\textrm{softmax}(\alpha + x_i \cdot \beta)\right),
+z_i \sim \textrm{categorical}\!\left(\textrm{softmax}(\alpha + \beta \cdot x_i^{\top})\right),
 $$
-where $\textrm{softmax}(u) = \exp(u) / \textrm{sum}(\exp(u)) \in \Delta^{K-1}$, with $\exp()$ applied elementwise.  We will be able to use the fitted model to make predictions for new items not in the training set assuming we have their predictor vectors.  That is, the result will be a classifier for new items.
+where $x_i$ is the $i$-th row of the matrix $x$ and $\textrm{softmax}(u) = \exp(u) / \textrm{sum}(\exp(u)) \in \Delta^{K-1}$, with $\exp()$ applied elementwise.  We will be able to use the fitted model to make predictions for new items not in the training set assuming we have their predictor vectors.  That is, the result will be a classifier for new items.
 
-In the case where we have no item-level predictors so that $L = 0$, our model will reduce to an intercept-only model where $\textrm{softmax}(\alpha) \in \Delta^{K - 1}$ represents the simple prevalence of the categorical outcomes.
+In the case where we have no item-level predictors (i.e., $L = 0$), our model reduces to an intercept-only model where $\textrm{softmax}(\alpha) \in \Delta^{K - 1}$ represents the simple prevalence of the categorical outcomes.
 
-## Rating and item effects
+## Generative model for ratings
+
+We will model the sampling distribution for rating using a logistic regression with effects for the item being rated and the rater performing the rating.  This section describes the four types of effects we assume on that rating.  All of the effects are vector parameters in $\mathbb{R}^K$ (i.e., the size of the number of categories).
+
+### Intercept for global bias
+
+In order to model potential biases in ratings that are independent of the category of the item being rated, we will assume there is an intercept term in our logistic regression, $\xi \in \mathbb{R}^K$.  A high value for $\xi_k$ means there is an overall bias toward category $k$ whereas a low value represents an overall bias away from category $k$.
+
+### True category effect
+
+The category assigned to item $i$ by a rater is strongly influenced by the true category $z_i$ of that item.  We thus assume there is an effect $\psi_k$ based on the true category $k$ of the item being rated.  This will contribute a term $\psi_{z_{ii[n]]}}$ for the $n$-th rating, which has category $ii[n]$ and true category $z_{ii[n]}$.  Another way to consider the true category effect is as the prior location for the item effects for an item of category $k$ and as a prior location for rater responses to items of true category $k$.
+
+### Rater effects
 
 In order to allow raters to vary in their accuracies and biases, we will model each rater to have their own probabilistic response to items of a given true category.  Specifically, we assume that each rater $j \in 1{:}J$ has a response simplex $\theta_{j, k} \in \Delta^{K-1}$ which says how they respond to items of category $k$, all else being equal.  A perfect rater has $\theta_{j, k, k'}$ equal to 1 if $k = k'$ and 0 otherwise.  That is, $\theta_{j, k, k}$ represents rater $j$'s accuracy on items of category $k$ and the off-diagonal elements of $\theta_j$ represent the biases. 
 
+
+### Item effects
+
 We will further assume that each item $i \in 1{:}I$ has a vector of effects $\varphi_i \in \mathbb{R}^K$.  If $\varphi_i = 0$, the item has no effect on ratings and raters will just return results according to $\theta_{j, k}$ for items of category $k$.  If $\varphi_{i, z[i]}$ is high, the item is relatively easy to rate, whereas if it's low, the item is difficult to rate, with the other terms determining the response bias.
 
-Given the rating and item-level effects, the generative model for ratings is
+### Sampling distribution for ratings
+
+Given the rating and item-level effects, the generative model for ratings is a multi-logit regression,
 $$
-y_n \sim \mathrm{categorical}\!\left(\textrm{softmax}(\varphi_{z_{ii[n]}} + \theta_{jj[n], \, z_{ii[n]}})\right).
+y_n \sim \mathrm{categorical}\!\left(\textrm{softmax}\!\left(\xi + \psi_{z_{ii[n]}} + \varphi_{ii[n]} + \theta_{jj[n], \, z_{ii[n]}}\right)\right).
 $$
-Breaking this down, item $ii[n] \in 1{:}I$ is being given a rating of $y_n \in 1{:}K$ by rater $jj[n] \in 1{:}J$.  $z_{ii[n]}$ is the true category of the item $ii[n]$ being rated, so $\varphi_{z_{ii[n]}} \in \mathbb{R}^K$ is the vector of effects for that item.  The second term $\theta_{jj[n], z_{ii[n]}} \in \mathbb{R}^K$ is the response of the rater $jj[n]$ to items of true category $z_{ii[n]}$.  In other words, the rating is a logistic regression with item-level and rater-level effects that depend on the true category of the item.
+Breaking this down, item $ii[n] \in 1{:}I$ is being given a rating of $y_n \in 1{:}K$ by rater $jj[n] \in 1{:}J$. The true rating for item $ii[n]$ is $z_{ii[n]} \in 1{:}K$.  The effects being added are vectors in $\mathbb{R}^K$.  The $\textrm{softmax}()$ function transforms the unconstrained vector to a simplex, which means the vector components are on the log probability scale.  The first effect is the intercept $\xi$, which accounts for overall bias in response by the raters.  The second term $\psi_{z_{ii[n]}}$ is the effect of the true category $z{ii[n]}$.  The third term $\varphi_{ii[n]}$ is the effect of the item being rated.  The final term $\theta_{jj[n], \, z_{ii[n]}}$ is the effect of rater $jj[n]$ responding to an item whose true category is $z_{ii[n]}$.
 
 
 # Priors
 
-## Prior for prevalence
+## Prior for prevalence regression coefficients
 
-For the prevalence regression coefficients $\beta \in \mathbb{R}^L$, we will use a weakly informative prior to define the scale of expected answers,
+For the prevalence regression, we provide weakly informative priors for the components of the intercept $\alpha \in \mathbb{R}^K$,
 $$
-\beta_l \sim \textrm{normal}(0, 3).
+\alpha_k \sim \textrm{normal}(0, 3),
 $$
+and the components of the slopes $\beta \in \mathbb{R}^{L \times K}$,
+$$
+\beta_{l, k} \sim \textrm{normal}(0, 3).
+$$
+
+## Sum-to-zero constraint for unconstrained simplex parameters
+
+The underlying dimensionality of a simplex is one less than the number of categories it ranges over.  In order to match our unconstrained parameterization on the log odds scale to the dimensionality of a simplex, we will constrain it to sum to zero.  This removes what would otherwise be an additive non-identifiability in the regression that would allow us to add a constant $c$ to every dimension any of the effects without changing the sampling distribution.
+
+## Prior for global effect
+
+We assign the global intercept a weakly informative prior,
+$$
+\xi \sim \textrm{normal}(0, 3 \cdot \textrm{I}),
+$$
+
+where $\textrm{I}$ is the identity matrix.
+
+## Prior for category-level effects
+
+Without any prior knowledge of which categories are likely to be correlated with category $k$, we will assume a weakly inforamtive prior on the category-level effects,
+$$
+\psi_k \sim \textrm{normal}(0, 3 \cdot \textrm{I}),
+$$
+for $k \in 1{:}K$.
 
 
 ## Prior for item-level effects
 
 The item-level effects $\varphi_i \in \mathbb{R}^K$ are assigned multivariate normal priors based on their true categories $z[i] \in 1{:}K$,
 $$
-\varphi_i \sim \textrm{normal}(\mu^\varphi_{zz[i]}, \Sigma^\varphi_{zz[i]}),
+\varphi_i \sim \textrm{normal}(0, \Sigma^\varphi_{z[i]}),
 $$
-where $\mu^\varphi_k \in \mathbb{R}^K$ is a location parameter and $\Sigma^{\varphi}_k$ is a positive definite covariance matrix parameteter for $k \in 1{:}K$.
+for $i \in 1{:}I$, where $\Sigma^{\varphi}_k$ is a positive definite covariance matrix parameteter for $k \in 1{:}K$.
 
 ## Prior for rater-level effects
 
 The rater-level effects $\theta_{j, k} \in \mathbb{R}^K$ are assigned to a prior conditioned on the true category $k$,
 $$
 \theta_{j, k}
-\sim \textrm{normal}(\mu^\theta_k, \Sigma^\theta_k),
+\sim \textrm{normal}(0, \Sigma^\theta_k),
 $$
-where $\mu^\theta_k \in \mathbb{R}^K$ is the location parameter and $\Sigma^\theta_k$ is a positive definite covariance matrix for $k \in 1{:}K$.
+where $\Sigma^\theta_k$ is a positive definite covariance matrix for $k \in 1{:}K$.
 
 
 ## Hyperpriors for effect location and covariance
