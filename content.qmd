@@ -203,7 +203,23 @@ For $\eta = 1$, the LKJ distribution is uniform over correlation matrices $\Omeg
 
 
 
-# Full data and marginal likelihood
+# Full data likelihood and marginal likelihood
+
+For each item $i \in 1{:}I$ being rated, there is a latent discrete parameter $z_i \in 1{:}K$ for its true category, zero or more ratings, and an item-level coefficient $\varphi_i \in \mathbb{R}^K$.  We will marginalize out the $z_i$ explicitly and the value of $\varphi$ through sampling.  To simplify subsequent notation, we define
+$$
+\textrm{idx}(i, ii) = \{ n : ii[n] = i \},
+$$
+the set of indexes of ratings for item $i \in 1{:}I$ and raters $ii[n] \in 1{:}I$ for $n \in 1{:}N$.
+
+The so-called full data likelihood is $p(y, z \mid x, \omega)$, where $y$ is the observed ratings and $z$ is the latent true categories, conditioned on the item-level predictor matrix $x$ and the full sequence of parameters $\omega = \alpha, \beta, \xi, \psi, \phi, \theta, \Sigma^{\phi}, \Sigma^{\psi}$.  We can derive the likelihood $p(y \mid x, \omega)$ by marginalizing out the $z$, first noting that
+$$
+p(y, z \mid x, \omega) = \prod_{i = 1}^I p\!\left(y[\textrm{idx}(i, ii)], z[i] \,\big|\, x, \omega\right),
+$$
+because the coverage of the indexes is exhaustive and we make a single selection of $z[i]$ per item.  We then expand the data-item specific latent category $z[i]$ in he usual way by summation,
+$$
+p(y[\textrm{idx}(i, ii) \,\big|\, x, \omega)
+= \sum_{k=1}^K p(y[\textrm{idx}(i, ii)], z[i] = k \,\big|\, x, \omega).
+$$
 
 
 # Session information {.appendix .unnumbered}
