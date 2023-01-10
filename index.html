@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Bob Carpenter">
-<meta name="dcterms.date" content="2023-01-09">
+<meta name="dcterms.date" content="2023-01-10">
 <meta name="keywords" content="data rating, Bayesian modeling, multivariate priors, classification, item difficulty">
 <meta name="description" content="to be submitted to the journal Computo.">
 
@@ -167,7 +167,7 @@ ISSN 2824-7795</p>
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">January 9, 2023</p>
+        <p class="date">January 10, 2023</p>
       </div>
     </div>
                                     
@@ -230,7 +230,7 @@ ISSN 2824-7795</p>
   <li><a href="#prior-for-rater-level-effects" id="toc-prior-for-rater-level-effects" class="nav-link" data-scroll-target="#prior-for-rater-level-effects"><span class="toc-section-number">4.6</span>  Prior for rater-level effects</a></li>
   <li><a href="#hyperpriors-for-the-covariance-of-varying-effects" id="toc-hyperpriors-for-the-covariance-of-varying-effects" class="nav-link" data-scroll-target="#hyperpriors-for-the-covariance-of-varying-effects"><span class="toc-section-number">4.7</span>  Hyperpriors for the covariance of varying effects</a></li>
   </ul></li>
-  <li><a href="#full-data-and-marginal-likelihood" id="toc-full-data-and-marginal-likelihood" class="nav-link" data-scroll-target="#full-data-and-marginal-likelihood"><span class="toc-section-number">5</span>  Full data and marginal likelihood</a></li>
+  <li><a href="#full-data-likelihood-and-marginal-likelihood" id="toc-full-data-likelihood-and-marginal-likelihood" class="nav-link" data-scroll-target="#full-data-likelihood-and-marginal-likelihood"><span class="toc-section-number">5</span>  Full data likelihood and marginal likelihood</a></li>
   <li><a href="#session-information" id="toc-session-information" class="nav-link" data-scroll-target="#session-information">Session information</a></li>
   </ul>
 </nav>
@@ -415,8 +415,17 @@ y_n \sim \mathrm{categorical}\!\left(\textrm{softmax}\!\left(\xi + \psi_{z_{ii[n
 </span> For <span class="math inline">\eta = 1</span>, the LKJ distribution is uniform over correlation matrices <span class="math inline">\Omega</span>. For <span class="math inline">\eta &gt; 1</span>, it concentrates mass around the unit correlation matrix (with <span class="math inline">\eta &lt; 0</span> it concentrates toward the boundaries). Thus when used as a prior on a correlation matrix parameter, it has the effect of shrinking the correlation estimates (i.e., the off-diagonal elements of an estimated <span class="math inline">\Omega</span>).</p>
 </section>
 </section>
-<section id="full-data-and-marginal-likelihood" class="level1" data-number="5">
-<h1 data-number="5"><span class="header-section-number">5</span> Full data and marginal likelihood</h1>
+<section id="full-data-likelihood-and-marginal-likelihood" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Full data likelihood and marginal likelihood</h1>
+<p>For each item <span class="math inline">i \in 1{:}I</span> being rated, there is a latent discrete parameter <span class="math inline">z_i \in 1{:}K</span> for its true category, zero or more ratings, and an item-level coefficient <span class="math inline">\varphi_i \in \mathbb{R}^K</span>. We will marginalize out the <span class="math inline">z_i</span> explicitly and the value of <span class="math inline">\varphi</span> through sampling. To simplify subsequent notation, we define <span class="math display">
+\textrm{idx}(i, ii) = \{ n : ii[n] = i \},
+</span> the set of indexes of ratings for item <span class="math inline">i \in 1{:}I</span> and raters <span class="math inline">ii[n] \in 1{:}I</span> for <span class="math inline">n \in 1{:}N</span>.</p>
+<p>The so-called full data likelihood is <span class="math inline">p(y, z \mid x, \omega)</span>, where <span class="math inline">y</span> is the observed ratings and <span class="math inline">z</span> is the latent true categories, conditioned on the item-level predictor matrix <span class="math inline">x</span> and the full sequence of parameters <span class="math inline">\omega = \alpha, \beta, \xi, \psi, \phi, \theta, \Sigma^{\phi}, \Sigma^{\psi}</span>. We can derive the likelihood <span class="math inline">p(y \mid x, \omega)</span> by marginalizing out the <span class="math inline">z</span>, first noting that <span class="math display">
+p(y, z \mid x, \omega) = \prod_{i = 1}^I p\!\left(y[\textrm{idx}(i, ii)], z[i] \,\big|\, x, \omega\right),
+</span> because the coverage of the indexes is exhaustive and we make a single selection of <span class="math inline">z[i]</span> per item. We then expand the data-item specific latent category <span class="math inline">z[i]</span> in he usual way by summation, <span class="math display">
+p(y[\textrm{idx}(i, ii) \,\big|\, x, \omega)
+= \sum_{k=1}^K p(y[\textrm{idx}(i, ii)], z[i] = k \,\big|\, x, \omega).
+</span></p>
 </section>
 
 
@@ -430,7 +439,7 @@ y_n \sim \mathrm{categorical}\!\left(\textrm{softmax}\!\left(\xi + \psi_{z_{ii[n
   title = {A {Bayesian} Hierarchical Model of Categorical Data Rating
     and Classification\textless br/\textgreater{}},
   journal = {Computo},
-  date = {2023-01-09},
+  date = {2023-01-10},
   url = {https://computo.sfds.asso.fr/???},
   doi = {xxxx},
   langid = {en},
@@ -857,14 +866,30 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb1-203"><a href="#cb1-203" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-204"><a href="#cb1-204" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-205"><a href="#cb1-205" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-206"><a href="#cb1-206" aria-hidden="true" tabindex="-1"></a><span class="fu"># Full data and marginal likelihood</span></span>
+<span id="cb1-206"><a href="#cb1-206" aria-hidden="true" tabindex="-1"></a><span class="fu"># Full data likelihood and marginal likelihood</span></span>
 <span id="cb1-207"><a href="#cb1-207" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-208"><a href="#cb1-208" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-209"><a href="#cb1-209" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session information {.appendix .unnumbered}</span></span>
-<span id="cb1-210"><a href="#cb1-210" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-211"><a href="#cb1-211" aria-hidden="true" tabindex="-1"></a><span class="in">```{r session-info}</span></span>
-<span id="cb1-212"><a href="#cb1-212" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb1-213"><a href="#cb1-213" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-208"><a href="#cb1-208" aria-hidden="true" tabindex="-1"></a>For each item $i \in 1{:}I$ being rated, there is a latent discrete parameter $z_i \in 1{:}K$ for its true category, zero or more ratings, and an item-level coefficient $\varphi_i \in \mathbb{R}^K$.  We will marginalize out the $z_i$ explicitly and the value of $\varphi$ through sampling.  To simplify subsequent notation, we define</span>
+<span id="cb1-209"><a href="#cb1-209" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-210"><a href="#cb1-210" aria-hidden="true" tabindex="-1"></a>\textrm{idx}(i, ii) = <span class="sc">\{</span> n : ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span> = i <span class="sc">\}</span>,</span>
+<span id="cb1-211"><a href="#cb1-211" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-212"><a href="#cb1-212" aria-hidden="true" tabindex="-1"></a>the set of indexes of ratings for item $i \in 1{:}I$ and raters $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span> \in 1{:}I$ for $n \in 1{:}N$.</span>
+<span id="cb1-213"><a href="#cb1-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-214"><a href="#cb1-214" aria-hidden="true" tabindex="-1"></a>The so-called full data likelihood is $p(y, z \mid x, \omega)$, where $y$ is the observed ratings and $z$ is the latent true categories, conditioned on the item-level predictor matrix $x$ and the full sequence of parameters $\omega = \alpha, \beta, \xi, \psi, \phi, \theta, \Sigma^{\phi}, \Sigma^{\psi}$.  We can derive the likelihood $p(y \mid x, \omega)$ by marginalizing out the $z$, first noting that</span>
+<span id="cb1-215"><a href="#cb1-215" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-216"><a href="#cb1-216" aria-hidden="true" tabindex="-1"></a>p(y, z \mid x, \omega) = \prod_{i = 1}^I p<span class="sc">\!</span>\left(y<span class="co">[</span><span class="ot">\textrm{idx}(i, ii)</span><span class="co">]</span>, z<span class="co">[</span><span class="ot">i</span><span class="co">]</span> \,\big|\, x, \omega\right),</span>
+<span id="cb1-217"><a href="#cb1-217" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-218"><a href="#cb1-218" aria-hidden="true" tabindex="-1"></a>because the coverage of the indexes is exhaustive and we make a single selection of $z<span class="co">[</span><span class="ot">i</span><span class="co">]</span>$ per item.  We then expand the data-item specific latent category $z<span class="co">[</span><span class="ot">i</span><span class="co">]</span>$ in he usual way by summation,</span>
+<span id="cb1-219"><a href="#cb1-219" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-220"><a href="#cb1-220" aria-hidden="true" tabindex="-1"></a>p(y[\textrm{idx}(i, ii) \,\big|\, x, \omega)</span>
+<span id="cb1-221"><a href="#cb1-221" aria-hidden="true" tabindex="-1"></a>= \sum_{k=1}^K p(y<span class="co">[</span><span class="ot">\textrm{idx}(i, ii)</span><span class="co">]</span>, z<span class="co">[</span><span class="ot">i</span><span class="co">]</span> = k \,\big|\, x, \omega).</span>
+<span id="cb1-222"><a href="#cb1-222" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-223"><a href="#cb1-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-224"><a href="#cb1-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-225"><a href="#cb1-225" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session information {.appendix .unnumbered}</span></span>
+<span id="cb1-226"><a href="#cb1-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-227"><a href="#cb1-227" aria-hidden="true" tabindex="-1"></a><span class="in">```{r session-info}</span></span>
+<span id="cb1-228"><a href="#cb1-228" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb1-229"><a href="#cb1-229" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 
