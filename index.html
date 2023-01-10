@@ -8,7 +8,7 @@
 
 <meta name="author" content="Bob Carpenter">
 <meta name="dcterms.date" content="2023-01-10">
-<meta name="keywords" content="data rating, Bayesian modeling, multivariate priors, classification, item difficulty">
+<meta name="keywords" content="crowdsourcing, data rating, Bayesian modeling, multivariate priors, classification, item difficulty">
 <meta name="description" content="to be submitted to the journal Computo.">
 
 <title>A Bayesian hierarchical model of categorical data rating and classification </title>
@@ -87,6 +87,25 @@ code span.st { color: #4070a0; } /* String */
 code span.va { color: #19177c; } /* Variable */
 code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
 </style>
 
 
@@ -176,7 +195,7 @@ ISSN 2824-7795</p>
       <div>
       <div class="quarto-title-meta-heading">Keywords</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">data rating, Bayesian modeling, multivariate priors, classification, item difficulty</p>
+        <p class="date">crowdsourcing, data rating, Bayesian modeling, multivariate priors, classification, item difficulty</p>
       </div>
     </div>
     
@@ -192,7 +211,7 @@ ISSN 2824-7795</p>
   <div>
     <div class="abstract">
     <div class="abstract-title">Abstract</div>
-      <p>We introduce a Bayesian model of categorical data rating and classification. Rater effects capture raters’ accuracy and bias and item-level effects capture the bias introduced by the items being classified such as difficulty. We show that item-level effects are crucial for ensuring calibrated predictions. We use multivariate priors to capture mean task accuracy, bias, and correlation among responses, which allows sharper and better calibrated predictions for new data raters as might be found in an ongoing data rating task with crowdsourcing. Item-level predictors (aka features) can be used to jointly train a classifier, where no predictors results in a prevalence-only model. We show that training a classifier with a probabilistic data set regularizes estimates and improves the calibration of probabilistic classification.</p>
+      <p>We introduce a Bayesian model of categorical data rating (aka coding or annotation) and classification that reparameterizes the model of <span class="citation" data-cites="dawid1979maximum">Dawid and Skene (<a href="#ref-dawid1979maximum" role="doc-biblioref">1979</a>)</span> on the log odds scale in order to add item-level effects and hierarchical, multivariate priors. Rater effects capture raters’ accuracy and bias and item-level effects capture the bias introduced by the items being classified such as difficulty. We show that item-level effects are crucial for ensuring calibrated predictions. We use multivariate priors to capture mean task accuracy, bias, and correlation among responses, which allows sharper and better calibrated predictions observed or new raters, as found in an ongoing data rating task with crowdsourcing. We extend the analysis of <span class="citation" data-cites="raykar2010learning">Raykar et al. (<a href="#ref-raykar2010learning" role="doc-biblioref">2010</a>)</span>, using item-level predictors (aka features or covariates) to jointly estimate (aka train) a classifier. With. no item-level predictors, our model reduces to the standard prevalence-only model. Moving beyond the point estimates of Raykar et al., we train a fully Bayesian classifier and show how proper posterior predictive inference outperforms plug-in point estimates. We further demonstrate that training on a probabilistic corpus, either sequentially by weighting or jointly with full Bayes, leads to implicit regularization and outperforms alternative non-probabilistic approaches to training.</p>
     </div>
   </div>
 
@@ -202,36 +221,48 @@ ISSN 2824-7795</p>
     <h2 id="toc-title">Contents</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="toc-section-number">1</span>  Introduction</a></li>
-  <li><a href="#data-format" id="toc-data-format" class="nav-link" data-scroll-target="#data-format"><span class="toc-section-number">2</span>  Data format</a>
+  <li><a href="#crowdsourcing-classifiers" id="toc-crowdsourcing-classifiers" class="nav-link active" data-scroll-target="#crowdsourcing-classifiers"><span class="toc-section-number">1</span>  Crowdsourcing classifiers</a></li>
+  <li><a href="#probabilistic-classifier-training" id="toc-probabilistic-classifier-training" class="nav-link" data-scroll-target="#probabilistic-classifier-training"><span class="toc-section-number">2</span>  Probabilistic classifier training</a>
   <ul class="collapse">
-  <li><a href="#rating-data" id="toc-rating-data" class="nav-link" data-scroll-target="#rating-data"><span class="toc-section-number">2.1</span>  Rating data</a></li>
-  <li><a href="#item-level-predictors" id="toc-item-level-predictors" class="nav-link" data-scroll-target="#item-level-predictors"><span class="toc-section-number">2.2</span>  Item-level predictors</a></li>
-  </ul></li>
-  <li><a href="#data-generating-process" id="toc-data-generating-process" class="nav-link" data-scroll-target="#data-generating-process"><span class="toc-section-number">3</span>  Data-generating process</a>
+  <li><a href="#logistic-regression-classifiers" id="toc-logistic-regression-classifiers" class="nav-link" data-scroll-target="#logistic-regression-classifiers"><span class="toc-section-number">2.1</span>  Logistic regression classifiers</a>
   <ul class="collapse">
-  <li><a href="#prevalence-and-classification" id="toc-prevalence-and-classification" class="nav-link" data-scroll-target="#prevalence-and-classification"><span class="toc-section-number">3.1</span>  Prevalence and classification</a></li>
-  <li><a href="#generative-model-for-ratings" id="toc-generative-model-for-ratings" class="nav-link" data-scroll-target="#generative-model-for-ratings"><span class="toc-section-number">3.2</span>  Generative model for ratings</a>
-  <ul class="collapse">
-  <li><a href="#intercept-for-global-bias" id="toc-intercept-for-global-bias" class="nav-link" data-scroll-target="#intercept-for-global-bias"><span class="toc-section-number">3.2.1</span>  Intercept for global bias</a></li>
-  <li><a href="#true-category-effect" id="toc-true-category-effect" class="nav-link" data-scroll-target="#true-category-effect"><span class="toc-section-number">3.2.2</span>  True category effect</a></li>
-  <li><a href="#rater-effects" id="toc-rater-effects" class="nav-link" data-scroll-target="#rater-effects"><span class="toc-section-number">3.2.3</span>  Rater effects</a></li>
-  <li><a href="#item-effects" id="toc-item-effects" class="nav-link" data-scroll-target="#item-effects"><span class="toc-section-number">3.2.4</span>  Item effects</a></li>
-  <li><a href="#sampling-distribution-for-ratings" id="toc-sampling-distribution-for-ratings" class="nav-link" data-scroll-target="#sampling-distribution-for-ratings"><span class="toc-section-number">3.2.5</span>  Sampling distribution for ratings</a></li>
+  <li><a href="#data-generating-model-for-logistic-regression" id="toc-data-generating-model-for-logistic-regression" class="nav-link" data-scroll-target="#data-generating-model-for-logistic-regression"><span class="toc-section-number">2.1.1</span>  Data generating model for logistic regression</a></li>
+  <li><a href="#weakly-informative-priors-for-regression-coefficients" id="toc-weakly-informative-priors-for-regression-coefficients" class="nav-link" data-scroll-target="#weakly-informative-priors-for-regression-coefficients"><span class="toc-section-number">2.1.2</span>  Weakly informative priors for regression coefficients</a></li>
+  <li><a href="#bayesian-posterior-predictive-inference" id="toc-bayesian-posterior-predictive-inference" class="nav-link" data-scroll-target="#bayesian-posterior-predictive-inference"><span class="toc-section-number">2.1.3</span>  Bayesian posterior predictive inference</a></li>
+  <li><a href="#inference-with-point-estimates" id="toc-inference-with-point-estimates" class="nav-link" data-scroll-target="#inference-with-point-estimates"><span class="toc-section-number">2.1.4</span>  Inference with point estimates</a></li>
   </ul></li>
   </ul></li>
-  <li><a href="#priors" id="toc-priors" class="nav-link" data-scroll-target="#priors"><span class="toc-section-number">4</span>  Priors</a>
+  <li><a href="#observed-rating-data" id="toc-observed-rating-data" class="nav-link" data-scroll-target="#observed-rating-data"><span class="toc-section-number">3</span>  Observed rating data</a>
   <ul class="collapse">
-  <li><a href="#prior-for-prevalence-regression-coefficients" id="toc-prior-for-prevalence-regression-coefficients" class="nav-link" data-scroll-target="#prior-for-prevalence-regression-coefficients"><span class="toc-section-number">4.1</span>  Prior for prevalence regression coefficients</a></li>
-  <li><a href="#sum-to-zero-constraint-for-unconstrained-simplex-parameters" id="toc-sum-to-zero-constraint-for-unconstrained-simplex-parameters" class="nav-link" data-scroll-target="#sum-to-zero-constraint-for-unconstrained-simplex-parameters"><span class="toc-section-number">4.2</span>  Sum-to-zero constraint for unconstrained simplex parameters</a></li>
-  <li><a href="#prior-for-global-effect" id="toc-prior-for-global-effect" class="nav-link" data-scroll-target="#prior-for-global-effect"><span class="toc-section-number">4.3</span>  Prior for global effect</a></li>
-  <li><a href="#prior-for-category-level-effects" id="toc-prior-for-category-level-effects" class="nav-link" data-scroll-target="#prior-for-category-level-effects"><span class="toc-section-number">4.4</span>  Prior for category-level effects</a></li>
-  <li><a href="#prior-for-item-level-effects" id="toc-prior-for-item-level-effects" class="nav-link" data-scroll-target="#prior-for-item-level-effects"><span class="toc-section-number">4.5</span>  Prior for item-level effects</a></li>
-  <li><a href="#prior-for-rater-level-effects" id="toc-prior-for-rater-level-effects" class="nav-link" data-scroll-target="#prior-for-rater-level-effects"><span class="toc-section-number">4.6</span>  Prior for rater-level effects</a></li>
-  <li><a href="#hyperpriors-for-the-covariance-of-varying-effects" id="toc-hyperpriors-for-the-covariance-of-varying-effects" class="nav-link" data-scroll-target="#hyperpriors-for-the-covariance-of-varying-effects"><span class="toc-section-number">4.7</span>  Hyperpriors for the covariance of varying effects</a></li>
+  <li><a href="#rating-data" id="toc-rating-data" class="nav-link" data-scroll-target="#rating-data"><span class="toc-section-number">3.1</span>  Rating data</a></li>
+  <li><a href="#item-level-predictors" id="toc-item-level-predictors" class="nav-link" data-scroll-target="#item-level-predictors"><span class="toc-section-number">3.2</span>  Item-level predictors</a></li>
   </ul></li>
-  <li><a href="#full-data-likelihood-and-marginal-likelihood" id="toc-full-data-likelihood-and-marginal-likelihood" class="nav-link" data-scroll-target="#full-data-likelihood-and-marginal-likelihood"><span class="toc-section-number">5</span>  Full data likelihood and marginal likelihood</a></li>
+  <li><a href="#data-generating-process" id="toc-data-generating-process" class="nav-link" data-scroll-target="#data-generating-process"><span class="toc-section-number">4</span>  Data-generating process</a>
+  <ul class="collapse">
+  <li><a href="#prevalence-and-classification" id="toc-prevalence-and-classification" class="nav-link" data-scroll-target="#prevalence-and-classification"><span class="toc-section-number">4.1</span>  Prevalence and classification</a></li>
+  <li><a href="#generative-model-for-ratings" id="toc-generative-model-for-ratings" class="nav-link" data-scroll-target="#generative-model-for-ratings"><span class="toc-section-number">4.2</span>  Generative model for ratings</a>
+  <ul class="collapse">
+  <li><a href="#intercept-for-global-bias" id="toc-intercept-for-global-bias" class="nav-link" data-scroll-target="#intercept-for-global-bias"><span class="toc-section-number">4.2.1</span>  Intercept for global bias</a></li>
+  <li><a href="#true-category-effect" id="toc-true-category-effect" class="nav-link" data-scroll-target="#true-category-effect"><span class="toc-section-number">4.2.2</span>  True category effect</a></li>
+  <li><a href="#rater-effects" id="toc-rater-effects" class="nav-link" data-scroll-target="#rater-effects"><span class="toc-section-number">4.2.3</span>  Rater effects</a></li>
+  <li><a href="#item-effects" id="toc-item-effects" class="nav-link" data-scroll-target="#item-effects"><span class="toc-section-number">4.2.4</span>  Item effects</a></li>
+  <li><a href="#sampling-distribution-for-ratings" id="toc-sampling-distribution-for-ratings" class="nav-link" data-scroll-target="#sampling-distribution-for-ratings"><span class="toc-section-number">4.2.5</span>  Sampling distribution for ratings</a></li>
+  </ul></li>
+  <li><a href="#full-data-likelihood-and-marginal-likelihood" id="toc-full-data-likelihood-and-marginal-likelihood" class="nav-link" data-scroll-target="#full-data-likelihood-and-marginal-likelihood"><span class="toc-section-number">4.3</span>  Full data likelihood and marginal likelihood</a></li>
+  </ul></li>
+  <li><a href="#priors" id="toc-priors" class="nav-link" data-scroll-target="#priors"><span class="toc-section-number">5</span>  Priors</a>
+  <ul class="collapse">
+  <li><a href="#prior-for-prevalence-regression-coefficients" id="toc-prior-for-prevalence-regression-coefficients" class="nav-link" data-scroll-target="#prior-for-prevalence-regression-coefficients"><span class="toc-section-number">5.1</span>  Prior for prevalence regression coefficients</a></li>
+  <li><a href="#sum-to-zero-constraint-for-unconstrained-simplex-parameters" id="toc-sum-to-zero-constraint-for-unconstrained-simplex-parameters" class="nav-link" data-scroll-target="#sum-to-zero-constraint-for-unconstrained-simplex-parameters"><span class="toc-section-number">5.2</span>  Sum-to-zero constraint for unconstrained simplex parameters</a></li>
+  <li><a href="#prior-for-global-effect" id="toc-prior-for-global-effect" class="nav-link" data-scroll-target="#prior-for-global-effect"><span class="toc-section-number">5.3</span>  Prior for global effect</a></li>
+  <li><a href="#prior-for-category-level-effects" id="toc-prior-for-category-level-effects" class="nav-link" data-scroll-target="#prior-for-category-level-effects"><span class="toc-section-number">5.4</span>  Prior for category-level effects</a></li>
+  <li><a href="#prior-for-item-level-effects" id="toc-prior-for-item-level-effects" class="nav-link" data-scroll-target="#prior-for-item-level-effects"><span class="toc-section-number">5.5</span>  Prior for item-level effects</a></li>
+  <li><a href="#prior-for-rater-level-effects" id="toc-prior-for-rater-level-effects" class="nav-link" data-scroll-target="#prior-for-rater-level-effects"><span class="toc-section-number">5.6</span>  Prior for rater-level effects</a></li>
+  <li><a href="#hyperpriors-for-the-covariance-of-varying-effects" id="toc-hyperpriors-for-the-covariance-of-varying-effects" class="nav-link" data-scroll-target="#hyperpriors-for-the-covariance-of-varying-effects"><span class="toc-section-number">5.7</span>  Hyperpriors for the covariance of varying effects</a></li>
+  </ul></li>
+  <li><a href="#previous-work" id="toc-previous-work" class="nav-link" data-scroll-target="#previous-work"><span class="toc-section-number">6</span>  Previous work</a></li>
   <li><a href="#session-information" id="toc-session-information" class="nav-link" data-scroll-target="#session-information">Session information</a></li>
+  <li><a href="#bibliography" id="toc-bibliography" class="nav-link" data-scroll-target="#bibliography">Bibliography</a></li>
   </ul>
 </nav>
 </div>
@@ -245,16 +276,72 @@ caption, .table-caption {
   text-align: left;
 }
 </style>
-<section id="introduction" class="level1" data-number="1">
-<h1 data-number="1"><span class="header-section-number">1</span> Introduction</h1>
-<p>Supervised training of classifiers is based on labeled data sets. Labeled data typically arises from humans or systems rating the data (also known as “coding” or “annotating” in different literatures). Because human and machine raters are never 100% accurate, the problem arises as to how to deal with disagreements in ratings. For example, given a radiology image, one human rater might say it shows a stage 1 cancer tumor and another may say it is nothing or given a social media post, one rater might say it is positive toward a product and another might say it is neutral. How do we adjudicate these disagreements among raters and get on with building classifiers? One traditional approach is to vote—use multiple raters and take a majority vote. Often this is done in stages, where if two raters disagree, a third is brought in to settle the dispute. This can be problematic when both raters make the same error or when there is disparity in accuracy or correlated bias among the raters. And in the end, we have no measure of certainty. Another traditional approach is to censor data where there is disagreement—that is, use only items in the training data for which the raters agreed. This approach may lead to clean data, but it will not be representative of the “wild type” data from which it was selected.</p>
-<p>In order to make the best use of our data, we need to appropriately model it to correct for the bias and accuracy of the raters as well as the difficulty and biases introduced by the items being annotated. In the end, we will be left with a “soft” data set, with probabilities assigned to outcomes for each item. A traditional data set uses a one-hot encoding (where one category has probabity 1 and the others probability 0) and is often derived by assigning the most probable category. We will show in this paper that taking the best category is inferior to selecting a category at random based on the probability distribution, which in turn is inferior to training directly with the probabilistic weights.</p>
-<p>Among the contributions of this paper are a new crowdsourcing and classifier training model that introduces (1) item-level effects for difficulty and item bias, (2) multivariate priors on item-level and rater-level effects, and (3) joint classifier and data set training with full Bayesian inference. The model strictly generalizes the model of <span class="citation" data-cites="dawid-skene">(<a href="#ref-dawid-skene" role="doc-biblioref"><strong>dawid-skene?</strong></a>)</span>. We show how the item-level effects are necessary to achieve calibrated prediction on new data, and how training a model jointly with full Bayesian inference is preferable to factoring the problem.</p>
+<section id="crowdsourcing-classifiers" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Crowdsourcing classifiers</h1>
+<p>Supervised training of classifiers is based on labeled data sets. Labeled data typically arises from humans or systems rating the data (also known as “coding” or “annotating” in different literatures). Because human and machine raters are never 100% accurate, the problem arises as to how to deal with disagreements in ratings. For example, given a radiology image, one human rater might say it shows a stage 1 cancer tumor and another may say it is stage 2 or not a tumor at all; or given a social media post, one rater might say it is positive toward a product and another might say it is neutral or perhaps not even about the product. How do we adjudicate these disagreements among raters and get on with building classifiers? One traditional approach is to vote—use multiple raters and take a majority vote. Often this is done in stages, where if two raters disagree, a third is brought in to settle the dispute. This can be problematic when both raters make the same error or when there is disparity in accuracy or correlated bias among the raters. And in the end, these voting schemes leave us with no measure of certainty in our ratings. Another traditional approach is to censor data where there is disagreement—that is, use only items in the training data on which all of the raters agreed. This approach may lead to clean data, but it will not be representative of the “wild type” data from which it was selected.</p>
+<p>In order to make the best use of our data, we need to appropriately model it to correct for the bias and accuracy of the raters as well as the difficulty and biases introduced by the items being annotated (see, e.g., <span class="citation" data-cites="dawid1979maximum passonneau2014benefits">(<a href="#ref-dawid1979maximum" role="doc-biblioref">Dawid and Skene 1979</a>; <a href="#ref-passonneau2014benefits" role="doc-biblioref">Passonneau and Carpenter 2014</a>)</span>). In the end, we will be left with a “soft” data set, with probabilities assigned to outcomes for each item. A traditional data set uses a one-hot encoding (where one category has probabity 1 and the others probability 0) and is often derived by assigning the most probable category. We will show in this paper that taking the best category is inferior to selecting a category at random based on the probability distribution, which in turn is inferior to training directly with the probabilistic weights.</p>
+<p>Among the contributions of this paper are a new crowdsourcing and classifier training model that introduces (1) item-level effects for difficulty and item bias, (2) multivariate priors on item-level and rater-level effects, and (3) joint classifier and data set training with full Bayesian inference. The model strictly generalizes the widely used models of <span class="citation" data-cites="dawid1979maximum">Dawid and Skene (<a href="#ref-dawid1979maximum" role="doc-biblioref">1979</a>)</span> and <span class="citation" data-cites="raykar2010larning">(<a href="#ref-raykar2010larning" role="doc-biblioref"><strong>raykar2010larning?</strong></a>)</span> and extends inference from point estimation to full Bayes. We show how (1) item-level effects are necessary to achieve calibrated predictions, (2) the multivariate priors borrow strength to improve inference, especially for raters with no or little data, and (3) training a model jointly with full Bayesian inference leads to better inference than a factorized approach.</p>
 </section>
-<section id="data-format" class="level1" data-number="2">
-<h1 data-number="2"><span class="header-section-number">2</span> Data format</h1>
-<section id="rating-data" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="rating-data"><span class="header-section-number">2.1</span> Rating data</h2>
+<section id="probabilistic-classifier-training" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Probabilistic classifier training</h1>
+<p>Our goal is to train a probabilistic classifier, by which we mean one which returns calibrated probabilistic predictions (see, e.g., <span class="citation" data-cites="gneiting2007probabilistic">(<a href="#ref-gneiting2007probabilistic" role="doc-biblioref">Gneiting, Balabdaoui, and Raftery 2007</a>)</span>). Roughly speaking, calibration means that if the system says there’s an 80% chance of an item being a category, then there really is an 80% chance of it being that category. We use frequentist notions of calibration for this, with <span class="math inline">N</span> predictions of 80% leading to an expected <span class="math inline">\textrm{binomial}(N, 0.8)</span> distribution over correct items.</p>
+<p>With typical gold-standard training data, each item is assinged a unique category. With probabilistic training, we instead train with a probability distribution over categories. In this section, we provide simulations that show why probabilisic training is preferable, and barring that, why sampling a single label from the probability distribution for the training data is preferable to using the most probable category.</p>
+<section id="logistic-regression-classifiers" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="logistic-regression-classifiers"><span class="header-section-number">2.1</span> Logistic regression classifiers</h2>
+<p>We will use a simple binary logistic regression with a vector of <span class="math inline">L</span> predictors as a running example, because it is simple, but there is nothing special about this particular classifier or choice of data shape. If we have <span class="math inline">N</span> data items, the predictors form a matrix <span class="math inline">x \in \mathbb{R}^{N \times L}</span>, whereas the outcomes take the form of a boolean vector <span class="math inline">z \in \{0, 1\}^N</span>.</p>
+<section id="data-generating-model-for-logistic-regression" class="level3" data-number="2.1.1">
+<h3 data-number="2.1.1" class="anchored" data-anchor-id="data-generating-model-for-logistic-regression"><span class="header-section-number">2.1.1</span> Data generating model for logistic regression</h3>
+<p>The data generating model for the true category <span class="math inline">z_n \in \{0, 1\}</span> for item <span class="math inline">n \in 1{:}N</span> is based on an intercept parameter <span class="math inline">\alpha \in \mathbb{R}</span> and slope parameter <span class="math inline">\beta \in \mathbb{R}</span>, <span class="math display">
+z_n \sim \textrm{bernoulli}\!\left(\textrm{logit}^{-1}\!\left(\alpha + \beta \cdot x_n^{\top}\right)\right),
+</span> where <span class="math inline">x_n</span> is the <span class="math inline">n</span>-th row of the data matrix <span class="math inline">x</span>.</p>
+</section>
+<section id="weakly-informative-priors-for-regression-coefficients" class="level3" data-number="2.1.2">
+<h3 data-number="2.1.2" class="anchored" data-anchor-id="weakly-informative-priors-for-regression-coefficients"><span class="header-section-number">2.1.2</span> Weakly informative priors for regression coefficients</h3>
+<p>We will assign independent, weakly informative priors to the intercept <span class="math display">
+\alpha \sim \textrm{normal}(0, 3)
+</span> and to the slopes <span class="math display">
+\beta_l \sim \textrm{normal}(0, 3),
+</span> for <span class="math inline">l \in 1{:}L</span>. These are chosen to be in line with standardized predictors (i.e., columns of <span class="math inline">x</span> are approximately mean zero and unit variance) for logistic regression (see, e.g., <span class="citation" data-cites="gelman2008weakly">(<a href="#ref-gelman2008weakly" role="doc-biblioref">Gelman et al. 2008</a>)</span>). For example, <span class="math inline">\textrm{logit}^{-1}(-6) = 0.0025</span> and <span class="math inline">\textrm{logit}^{-1}(6) = 0.9975</span>, and we don’t expect effects (intercept or slope times predictor) to be larger than this in our classifiers.</p>
+</section>
+<section id="bayesian-posterior-predictive-inference" class="level3" data-number="2.1.3">
+<h3 data-number="2.1.3" class="anchored" data-anchor-id="bayesian-posterior-predictive-inference"><span class="header-section-number">2.1.3</span> Bayesian posterior predictive inference</h3>
+<p>Given training data <span class="math inline">x, y</span>, the posterior distribution over the parameters is <span class="math display">
+\begin{array}{rcl}
+p(\alpha, \beta \mid x, y)
+&amp; \propto &amp; p(\alpha, \beta) \cdot p(y \mid x, \alpha, \beta)
+\\[6pt]
+&amp; = &amp; \textrm{normal}(\alpha \mid 0, 3)
+\cdot \prod_{l = 1}^L \textrm{normal}(\beta_l \mid 0, 3)
+\cdot \prod_{n = 1}^N \textrm{bernoulli}\!\left(y_n \,\big|\, \textrm{logit}^{-1}\!\left(\alpha + \beta \cdot x_n^\top\right)\right).
+\end{array}
+</span> Now suppose we have a new predictor <span class="math inline">\tilde{x} \in \mathbb{R}^L</span>. The posterior predictive distribution over the associated outcome <span class="math inline">\tilde{y} \in \{0, 1\}</span> will be <span class="math display">
+\begin{array}{rcl}
+p(\tilde{y} \mid \tilde{x}, y, x)
+&amp; = &amp; \mathbb{E}\!\left[\, p(\tilde{y} \mid \tilde{x}, \alpha, \beta) \mid x, y \, \right]
+\\[6pt]
+&amp; = &amp; \displaystyle \int p(\tilde{y} \mid \tilde{x}, \alpha, \beta) \cdot p(\alpha, \beta \mid x, y) \ \textrm{d} (\alpha, \beta).
+\end{array}
+</span></p>
+</section>
+<section id="inference-with-point-estimates" class="level3" data-number="2.1.4">
+<h3 data-number="2.1.4" class="anchored" data-anchor-id="inference-with-point-estimates"><span class="header-section-number">2.1.4</span> Inference with point estimates</h3>
+<p>We also consider estimation with point estimates, where instead of full Bayes, we take a point estimate of our parameters and then plug in for inference. That is, we set <span class="math display">
+\widehat{\alpha}, \widehat{\beta}
+= \textrm{arg max}_{\alpha, \ \beta}
+\ p(y \mid \alpha, \beta, x) \cdot p(\alpha, \beta),
+</span> which can be viewed as a penalized maximum likelihood estimate (MLE) if the prior <span class="math inline">p(\alpha, \beta)</span> is considered a penalty, or viewed as a maximum a posteriori (MAP) estimate. Inference for new items then proceeds by plugging in parameters, <span class="math display">
+p(\tilde{y} \mid \tilde{x}, x, y)
+\approx
+p(\tilde{y} \mid \tilde{x}, \widehat{\alpha}, \widehat{\beta}),
+</span> where the point estimates <span class="math inline">\widehat{\alpha}, \widehat{\beta}</span> are derived as MAP estimates as above.</p>
+</section>
+</section>
+</section>
+<section id="observed-rating-data" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Observed rating data</h1>
+<p>In this section, we describe the observed data that we model as well as the constants required.</p>
+<section id="rating-data" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="rating-data"><span class="header-section-number">3.1</span> Rating data</h2>
 <p>We assume there are <span class="math inline">K \in \mathbb{N}</span> categories into which items are classified, <span class="math inline">I \in \mathbb{N}</span> items being rated, and <span class="math inline">J \in \mathbb{N}</span> raters. We assume there are <span class="math inline">N \in \mathbb{N}</span> ratings, with <span class="math inline">y_n \in 1{:}K</span> being the rating given by rater <span class="math inline">jj[n]</span> for item <span class="math inline">ii[n]</span>. The result is a long-form table of <span class="math inline">N</span> rows; the first few rows of an example are shown in <a href="#tbl-data-format">Table&nbsp;1</a>.<br>
 </p>
 <div id="tbl-data-format" class="anchored">
@@ -316,90 +403,116 @@ caption, .table-caption {
 </div>
 <p>This data format is flexible enough to allow each item to be rated by a zero or more raters. While it is possible to represent a single rater rating the same item multiple times, our models will treat the ratings as independent.</p>
 </section>
-<section id="item-level-predictors" class="level2" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="item-level-predictors"><span class="header-section-number">2.2</span> Item-level predictors</h2>
+<section id="item-level-predictors" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="item-level-predictors"><span class="header-section-number">3.2</span> Item-level predictors</h2>
 <p>In addition to the ratings, we will assume there are <span class="math inline">L</span> predictors (features, etc.) for each item. We let <span class="math inline">x \in \mathbb{R}^{I \times L}</span> be the data matrix, with rows <span class="math inline">x_i \in \mathbb{R}^L</span> being the <span class="math inline">L</span>-vector of predictors for item <span class="math inline">i \in 1{:}I</span>. We model intercepts separately and thus do not assume that there is a column of 1s in the matrix <span class="math inline">x</span>. Although it would be possible to have rater-level predictors, such as the geographical location or age or sex of the rater, we do not consider that extension in this paper.</p>
 </section>
 </section>
-<section id="data-generating-process" class="level1" data-number="3">
-<h1 data-number="3"><span class="header-section-number">3</span> Data-generating process</h1>
+<section id="data-generating-process" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Data-generating process</h1>
 <p>We formulate our statistical model generatively in the sense that it is able to generate a complete data set given the items and predictors. We will start with the model for the items then consider a model for the ratings.</p>
-<section id="prevalence-and-classification" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="prevalence-and-classification"><span class="header-section-number">3.1</span> Prevalence and classification</h2>
+<section id="prevalence-and-classification" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="prevalence-and-classification"><span class="header-section-number">4.1</span> Prevalence and classification</h2>
 <p>We will assume that each item <span class="math inline">i \in 1{:}I</span> has a true category <span class="math inline">z_i \in 1{:}K</span>. The <span class="math inline">z[i]</span> are not observed and may be considered missing data and represented by means of a discrete parameter in the model. We model the category based on item-level predictors using a logistic regression, where we assume <span class="math inline">\beta \in \mathbb{R}^{L \times K}</span> is our matrix of regression coefficients and <span class="math inline">\alpha \in \mathbb{R}^K</span> is an intercept. <span class="math display">
 z_i \sim \textrm{categorical}\!\left(\textrm{softmax}(\alpha + \beta \cdot x_i^{\top})\right),
 </span> where <span class="math inline">x_i</span> is the <span class="math inline">i</span>-th row of the matrix <span class="math inline">x</span> and <span class="math inline">\textrm{softmax}(u) = \exp(u) / \textrm{sum}(\exp(u)) \in \Delta^{K-1}</span>, with <span class="math inline">\exp()</span> applied elementwise. We will be able to use the fitted model to make predictions for new items not in the training set assuming we have their predictor vectors. That is, the result will be a classifier for new items.</p>
 <p>In the case where we have no item-level predictors (i.e., <span class="math inline">L = 0</span>), our model reduces to an intercept-only model where <span class="math inline">\textrm{softmax}(\alpha) \in \Delta^{K - 1}</span> represents the simple prevalence of the categorical outcomes.</p>
 </section>
-<section id="generative-model-for-ratings" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="generative-model-for-ratings"><span class="header-section-number">3.2</span> Generative model for ratings</h2>
+<section id="generative-model-for-ratings" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="generative-model-for-ratings"><span class="header-section-number">4.2</span> Generative model for ratings</h2>
 <p>We will model the sampling distribution for rating using a logistic regression with effects for the item being rated and the rater performing the rating. This section describes the four types of effects we assume on that rating. All of the effects are vector parameters in <span class="math inline">\mathbb{R}^K</span> (i.e., the size of the number of categories).</p>
-<section id="intercept-for-global-bias" class="level3" data-number="3.2.1">
-<h3 data-number="3.2.1" class="anchored" data-anchor-id="intercept-for-global-bias"><span class="header-section-number">3.2.1</span> Intercept for global bias</h3>
+<section id="intercept-for-global-bias" class="level3" data-number="4.2.1">
+<h3 data-number="4.2.1" class="anchored" data-anchor-id="intercept-for-global-bias"><span class="header-section-number">4.2.1</span> Intercept for global bias</h3>
 <p>In order to model potential biases in ratings that are independent of the category of the item being rated, we will assume there is an intercept term in our logistic regression, <span class="math inline">\xi \in \mathbb{R}^K</span>. A high value for <span class="math inline">\xi_k</span> means there is an overall bias toward category <span class="math inline">k</span> whereas a low value represents an overall bias away from category <span class="math inline">k</span>.</p>
 </section>
-<section id="true-category-effect" class="level3" data-number="3.2.2">
-<h3 data-number="3.2.2" class="anchored" data-anchor-id="true-category-effect"><span class="header-section-number">3.2.2</span> True category effect</h3>
+<section id="true-category-effect" class="level3" data-number="4.2.2">
+<h3 data-number="4.2.2" class="anchored" data-anchor-id="true-category-effect"><span class="header-section-number">4.2.2</span> True category effect</h3>
 <p>The category assigned to item <span class="math inline">i</span> by a rater is strongly influenced by the true category <span class="math inline">z_i</span> of that item. We thus assume there is an effect <span class="math inline">\psi_k</span> based on the true category <span class="math inline">k</span> of the item being rated. This will contribute a term <span class="math inline">\psi_{z_{ii[n]]}}</span> for the <span class="math inline">n</span>-th rating, which has category <span class="math inline">ii[n]</span> and true category <span class="math inline">z_{ii[n]}</span>. Another way to consider the true category effect is as the prior location for the item effects for an item of category <span class="math inline">k</span> and as a prior location for rater responses to items of true category <span class="math inline">k</span>.</p>
 </section>
-<section id="rater-effects" class="level3" data-number="3.2.3">
-<h3 data-number="3.2.3" class="anchored" data-anchor-id="rater-effects"><span class="header-section-number">3.2.3</span> Rater effects</h3>
+<section id="rater-effects" class="level3" data-number="4.2.3">
+<h3 data-number="4.2.3" class="anchored" data-anchor-id="rater-effects"><span class="header-section-number">4.2.3</span> Rater effects</h3>
 <p>In order to allow raters to vary in their accuracies and biases, we will model each rater to have their own probabilistic response to items of a given true category. Specifically, we assume that each rater <span class="math inline">j \in 1{:}J</span> has a response simplex <span class="math inline">\theta_{j, k} \in \Delta^{K-1}</span> which says how they respond to items of category <span class="math inline">k</span>, all else being equal. A perfect rater has <span class="math inline">\theta_{j, k, k'}</span> equal to 1 if <span class="math inline">k = k'</span> and 0 otherwise. That is, <span class="math inline">\theta_{j, k, k}</span> represents rater <span class="math inline">j</span>’s accuracy on items of category <span class="math inline">k</span> and the off-diagonal elements of <span class="math inline">\theta_j</span> represent the biases.</p>
 </section>
-<section id="item-effects" class="level3" data-number="3.2.4">
-<h3 data-number="3.2.4" class="anchored" data-anchor-id="item-effects"><span class="header-section-number">3.2.4</span> Item effects</h3>
+<section id="item-effects" class="level3" data-number="4.2.4">
+<h3 data-number="4.2.4" class="anchored" data-anchor-id="item-effects"><span class="header-section-number">4.2.4</span> Item effects</h3>
 <p>We will further assume that each item <span class="math inline">i \in 1{:}I</span> has a vector of effects <span class="math inline">\varphi_i \in \mathbb{R}^K</span>. If <span class="math inline">\varphi_i = 0</span>, the item has no effect on ratings and raters will just return results according to <span class="math inline">\theta_{j, k}</span> for items of category <span class="math inline">k</span>. If <span class="math inline">\varphi_{i, z[i]}</span> is high, the item is relatively easy to rate, whereas if it’s low, the item is difficult to rate, with the other terms determining the response bias.</p>
 </section>
-<section id="sampling-distribution-for-ratings" class="level3" data-number="3.2.5">
-<h3 data-number="3.2.5" class="anchored" data-anchor-id="sampling-distribution-for-ratings"><span class="header-section-number">3.2.5</span> Sampling distribution for ratings</h3>
+<section id="sampling-distribution-for-ratings" class="level3" data-number="4.2.5">
+<h3 data-number="4.2.5" class="anchored" data-anchor-id="sampling-distribution-for-ratings"><span class="header-section-number">4.2.5</span> Sampling distribution for ratings</h3>
 <p>Given the rating and item-level effects, the generative model for ratings is a multi-logit regression, <span class="math display">
 y_n \sim \mathrm{categorical}\!\left(\textrm{softmax}\!\left(\xi + \psi_{z_{ii[n]}} + \varphi_{ii[n]} + \theta_{jj[n], \, z_{ii[n]}}\right)\right).
 </span> Breaking this down, item <span class="math inline">ii[n] \in 1{:}I</span> is being given a rating of <span class="math inline">y_n \in 1{:}K</span> by rater <span class="math inline">jj[n] \in 1{:}J</span>. The true rating for item <span class="math inline">ii[n]</span> is <span class="math inline">z_{ii[n]} \in 1{:}K</span>. The effects being added are vectors in <span class="math inline">\mathbb{R}^K</span>. The <span class="math inline">\textrm{softmax}()</span> function transforms the unconstrained vector to a simplex, which means the vector components are on the log probability scale. The first effect is the intercept <span class="math inline">\xi</span>, which accounts for overall bias in response by the raters. The second term <span class="math inline">\psi_{z_{ii[n]}}</span> is the effect of the true category <span class="math inline">z{ii[n]}</span>. The third term <span class="math inline">\varphi_{ii[n]}</span> is the effect of the item being rated. The final term <span class="math inline">\theta_{jj[n], \, z_{ii[n]}}</span> is the effect of rater <span class="math inline">jj[n]</span> responding to an item whose true category is <span class="math inline">z_{ii[n]}</span>.</p>
 </section>
 </section>
+<section id="full-data-likelihood-and-marginal-likelihood" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="full-data-likelihood-and-marginal-likelihood"><span class="header-section-number">4.3</span> Full data likelihood and marginal likelihood</h2>
+<p>For each item <span class="math inline">i \in 1{:}I</span> being rated, there is a latent discrete parameter <span class="math inline">z_i \in 1{:}K</span> for its true category, zero or more ratings, and an item-level coefficient <span class="math inline">\varphi_i \in \mathbb{R}^K</span>. We will marginalize out the <span class="math inline">z_i</span> explicitly and the value of <span class="math inline">\varphi</span> through sampling. To simplify subsequent notation, we define <span class="math display">
+\textrm{idx}(i, ii) = \{ n : ii[n] = i \},
+</span> the set of indexes of ratings for item <span class="math inline">i \in 1{:}I</span> and raters <span class="math inline">ii[n] \in 1{:}I</span> for <span class="math inline">n \in 1{:}N</span>.</p>
+<p>The so-called full data likelihood is <span class="math inline">p(y, z \mid x, \omega)</span>, where <span class="math inline">y</span> is the observed ratings and <span class="math inline">z</span> is the latent true categories, conditioned on the item-level predictor matrix <span class="math inline">x</span> and the full sequence of parameters <span class="math inline">\omega = \alpha, \beta, \xi, \psi, \phi, \theta</span>. We can derive the likelihood <span class="math inline">p(y \mid x, \omega)</span> by marginalizing out the <span class="math inline">z</span>, first noting that <span class="math display">
+p(y, z \mid x, \omega) = \prod_{i = 1}^I p\!\left(y[\textrm{idx}(i, ii)], z[i] \,\big|\, x, \omega\right),
+</span> because the coverage of the indexes is exhaustive and we make a single selection of <span class="math inline">z[i]</span> per item. We then expand the data-item specific latent category <span class="math inline">z[i]</span> in he usual way by summation, <span class="math display">
+p(y[\textrm{idx}(i, ii) \,\big|\, x, \omega)
+= \sum_{k=1}^K p(y[\textrm{idx}(i, ii)], z[i] = k \,\big|\, x, \omega).
+</span> Then we use the chain rule to decompose</p>
+<p><span class="math display">
+\begin{array}{rcl}
+p\!\left(y[\textrm{idx}(i, ii)], z[i] = k] \,\big|\, x, \omega\right)
+&amp; = &amp;
+p\!\left(z[i] = k \,\big|\, \alpha, \beta, x \right)
+\, \cdot \,
+p\!\left(y[\textrm{idx}(i, ii)] \,|\, z[i] = k, \xi, \psi, \varphi, \theta\right)
+\\[6pt]
+&amp; = &amp;
+p\!\left(z[i] = k \,\big|\, \alpha, \beta, x\right)
+\, \cdot
+\prod_{n \ \in \ \textrm{idx}(i, ii)} p\!\left(y[n] \,\big|\, z[i] = k, \xi, \psi, \varphi, \theta\right).
+\end{array}
+</span></p>
 </section>
-<section id="priors" class="level1" data-number="4">
-<h1 data-number="4"><span class="header-section-number">4</span> Priors</h1>
-<section id="prior-for-prevalence-regression-coefficients" class="level2" data-number="4.1">
-<h2 data-number="4.1" class="anchored" data-anchor-id="prior-for-prevalence-regression-coefficients"><span class="header-section-number">4.1</span> Prior for prevalence regression coefficients</h2>
+</section>
+<section id="priors" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Priors</h1>
+<section id="prior-for-prevalence-regression-coefficients" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="prior-for-prevalence-regression-coefficients"><span class="header-section-number">5.1</span> Prior for prevalence regression coefficients</h2>
 <p>For the prevalence regression, we provide weakly informative priors for the components of the intercept <span class="math inline">\alpha \in \mathbb{R}^K</span>, <span class="math display">
 \alpha_k \sim \textrm{normal}(0, 3),
 </span> and the components of the slopes <span class="math inline">\beta \in \mathbb{R}^{L \times K}</span>, <span class="math display">
 \beta_{l, k} \sim \textrm{normal}(0, 3).
 </span></p>
 </section>
-<section id="sum-to-zero-constraint-for-unconstrained-simplex-parameters" class="level2" data-number="4.2">
-<h2 data-number="4.2" class="anchored" data-anchor-id="sum-to-zero-constraint-for-unconstrained-simplex-parameters"><span class="header-section-number">4.2</span> Sum-to-zero constraint for unconstrained simplex parameters</h2>
+<section id="sum-to-zero-constraint-for-unconstrained-simplex-parameters" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="sum-to-zero-constraint-for-unconstrained-simplex-parameters"><span class="header-section-number">5.2</span> Sum-to-zero constraint for unconstrained simplex parameters</h2>
 <p>The underlying dimensionality of a simplex is one less than the number of categories it ranges over. In order to match our unconstrained parameterization on the log odds scale to the dimensionality of a simplex, we will constrain it to sum to zero. This removes what would otherwise be an additive non-identifiability in the regression that would allow us to add a constant <span class="math inline">c</span> to every dimension any of the effects without changing the sampling distribution.</p>
 </section>
-<section id="prior-for-global-effect" class="level2" data-number="4.3">
-<h2 data-number="4.3" class="anchored" data-anchor-id="prior-for-global-effect"><span class="header-section-number">4.3</span> Prior for global effect</h2>
+<section id="prior-for-global-effect" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="prior-for-global-effect"><span class="header-section-number">5.3</span> Prior for global effect</h2>
 <p>We assign the global intercept a weakly informative prior, <span class="math display">
 \xi \sim \textrm{normal}(0, 3 \cdot \textrm{I}),
 </span></p>
 <p>where <span class="math inline">\textrm{I}</span> is the identity matrix.</p>
 </section>
-<section id="prior-for-category-level-effects" class="level2" data-number="4.4">
-<h2 data-number="4.4" class="anchored" data-anchor-id="prior-for-category-level-effects"><span class="header-section-number">4.4</span> Prior for category-level effects</h2>
+<section id="prior-for-category-level-effects" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="prior-for-category-level-effects"><span class="header-section-number">5.4</span> Prior for category-level effects</h2>
 <p>Without any prior knowledge of which categories are likely to be correlated with category <span class="math inline">k</span>, we will assume a weakly inforamtive prior on the category-level effects, <span class="math display">
 \psi_k \sim \textrm{normal}(0, 3 \cdot \textrm{I}),
 </span> for <span class="math inline">k \in 1{:}K</span>.</p>
 </section>
-<section id="prior-for-item-level-effects" class="level2" data-number="4.5">
-<h2 data-number="4.5" class="anchored" data-anchor-id="prior-for-item-level-effects"><span class="header-section-number">4.5</span> Prior for item-level effects</h2>
+<section id="prior-for-item-level-effects" class="level2" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="prior-for-item-level-effects"><span class="header-section-number">5.5</span> Prior for item-level effects</h2>
 <p>The item-level effects <span class="math inline">\varphi_i \in \mathbb{R}^K</span> are assigned multivariate normal priors centered at zero, <span class="math display">
 \varphi_i \sim \textrm{normal}(0, \Sigma^\varphi),
 </span> for <span class="math inline">i \in 1{:}I</span>, where <span class="math inline">\Sigma^{\varphi}</span> is a symmetric, positive-definite covariance matrix parameteter.</p>
 </section>
-<section id="prior-for-rater-level-effects" class="level2" data-number="4.6">
-<h2 data-number="4.6" class="anchored" data-anchor-id="prior-for-rater-level-effects"><span class="header-section-number">4.6</span> Prior for rater-level effects</h2>
+<section id="prior-for-rater-level-effects" class="level2" data-number="5.6">
+<h2 data-number="5.6" class="anchored" data-anchor-id="prior-for-rater-level-effects"><span class="header-section-number">5.6</span> Prior for rater-level effects</h2>
 <p>The rater-level effects <span class="math inline">\theta_{j, k} \in \mathbb{R}^K</span> are assigned to a prior conditioned on the true category <span class="math inline">k</span>, <span class="math display">
 \theta_{j, k}
 \sim \textrm{normal}(0, \Sigma^\theta_k),
 </span> where <span class="math inline">\Sigma^\theta_k</span> is a positive definite covariance matrix for <span class="math inline">k \in 1{:}K</span>.</p>
 </section>
-<section id="hyperpriors-for-the-covariance-of-varying-effects" class="level2" data-number="4.7">
-<h2 data-number="4.7" class="anchored" data-anchor-id="hyperpriors-for-the-covariance-of-varying-effects"><span class="header-section-number">4.7</span> Hyperpriors for the covariance of varying effects</h2>
+<section id="hyperpriors-for-the-covariance-of-varying-effects" class="level2" data-number="5.7">
+<h2 data-number="5.7" class="anchored" data-anchor-id="hyperpriors-for-the-covariance-of-varying-effects"><span class="header-section-number">5.7</span> Hyperpriors for the covariance of varying effects</h2>
 <p>We have symmetric, positive-definite covariance parameters <span class="math inline">\Sigma^\varphi</span> and <span class="math inline">\Sigma^\theta_k</span> for <span class="math inline">k \in 1{:}K</span>. We factor covariance matrices into a vector of scales and a correlation matrix, <span class="math display">
 \Sigma^\varphi xtrm{diag}(\sigma^\varphi) \cdot \Omega^\varphi \cdot \textrm{diag}(\sigma^\varphi),
 </span> for strictly positive <span class="math inline">\sigma^\varphi \in \mathbb{R}_+^K</span> and a correlation matrix <span class="math inline">\Omega^\varphi</span> (i.e., a symmetric, positive definite matrix with unit diagonal). We factor the rater-level covariances by category <span class="math inline">k</span>, taking <span class="math display">
@@ -415,25 +528,42 @@ y_n \sim \mathrm{categorical}\!\left(\textrm{softmax}\!\left(\xi + \psi_{z_{ii[n
 </span> For <span class="math inline">\eta = 1</span>, the LKJ distribution is uniform over correlation matrices <span class="math inline">\Omega</span>. For <span class="math inline">\eta &gt; 1</span>, it concentrates mass around the unit correlation matrix (with <span class="math inline">\eta &lt; 0</span> it concentrates toward the boundaries). Thus when used as a prior on a correlation matrix parameter, it has the effect of shrinking the correlation estimates (i.e., the off-diagonal elements of an estimated <span class="math inline">\Omega</span>).</p>
 </section>
 </section>
-<section id="full-data-likelihood-and-marginal-likelihood" class="level1" data-number="5">
-<h1 data-number="5"><span class="header-section-number">5</span> Full data likelihood and marginal likelihood</h1>
-<p>For each item <span class="math inline">i \in 1{:}I</span> being rated, there is a latent discrete parameter <span class="math inline">z_i \in 1{:}K</span> for its true category, zero or more ratings, and an item-level coefficient <span class="math inline">\varphi_i \in \mathbb{R}^K</span>. We will marginalize out the <span class="math inline">z_i</span> explicitly and the value of <span class="math inline">\varphi</span> through sampling. To simplify subsequent notation, we define <span class="math display">
-\textrm{idx}(i, ii) = \{ n : ii[n] = i \},
-</span> the set of indexes of ratings for item <span class="math inline">i \in 1{:}I</span> and raters <span class="math inline">ii[n] \in 1{:}I</span> for <span class="math inline">n \in 1{:}N</span>.</p>
-<p>The so-called full data likelihood is <span class="math inline">p(y, z \mid x, \omega)</span>, where <span class="math inline">y</span> is the observed ratings and <span class="math inline">z</span> is the latent true categories, conditioned on the item-level predictor matrix <span class="math inline">x</span> and the full sequence of parameters <span class="math inline">\omega = \alpha, \beta, \xi, \psi, \phi, \theta, \Sigma^{\phi}, \Sigma^{\psi}</span>. We can derive the likelihood <span class="math inline">p(y \mid x, \omega)</span> by marginalizing out the <span class="math inline">z</span>, first noting that <span class="math display">
-p(y, z \mid x, \omega) = \prod_{i = 1}^I p\!\left(y[\textrm{idx}(i, ii)], z[i] \,\big|\, x, \omega\right),
-</span> because the coverage of the indexes is exhaustive and we make a single selection of <span class="math inline">z[i]</span> per item. We then expand the data-item specific latent category <span class="math inline">z[i]</span> in he usual way by summation, <span class="math display">
-p(y[\textrm{idx}(i, ii) \,\big|\, x, \omega)
-= \sum_{k=1}^K p(y[\textrm{idx}(i, ii)], z[i] = k \,\big|\, x, \omega).
-</span></p>
+<section id="previous-work" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Previous work</h1>
+<p>Our model of categorical data rating is very similar to models used in epidemiology for the results of diagnostic tests with unknown sensitivity and specificity. Raters play the role of diagnostic tests with items being classified playing the role of patients. Our model directly derives from the model of <span class="citation" data-cites="dawid1979maximum">Dawid and Skene (<a href="#ref-dawid1979maximum" role="doc-biblioref">1979</a>)</span>, which appeared in the epidemiology literature. Following <span class="citation" data-cites="passonneau2014benefits">Passonneau and Carpenter (<a href="#ref-passonneau2014benefits" role="doc-biblioref">2014</a>)</span>, the rating model presented in this paper reparameterizes Dawid and Skene’s model on the log odds scale to allow multiple additive effects such as item-level effects and introduces priors for regularization. It extends the model of Passonneau and Carpenter by adding multivariate priors with covariance parameters in order to capture dependencies between categorical responses across items and annotators.</p>
+<p>If the item-level effects are all zero, the likelihood reduces to a reparameterized version of Dawid and Skene’s. Following <span class="citation" data-cites="raykar2010learning">Raykar et al. (<a href="#ref-raykar2010learning" role="doc-biblioref">2010</a>)</span>, the model introduced here also jointly specifies a logistic regression classifier for item prevalence; this is a common move in epidemiology to model the dependence of disease prevalence on predictors such as time, location, age, sex, etc.</p>
+<p>Following <span class="citation" data-cites="paun2018comparing">Paun et al. (<a href="#ref-paun2018comparing" role="doc-biblioref">2018</a>)</span>, we use full Bayesian inference rather than the point estimation calculated by expecation maximization (EM) as employed by Dawid and Skene, Raykar et al., and Passonneau and Carpenter. Full Bayes takes parameter estimation uncertainty into account for posterior predictive inference, and typically leads to better calibrated posterior predictive inference. We further show that jointly training a logistic regression classifier leads to better performance, which we trace to the regularization effects provided by probabilistic training.</p>
 </section>
 
+<section id="bibliography" class="level1 unnumbered">
+
+
+</section>
 
 <div id="quarto-appendix" class="default"><section id="session-information" class="level1 appendix unnumbered"><h2 class="quarto-appendix-heading">Session information</h2><div class="quarto-appendix-contents">
 
 <p><code>{r session-info} sessionInfo()</code></p>
 <!-- -->
 
+</div></section><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">Bibliography</h2><div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="ref-dawid1979maximum" class="csl-entry" role="doc-biblioentry">
+Dawid, Alexander Philip, and Allan M Skene. 1979. <span>“Maximum Likelihood Estimation of Observer Error-Rates Using the <span>EM</span> Algorithm.”</span> <em>Journal of the Royal Statistical Society: Series C (Applied Statistics)</em> 28 (1): 20–28.
+</div>
+<div id="ref-gelman2008weakly" class="csl-entry" role="doc-biblioentry">
+Gelman, Andrew, Aleks Jakulin, Maria Grazia Pittau, and Yu-Sung Su. 2008. <span>“A Weakly Informative Default Prior Distribution for Logistic and Other Regression Models.”</span> <em>The Annals of Applied Statistics</em> 2 (4): 1360–83.
+</div>
+<div id="ref-gneiting2007probabilistic" class="csl-entry" role="doc-biblioentry">
+Gneiting, Tilmann, Fadoua Balabdaoui, and Adrian E Raftery. 2007. <span>“Probabilistic Forecasts, Calibration and Sharpness.”</span> <em>Journal of the Royal Statistical Society: Series B (Statistical Methodology)</em> 69 (2): 243–68.
+</div>
+<div id="ref-passonneau2014benefits" class="csl-entry" role="doc-biblioentry">
+Passonneau, Rebecca J, and Bob Carpenter. 2014. <span>“The Benefits of a Model of Annotation.”</span> <em>Transactions of the Association for Computational Linguistics</em> 2: 311–26.
+</div>
+<div id="ref-paun2018comparing" class="csl-entry" role="doc-biblioentry">
+Paun, Silviu, Bob Carpenter, Jon Chamberlain, Dirk Hovy, Udo Kruschwitz, and Massimo Poesio. 2018. <span>“Comparing <span>B</span>ayesian Models of Annotation.”</span> <em>Transactions of the Association for Computational Linguistics</em> 6: 571–85.
+</div>
+<div id="ref-raykar2010learning" class="csl-entry" role="doc-biblioentry">
+Raykar, Vikas C, Shipeng Yu, Linda H Zhao, Gerardo Hermosillo Valadez, Charles Florin, Luca Bogoni, and Linda Moy. 2010. <span>“Learning from Crowds.”</span> <em>Journal of Machine Learning Research</em> 11 (4).
+</div>
 </div></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by/4.0/">https://creativecommons.org/licenses/by/4.0/</a></div></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@article{carpenter2023,
   author = {Bob Carpenter},
   title = {A {Bayesian} Hierarchical Model of Categorical Data Rating
@@ -444,18 +574,26 @@ p(y[\textrm{idx}(i, ii) \,\big|\, x, \omega)
   doi = {xxxx},
   langid = {en},
   abstract = {We introduce a Bayesian model of categorical data rating
-    and classification. Rater effects capture raters’ accuracy and bias
-    and item-level effects capture the bias introduced by the items
-    being classified such as difficulty. We show that item-level effects
-    are crucial for ensuring calibrated predictions. We use multivariate
-    priors to capture mean task accuracy, bias, and correlation among
-    responses, which allows sharper and better calibrated predictions
-    for new data raters as might be found in an ongoing data rating task
-    with crowdsourcing. Item-level predictors (aka features) can be used
-    to jointly train a classifier, where no predictors results in a
-    prevalence-only model. We show that training a classifier with a
-    probabilistic data set regularizes estimates and improves the
-    calibration of probabilistic classification.}
+    (aka coding or annotation) and classification that reparameterizes
+    the model of @dawid1979maximum on the log odds scale in order to add
+    item-level effects and hierarchical, multivariate priors. Rater
+    effects capture raters’ accuracy and bias and item-level effects
+    capture the bias introduced by the items being classified such as
+    difficulty. We show that item-level effects are crucial for ensuring
+    calibrated predictions. We use multivariate priors to capture mean
+    task accuracy, bias, and correlation among responses, which allows
+    sharper and better calibrated predictions observed or new raters, as
+    found in an ongoing data rating task with crowdsourcing. We extend
+    the analysis of @raykar2010learning, using item-level predictors
+    (aka features or covariates) to jointly estimate (aka train) a
+    classifier. With. no item-level predictors, our model reduces to the
+    standard prevalence-only model. Moving beyond the point estimates of
+    Raykar et al., we train a fully Bayesian classifier and show how
+    proper posterior predictive inference outperforms plug-in point
+    estimates. We further demonstrate that training on a probabilistic
+    corpus, either sequentially by weighting or jointly with full Bayes,
+    leads to implicit regularization and outperforms alternative
+    non-probabilistic approaches to training.}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-carpenter2023" class="csl-entry quarto-appendix-citeas" role="doc-biblioentry">
 Bob Carpenter. 2023. <span>“A Bayesian Hierarchical Model of Categorical
@@ -681,8 +819,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> |</span></span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">  to be submitted to the journal *Computo*.</span></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="an">abstract:</span><span class="co"> &gt;+</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co">  We introduce a Bayesian model of categorical data rating and classification.  Rater effects capture raters' accuracy and bias and item-level effects capture the bias introduced by the items being classified such as difficulty.  We show that item-level effects are crucial for ensuring calibrated predictions.  We use multivariate priors to capture mean task accuracy, bias, and correlation among responses, which allows sharper and better calibrated predictions for new data raters as might be found in an ongoing data rating task with crowdsourcing.  Item-level predictors (aka features) can be used to jointly train a classifier, where no predictors results in a prevalence-only model. We show that training a classifier with a probabilistic data set regularizes estimates and improves the calibration of probabilistic classification.</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="an">keywords:</span><span class="co"> [data rating, Bayesian modeling, multivariate priors, classification, item difficulty]</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co">  We introduce a Bayesian model of categorical data rating (aka coding or annotation) and classification that reparameterizes the model of @dawid1979maximum on the log odds scale in order to add item-level effects and hierarchical, multivariate priors.  Rater effects capture raters' accuracy and bias and item-level effects capture the bias introduced by the items being classified such as difficulty.  We show that item-level effects are crucial for ensuring calibrated predictions.  We use multivariate priors to capture mean task accuracy, bias, and correlation among responses, which allows sharper and better calibrated predictions observed or new raters, as found in an ongoing data rating task with crowdsourcing.  We extend the analysis of @raykar2010learning, using item-level predictors (aka features or covariates) to jointly estimate (aka train) a classifier.  With. no item-level predictors, our model reduces to the standard prevalence-only model.  Moving beyond the point estimates of Raykar et al., we train a fully Bayesian classifier and show how proper posterior predictive inference outperforms plug-in point estimates.  We further demonstrate that training on a probabilistic corpus, either sequentially by weighting or jointly with full Bayes, leads to implicit regularization and outperforms alternative non-probabilistic approaches to training.</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="an">keywords:</span><span class="co"> [crowdsourcing, data rating, Bayesian modeling, multivariate priors, classification, item difficulty]</span></span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="an">citation:</span></span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co">  type: article-journal</span></span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co">  container-title: "Computo"</span></span>
@@ -707,189 +845,289 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/style&gt;</span></span>
 <span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="fu"># Introduction</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="fu"># Crowdsourcing classifiers</span></span>
 <span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>Supervised training of classifiers is based on labeled data sets.  Labeled data typically arises from humans or systems rating the data (also known as "coding" or "annotating" in different literatures).  Because human and machine raters are never 100% accurate, the problem arises as to how to deal with disagreements in ratings.  For example, given a radiology image, one human rater might say it shows a stage 1 cancer tumor and another may say it is nothing or given a social media post, one rater might say it is positive toward a product and another might say it is neutral.  How do we adjudicate these disagreements among raters and get on with building classifiers?  One traditional approach is to vote---use multiple raters and take a majority vote.  Often this is done in stages, where if two raters disagree, a third is brought in to settle the dispute.  This can be problematic when both raters make the same error or when there is disparity in accuracy or correlated bias among the raters.  And in the end, we have no measure of certainty. Another traditional approach is to censor data where there is disagreement---that is, use only items in the training data for which the raters agreed.  This approach may lead to clean data, but it will not be representative of the "wild type" data from which it was selected.  </span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>Supervised training of classifiers is based on labeled data sets.  Labeled data typically arises from humans or systems rating the data (also known as "coding" or "annotating" in different literatures).  Because human and machine raters are never 100% accurate, the problem arises as to how to deal with disagreements in ratings.  For example, given a radiology image, one human rater might say it shows a stage 1 cancer tumor and another may say it is stage 2 or not a tumor at all;  or given a social media post, one rater might say it is positive toward a product and another might say it is neutral or perhaps not even about the product.  How do we adjudicate these disagreements among raters and get on with building classifiers?  One traditional approach is to vote---use multiple raters and take a majority vote.  Often this is done in stages, where if two raters disagree, a third is brought in to settle the dispute.  This can be problematic when both raters make the same error or when there is disparity in accuracy or correlated bias among the raters.  And in the end, these voting schemes leave us with no measure of certainty in our ratings. Another traditional approach is to censor data where there is disagreement---that is, use only items in the training data on which all of the raters agreed.  This approach may lead to clean data, but it will not be representative of the "wild type" data from which it was selected.  </span>
 <span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>In order to make the best use of our data, we need to appropriately model it to correct for the bias and accuracy of the raters as well as the difficulty and biases introduced by the items being annotated.  In the end, we will be left with a "soft" data set, with probabilities assigned to outcomes for each item.  A traditional data set uses a one-hot encoding (where one category has probabity 1 and the others probability 0) and is often derived by assigning the most probable category.  We will show in this paper that taking the best category is inferior to selecting a category at random based on the probability distribution, which in turn is inferior to training directly with the probabilistic weights.</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>In order to make the best use of our data, we need to appropriately model it to correct for the bias and accuracy of the raters as well as the difficulty and biases introduced by the items being annotated (see, e.g., <span class="co">[</span><span class="ot">@dawid1979maximum; @passonneau2014benefits</span><span class="co">]</span>).  In the end, we will be left with a "soft" data set, with probabilities assigned to outcomes for each item.  A traditional data set uses a one-hot encoding (where one category has probabity 1 and the others probability 0) and is often derived by assigning the most probable category.  We will show in this paper that taking the best category is inferior to selecting a category at random based on the probability distribution, which in turn is inferior to training directly with the probabilistic weights.</span>
 <span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>Among the contributions of this paper are a new crowdsourcing and classifier training model that introduces (1) item-level effects for difficulty and item bias, (2) multivariate priors on item-level and rater-level effects, and (3) joint classifier and data set training with full Bayesian inference.  The model strictly generalizes the model of <span class="co">[</span><span class="ot">@dawid-skene</span><span class="co">]</span>.  We show how the item-level effects are necessary to achieve calibrated prediction on new data, and how training a model jointly with full Bayesian inference is preferable to factoring the problem.</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>Among the contributions of this paper are a new crowdsourcing and classifier training model that introduces (1) item-level effects for difficulty and item bias, (2) multivariate priors on item-level and rater-level effects, and (3) joint classifier and data set training with full Bayesian inference.  The model strictly generalizes the widely used models of @dawid1979maximum and @raykar2010larning and extends inference from point estimation to full Bayes.  We show how (1) item-level effects are necessary to achieve calibrated predictions, (2) the multivariate priors borrow strength to improve inference, especially for raters with no or little data, and (3) training a model jointly with full Bayesian inference leads to better inference than a factorized approach.</span>
 <span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="fu"># Data format</span></span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="fu">## Rating data</span></span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>We assume there are $K \in \mathbb{N}$ categories into which items are classified, $I \in \mathbb{N}$ items being rated, and $J \in \mathbb{N}$ raters.  We assume there are $N \in \mathbb{N}$ ratings, with $y_n \in 1{:}K$ being the rating given by rater $jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$ for item $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$. The result is a long-form table of $N$ rows; the first few rows of an example are shown in @tbl-data-format.\</span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>|<span class="in">`n`</span> | <span class="in">`ii`</span>    |      <span class="in">`jj`</span>    |  <span class="in">`y`</span>    |</span>
-<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>|:-:|:-----:|:----------:|:-----:|</span>
-<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>| 1 | 1     |  1         |  4    |</span>
-<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>| 2 | 1     |  2         |  4    |</span>
-<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>| 3 | 1     |  6         |  3    |</span>
-<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>| 4 | 2     |  3         |  1    |    </span>
-<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>| 5 | 2     |  4         |  1    |</span>
-<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>| 6 | 3     |  2         |  6    |</span>
-<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>| $\vdots$ | $\vdots$ | $\vdots$ | $\vdots$ |</span>
-<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>: Long-form data format for ratings.  Annotation $n$ is for item $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$ by annotator $jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$, who supplied rating $y<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$.  For example, rating $n=3$ was made for item $ii<span class="co">[</span><span class="ot">3</span><span class="co">]</span> = 1$ by rater $jj<span class="co">[</span><span class="ot">3</span><span class="co">]</span> = 6$, who provided label $y<span class="co">[</span><span class="ot">3</span><span class="co">]</span> = 6$.  Three raters, with ids 1, 2, and 6, rated item $i = 1$ providing labels 4, 4, and 3 respectively. {#tbl-data-format}</span>
-<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>This data format is flexible enough to allow each item to be rated by a zero or more raters.  While it is possible to represent a single rater rating the same item multiple times, our models will treat the ratings as independent.  </span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="fu"># Probabilistic classifier training</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>Our goal is to train a probabilistic classifier, by which we mean one which returns calibrated probabilistic predictions (see, e.g., <span class="co">[</span><span class="ot">@gneiting2007probabilistic</span><span class="co">]</span>).  Roughly speaking, calibration means that if the system says there's an 80% chance of an item being a category, then there really is an 80% chance of it being that category.  We use frequentist notions of calibration for this, with $N$ predictions of 80% leading to an expected $\textrm{binomial}(N, 0.8)$ distribution over correct items.  </span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>With typical gold-standard training data, each item is assinged a unique category.  With probabilistic training, we instead train with a probability distribution over categories.  In this section, we provide simulations that show why probabilisic training is preferable, and barring that, why sampling a single label from the probability distribution for the training data is preferable to using the most probable category.  </span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a><span class="fu">## Logistic regression classifiers</span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>We will use a simple binary logistic regression with a vector of $L$ predictors as a running example, because it is simple, but there is nothing special about this particular classifier or choice of data shape.  If we have $N$ data items, the predictors form a matrix $x \in \mathbb{R}^{N \times L}$, whereas the outcomes take the form of a boolean vector $z \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>^N$. </span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a><span class="fu">### Data generating model for logistic regression</span></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>The data generating model for the true category $z_n \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$ for item $n \in 1{:}N$ is based on an intercept parameter $\alpha \in \mathbb{R}$ and slope parameter $\beta \in \mathbb{R}$,</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>z_n \sim \textrm{bernoulli}<span class="sc">\!</span>\left(\textrm{logit}^{-1}<span class="sc">\!</span>\left(\alpha + \beta \cdot x_n^{\top}\right)\right),</span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>where $x_n$ is the $n$-th row of the data matrix $x$.</span>
 <span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a><span class="fu">## Item-level predictors </span></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a><span class="fu">### Weakly informative priors for regression coefficients</span></span>
 <span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>In addition to the ratings, we will assume there are $L$ predictors (features, etc.) for each item.  We let $x \in \mathbb{R}^{I \times L}$ be the data matrix, with rows $x_i \in \mathbb{R}^L$ being the $L$-vector of predictors for item $i \in 1{:}I$.  We model intercepts separately and thus do not assume that there is a column of 1s in the matrix $x$.  Although it would be possible to have rater-level predictors, such as the geographical location or age or sex of the rater, we do not consider that extension in this paper.</span>
-<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a><span class="fu"># Data-generating process</span></span>
-<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>We formulate our statistical model generatively in the sense that it is able to generate a complete data set given the items and predictors.  We will start with the model for the items then consider a model for the ratings.</span>
-<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prevalence and classification</span></span>
-<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>We will assume that each item $i \in 1{:}I$ has a true category $z_i \in 1{:}K$.  The $z<span class="co">[</span><span class="ot">i</span><span class="co">]</span>$ are not observed and may be considered missing data and represented by means of a discrete parameter in the model.  We model the category based on item-level predictors using a logistic regression, where we assume $\beta \in \mathbb{R}^{L \times K}$ is our matrix of regression coefficients and $\alpha \in \mathbb{R}^K$ is an intercept.</span>
-<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>z_i \sim \textrm{categorical}<span class="sc">\!</span>\left(\textrm{softmax}(\alpha + \beta \cdot x_i^{\top})\right),</span>
-<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>where $x_i$ is the $i$-th row of the matrix $x$ and $\textrm{softmax}(u) = \exp(u) / \textrm{sum}(\exp(u)) \in \Delta^{K-1}$, with $\exp()$ applied elementwise.  We will be able to use the fitted model to make predictions for new items not in the training set assuming we have their predictor vectors.  That is, the result will be a classifier for new items.</span>
-<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>In the case where we have no item-level predictors (i.e., $L = 0$), our model reduces to an intercept-only model where $\textrm{softmax}(\alpha) \in \Delta^{K - 1}$ represents the simple prevalence of the categorical outcomes.</span>
-<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a><span class="fu">## Generative model for ratings</span></span>
-<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>We will model the sampling distribution for rating using a logistic regression with effects for the item being rated and the rater performing the rating.  This section describes the four types of effects we assume on that rating.  All of the effects are vector parameters in $\mathbb{R}^K$ (i.e., the size of the number of categories).</span>
-<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a><span class="fu">### Intercept for global bias</span></span>
-<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a>In order to model potential biases in ratings that are independent of the category of the item being rated, we will assume there is an intercept term in our logistic regression, $\xi \in \mathbb{R}^K$.  A high value for $\xi_k$ means there is an overall bias toward category $k$ whereas a low value represents an overall bias away from category $k$.</span>
-<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a><span class="fu">### True category effect</span></span>
-<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a>The category assigned to item $i$ by a rater is strongly influenced by the true category $z_i$ of that item.  We thus assume there is an effect $\psi_k$ based on the true category $k$ of the item being rated.  This will contribute a term $\psi_{z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>]}}$ for the $n$-th rating, which has category $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$ and true category $z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}$.  Another way to consider the true category effect is as the prior location for the item effects for an item of category $k$ and as a prior location for rater responses to items of true category $k$.</span>
-<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a><span class="fu">### Rater effects</span></span>
-<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a>In order to allow raters to vary in their accuracies and biases, we will model each rater to have their own probabilistic response to items of a given true category.  Specifically, we assume that each rater $j \in 1{:}J$ has a response simplex $\theta_{j, k} \in \Delta^{K-1}$ which says how they respond to items of category $k$, all else being equal.  A perfect rater has $\theta_{j, k, k'}$ equal to 1 if $k = k'$ and 0 otherwise.  That is, $\theta_{j, k, k}$ represents rater $j$'s accuracy on items of category $k$ and the off-diagonal elements of $\theta_j$ represent the biases. </span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>We will assign independent, weakly informative priors to the intercept</span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>\alpha \sim \textrm{normal}(0, 3)</span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>and to the slopes</span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>\beta_l \sim \textrm{normal}(0, 3),</span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>for $l \in 1{:}L$.  These are chosen to be in line with standardized predictors (i.e., columns of $x$ are approximately mean zero and unit variance) for logistic regression (see, e.g., <span class="co">[</span><span class="ot">@gelman2008weakly</span><span class="co">]</span>).  For example, $\textrm{logit}^{-1}(-6) = 0.0025$ and $\textrm{logit}^{-1}(6) = 0.9975$, and we don't expect effects (intercept or slope times predictor) to be larger than this in our classifiers.</span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a><span class="fu">### Bayesian posterior predictive inference</span></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>Given training data $x, y$, the posterior distribution over the parameters is </span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>\begin{array}{rcl}</span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>p(\alpha, \beta \mid x, y)</span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>&amp; \propto &amp; p(\alpha, \beta) \cdot p(y \mid x, \alpha, \beta)</span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a><span class="sc">\\</span><span class="co">[</span><span class="ot">6pt</span><span class="co">]</span></span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a>&amp; = &amp; \textrm{normal}(\alpha \mid 0, 3)</span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>\cdot \prod_{l = 1}^L \textrm{normal}(\beta_l \mid 0, 3)</span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a>\cdot \prod_{n = 1}^N \textrm{bernoulli}<span class="sc">\!</span>\left(y_n \,\big|\, \textrm{logit}^{-1}<span class="sc">\!</span>\left(\alpha + \beta \cdot x_n^\top\right)\right).</span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a>\end{array}</span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a>Now suppose we have a new predictor $\tilde{x} \in \mathbb{R}^L$.  The posterior predictive distribution over the associated outcome $\tilde{y} \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$ will be</span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a>\begin{array}{rcl}</span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a>p(\tilde{y} \mid \tilde{x}, y, x)</span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a>&amp; = &amp; \mathbb{E}<span class="sc">\!</span>\left<span class="co">[</span><span class="ot">\, p(\tilde{y} \mid \tilde{x}, \alpha, \beta) \mid x, y \, \right</span><span class="co">]</span></span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a><span class="sc">\\</span><span class="co">[</span><span class="ot">6pt</span><span class="co">]</span></span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a>&amp; = &amp; \displaystyle \int p(\tilde{y} \mid \tilde{x}, \alpha, \beta) \cdot p(\alpha, \beta \mid x, y) \ \textrm{d} (\alpha, \beta).</span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a>\end{array}</span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a>$$</span>
 <span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a><span class="fu">### Item effects</span></span>
-<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a>We will further assume that each item $i \in 1{:}I$ has a vector of effects $\varphi_i \in \mathbb{R}^K$.  If $\varphi_i = 0$, the item has no effect on ratings and raters will just return results according to $\theta_{j, k}$ for items of category $k$.  If $\varphi_{i, z<span class="co">[</span><span class="ot">i</span><span class="co">]</span>}$ is high, the item is relatively easy to rate, whereas if it's low, the item is difficult to rate, with the other terms determining the response bias.</span>
-<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a><span class="fu">### Sampling distribution for ratings</span></span>
-<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a>Given the rating and item-level effects, the generative model for ratings is a multi-logit regression,</span>
-<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a>y_n \sim \mathrm{categorical}<span class="sc">\!</span>\left(\textrm{softmax}<span class="sc">\!</span>\left(\xi + \psi_{z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}} + \varphi_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>} + \theta_{jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span>, \, z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}}\right)\right).</span>
-<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a>Breaking this down, item $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span> \in 1{:}I$ is being given a rating of $y_n \in 1{:}K$ by rater $jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span> \in 1{:}J$. The true rating for item $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$ is $z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>} \in 1{:}K$.  The effects being added are vectors in $\mathbb{R}^K$.  The $\textrm{softmax}()$ function transforms the unconstrained vector to a simplex, which means the vector components are on the log probability scale.  The first effect is the intercept $\xi$, which accounts for overall bias in response by the raters.  The second term $\psi_{z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}}$ is the effect of the true category $z{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}$.  The third term $\varphi_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}$ is the effect of the item being rated.  The final term $\theta_{jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span>, \, z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}}$ is the effect of rater $jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$ responding to an item whose true category is $z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}$.</span>
-<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a><span class="fu"># Priors</span></span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a><span class="fu">### Inference with point estimates</span></span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a>We also consider estimation with point estimates, where instead of full Bayes, we take a point estimate of our parameters and then plug in for inference.  That is, we set</span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a>\widehat{\alpha}, \widehat{\beta}</span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a>= \textrm{arg max}_{\alpha, \ \beta}</span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a>\ p(y \mid \alpha, \beta, x) \cdot p(\alpha, \beta),</span>
+<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a>which can be viewed as a penalized maximum likelihood estimate (MLE) if the prior $p(\alpha, \beta)$ is considered a penalty, or viewed as a maximum a posteriori (MAP) estimate.  Inference for new items then proceeds by plugging in parameters,</span>
+<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a>p(\tilde{y} \mid \tilde{x}, x, y)</span>
+<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a>\approx</span>
+<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a>p(\tilde{y} \mid \tilde{x}, \widehat{\alpha}, \widehat{\beta}),</span>
+<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a>where the point estimates $\widehat{\alpha}, \widehat{\beta}$ are derived as MAP estimates as above.</span>
 <span id="cb1-125"><a href="#cb1-125" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for prevalence regression coefficients</span></span>
-<span id="cb1-127"><a href="#cb1-127" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-128"><a href="#cb1-128" aria-hidden="true" tabindex="-1"></a>For the prevalence regression, we provide weakly informative priors for the components of the intercept $\alpha \in \mathbb{R}^K$,</span>
-<span id="cb1-129"><a href="#cb1-129" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-130"><a href="#cb1-130" aria-hidden="true" tabindex="-1"></a>\alpha_k \sim \textrm{normal}(0, 3),</span>
-<span id="cb1-131"><a href="#cb1-131" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-132"><a href="#cb1-132" aria-hidden="true" tabindex="-1"></a>and the components of the slopes $\beta \in \mathbb{R}^{L \times K}$,</span>
-<span id="cb1-133"><a href="#cb1-133" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-134"><a href="#cb1-134" aria-hidden="true" tabindex="-1"></a>\beta_{l, k} \sim \textrm{normal}(0, 3).</span>
-<span id="cb1-135"><a href="#cb1-135" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-136"><a href="#cb1-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-137"><a href="#cb1-137" aria-hidden="true" tabindex="-1"></a><span class="fu">## Sum-to-zero constraint for unconstrained simplex parameters</span></span>
-<span id="cb1-138"><a href="#cb1-138" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-139"><a href="#cb1-139" aria-hidden="true" tabindex="-1"></a>The underlying dimensionality of a simplex is one less than the number of categories it ranges over.  In order to match our unconstrained parameterization on the log odds scale to the dimensionality of a simplex, we will constrain it to sum to zero.  This removes what would otherwise be an additive non-identifiability in the regression that would allow us to add a constant $c$ to every dimension any of the effects without changing the sampling distribution.</span>
-<span id="cb1-140"><a href="#cb1-140" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-141"><a href="#cb1-141" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for global effect</span></span>
-<span id="cb1-142"><a href="#cb1-142" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-143"><a href="#cb1-143" aria-hidden="true" tabindex="-1"></a>We assign the global intercept a weakly informative prior,</span>
-<span id="cb1-144"><a href="#cb1-144" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-145"><a href="#cb1-145" aria-hidden="true" tabindex="-1"></a>\xi \sim \textrm{normal}(0, 3 \cdot \textrm{I}),</span>
-<span id="cb1-146"><a href="#cb1-146" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-127"><a href="#cb1-127" aria-hidden="true" tabindex="-1"></a><span class="fu"># Observed rating data</span></span>
+<span id="cb1-128"><a href="#cb1-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-129"><a href="#cb1-129" aria-hidden="true" tabindex="-1"></a>In this section, we describe the observed data that we model as well as the constants required.</span>
+<span id="cb1-130"><a href="#cb1-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-131"><a href="#cb1-131" aria-hidden="true" tabindex="-1"></a><span class="fu">## Rating data</span></span>
+<span id="cb1-132"><a href="#cb1-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-133"><a href="#cb1-133" aria-hidden="true" tabindex="-1"></a>We assume there are $K \in \mathbb{N}$ categories into which items are classified, $I \in \mathbb{N}$ items being rated, and $J \in \mathbb{N}$ raters.  We assume there are $N \in \mathbb{N}$ ratings, with $y_n \in 1{:}K$ being the rating given by rater $jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$ for item $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$. The result is a long-form table of $N$ rows; the first few rows of an example are shown in @tbl-data-format.\</span>
+<span id="cb1-134"><a href="#cb1-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-135"><a href="#cb1-135" aria-hidden="true" tabindex="-1"></a>|<span class="in">`n`</span> | <span class="in">`ii`</span>    |      <span class="in">`jj`</span>    |  <span class="in">`y`</span>    |</span>
+<span id="cb1-136"><a href="#cb1-136" aria-hidden="true" tabindex="-1"></a>|:-:|:-----:|:----------:|:-----:|</span>
+<span id="cb1-137"><a href="#cb1-137" aria-hidden="true" tabindex="-1"></a>| 1 | 1     |  1         |  4    |</span>
+<span id="cb1-138"><a href="#cb1-138" aria-hidden="true" tabindex="-1"></a>| 2 | 1     |  2         |  4    |</span>
+<span id="cb1-139"><a href="#cb1-139" aria-hidden="true" tabindex="-1"></a>| 3 | 1     |  6         |  3    |</span>
+<span id="cb1-140"><a href="#cb1-140" aria-hidden="true" tabindex="-1"></a>| 4 | 2     |  3         |  1    |    </span>
+<span id="cb1-141"><a href="#cb1-141" aria-hidden="true" tabindex="-1"></a>| 5 | 2     |  4         |  1    |</span>
+<span id="cb1-142"><a href="#cb1-142" aria-hidden="true" tabindex="-1"></a>| 6 | 3     |  2         |  6    |</span>
+<span id="cb1-143"><a href="#cb1-143" aria-hidden="true" tabindex="-1"></a>| $\vdots$ | $\vdots$ | $\vdots$ | $\vdots$ |</span>
+<span id="cb1-144"><a href="#cb1-144" aria-hidden="true" tabindex="-1"></a>: Long-form data format for ratings.  Annotation $n$ is for item $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$ by annotator $jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$, who supplied rating $y<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$.  For example, rating $n=3$ was made for item $ii<span class="co">[</span><span class="ot">3</span><span class="co">]</span> = 1$ by rater $jj<span class="co">[</span><span class="ot">3</span><span class="co">]</span> = 6$, who provided label $y<span class="co">[</span><span class="ot">3</span><span class="co">]</span> = 6$.  Three raters, with ids 1, 2, and 6, rated item $i = 1$ providing labels 4, 4, and 3 respectively. {#tbl-data-format}</span>
+<span id="cb1-145"><a href="#cb1-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-146"><a href="#cb1-146" aria-hidden="true" tabindex="-1"></a>This data format is flexible enough to allow each item to be rated by a zero or more raters.  While it is possible to represent a single rater rating the same item multiple times, our models will treat the ratings as independent.  </span>
 <span id="cb1-147"><a href="#cb1-147" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-148"><a href="#cb1-148" aria-hidden="true" tabindex="-1"></a>where $\textrm{I}$ is the identity matrix.</span>
-<span id="cb1-149"><a href="#cb1-149" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-150"><a href="#cb1-150" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for category-level effects</span></span>
-<span id="cb1-151"><a href="#cb1-151" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-152"><a href="#cb1-152" aria-hidden="true" tabindex="-1"></a>Without any prior knowledge of which categories are likely to be correlated with category $k$, we will assume a weakly inforamtive prior on the category-level effects,</span>
-<span id="cb1-153"><a href="#cb1-153" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-154"><a href="#cb1-154" aria-hidden="true" tabindex="-1"></a>\psi_k \sim \textrm{normal}(0, 3 \cdot \textrm{I}),</span>
-<span id="cb1-155"><a href="#cb1-155" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-156"><a href="#cb1-156" aria-hidden="true" tabindex="-1"></a>for $k \in 1{:}K$.</span>
+<span id="cb1-148"><a href="#cb1-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-149"><a href="#cb1-149" aria-hidden="true" tabindex="-1"></a><span class="fu">## Item-level predictors </span></span>
+<span id="cb1-150"><a href="#cb1-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-151"><a href="#cb1-151" aria-hidden="true" tabindex="-1"></a>In addition to the ratings, we will assume there are $L$ predictors (features, etc.) for each item.  We let $x \in \mathbb{R}^{I \times L}$ be the data matrix, with rows $x_i \in \mathbb{R}^L$ being the $L$-vector of predictors for item $i \in 1{:}I$.  We model intercepts separately and thus do not assume that there is a column of 1s in the matrix $x$.  Although it would be possible to have rater-level predictors, such as the geographical location or age or sex of the rater, we do not consider that extension in this paper.</span>
+<span id="cb1-152"><a href="#cb1-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-153"><a href="#cb1-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-154"><a href="#cb1-154" aria-hidden="true" tabindex="-1"></a><span class="fu"># Data-generating process</span></span>
+<span id="cb1-155"><a href="#cb1-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-156"><a href="#cb1-156" aria-hidden="true" tabindex="-1"></a>We formulate our statistical model generatively in the sense that it is able to generate a complete data set given the items and predictors.  We will start with the model for the items then consider a model for the ratings.</span>
 <span id="cb1-157"><a href="#cb1-157" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-158"><a href="#cb1-158" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-159"><a href="#cb1-159" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for item-level effects</span></span>
-<span id="cb1-160"><a href="#cb1-160" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-161"><a href="#cb1-161" aria-hidden="true" tabindex="-1"></a>The item-level effects $\varphi_i \in \mathbb{R}^K$ are assigned multivariate normal priors centered at zero,</span>
-<span id="cb1-162"><a href="#cb1-162" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-163"><a href="#cb1-163" aria-hidden="true" tabindex="-1"></a>\varphi_i \sim \textrm{normal}(0, \Sigma^\varphi),</span>
-<span id="cb1-164"><a href="#cb1-164" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-165"><a href="#cb1-165" aria-hidden="true" tabindex="-1"></a>for $i \in 1{:}I$, where $\Sigma^{\varphi}$ is a symmetric, positive-definite covariance matrix parameteter.</span>
-<span id="cb1-166"><a href="#cb1-166" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-167"><a href="#cb1-167" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for rater-level effects</span></span>
-<span id="cb1-168"><a href="#cb1-168" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-169"><a href="#cb1-169" aria-hidden="true" tabindex="-1"></a>The rater-level effects $\theta_{j, k} \in \mathbb{R}^K$ are assigned to a prior conditioned on the true category $k$,</span>
-<span id="cb1-170"><a href="#cb1-170" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-171"><a href="#cb1-171" aria-hidden="true" tabindex="-1"></a>\theta_{j, k}</span>
-<span id="cb1-172"><a href="#cb1-172" aria-hidden="true" tabindex="-1"></a>\sim \textrm{normal}(0, \Sigma^\theta_k),</span>
-<span id="cb1-173"><a href="#cb1-173" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-174"><a href="#cb1-174" aria-hidden="true" tabindex="-1"></a>where $\Sigma^\theta_k$ is a positive definite covariance matrix for $k \in 1{:}K$.</span>
+<span id="cb1-158"><a href="#cb1-158" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prevalence and classification</span></span>
+<span id="cb1-159"><a href="#cb1-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-160"><a href="#cb1-160" aria-hidden="true" tabindex="-1"></a>We will assume that each item $i \in 1{:}I$ has a true category $z_i \in 1{:}K$.  The $z<span class="co">[</span><span class="ot">i</span><span class="co">]</span>$ are not observed and may be considered missing data and represented by means of a discrete parameter in the model.  We model the category based on item-level predictors using a logistic regression, where we assume $\beta \in \mathbb{R}^{L \times K}$ is our matrix of regression coefficients and $\alpha \in \mathbb{R}^K$ is an intercept.</span>
+<span id="cb1-161"><a href="#cb1-161" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-162"><a href="#cb1-162" aria-hidden="true" tabindex="-1"></a>z_i \sim \textrm{categorical}<span class="sc">\!</span>\left(\textrm{softmax}(\alpha + \beta \cdot x_i^{\top})\right),</span>
+<span id="cb1-163"><a href="#cb1-163" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-164"><a href="#cb1-164" aria-hidden="true" tabindex="-1"></a>where $x_i$ is the $i$-th row of the matrix $x$ and $\textrm{softmax}(u) = \exp(u) / \textrm{sum}(\exp(u)) \in \Delta^{K-1}$, with $\exp()$ applied elementwise.  We will be able to use the fitted model to make predictions for new items not in the training set assuming we have their predictor vectors.  That is, the result will be a classifier for new items.</span>
+<span id="cb1-165"><a href="#cb1-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-166"><a href="#cb1-166" aria-hidden="true" tabindex="-1"></a>In the case where we have no item-level predictors (i.e., $L = 0$), our model reduces to an intercept-only model where $\textrm{softmax}(\alpha) \in \Delta^{K - 1}$ represents the simple prevalence of the categorical outcomes.</span>
+<span id="cb1-167"><a href="#cb1-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-168"><a href="#cb1-168" aria-hidden="true" tabindex="-1"></a><span class="fu">## Generative model for ratings</span></span>
+<span id="cb1-169"><a href="#cb1-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-170"><a href="#cb1-170" aria-hidden="true" tabindex="-1"></a>We will model the sampling distribution for rating using a logistic regression with effects for the item being rated and the rater performing the rating.  This section describes the four types of effects we assume on that rating.  All of the effects are vector parameters in $\mathbb{R}^K$ (i.e., the size of the number of categories).</span>
+<span id="cb1-171"><a href="#cb1-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-172"><a href="#cb1-172" aria-hidden="true" tabindex="-1"></a><span class="fu">### Intercept for global bias</span></span>
+<span id="cb1-173"><a href="#cb1-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-174"><a href="#cb1-174" aria-hidden="true" tabindex="-1"></a>In order to model potential biases in ratings that are independent of the category of the item being rated, we will assume there is an intercept term in our logistic regression, $\xi \in \mathbb{R}^K$.  A high value for $\xi_k$ means there is an overall bias toward category $k$ whereas a low value represents an overall bias away from category $k$.</span>
 <span id="cb1-175"><a href="#cb1-175" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-176"><a href="#cb1-176" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-177"><a href="#cb1-177" aria-hidden="true" tabindex="-1"></a><span class="fu">## Hyperpriors for the covariance of varying effects</span></span>
-<span id="cb1-178"><a href="#cb1-178" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-179"><a href="#cb1-179" aria-hidden="true" tabindex="-1"></a>We have symmetric, positive-definite covariance parameters $\Sigma^\varphi$ and $\Sigma^\theta_k$ for $k \in 1{:}K$. We factor covariance matrices into a vector of scales and a correlation matrix,</span>
-<span id="cb1-180"><a href="#cb1-180" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-181"><a href="#cb1-181" aria-hidden="true" tabindex="-1"></a>\Sigma^\varphi xtrm{diag}(\sigma^\varphi) \cdot \Omega^\varphi \cdot \textrm{diag}(\sigma^\varphi),</span>
-<span id="cb1-182"><a href="#cb1-182" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-183"><a href="#cb1-183" aria-hidden="true" tabindex="-1"></a>for strictly positive $\sigma^\varphi \in \mathbb{R}_+^K$ and a correlation matrix $\Omega^\varphi$ (i.e., a symmetric, positive definite matrix with unit diagonal).  We factor the rater-level covariances by category $k$, taking</span>
-<span id="cb1-184"><a href="#cb1-184" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-185"><a href="#cb1-185" aria-hidden="true" tabindex="-1"></a>\Sigma^\theta_k = \textrm{diag}(\sigma^\theta_k) \cdot \Omega^\theta_k \cdot \textrm{diag}(\sigma^\theta_k)</span>
-<span id="cb1-186"><a href="#cb1-186" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-187"><a href="#cb1-187" aria-hidden="true" tabindex="-1"></a>for $k \in 1{:}K$, where $\sigma^\theta_k \in \mathbb{R}_+^K$ is a vector of strictly positive scales and $\Omega^\theta_k$ is a correlation matrix.  </span>
+<span id="cb1-176"><a href="#cb1-176" aria-hidden="true" tabindex="-1"></a><span class="fu">### True category effect</span></span>
+<span id="cb1-177"><a href="#cb1-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-178"><a href="#cb1-178" aria-hidden="true" tabindex="-1"></a>The category assigned to item $i$ by a rater is strongly influenced by the true category $z_i$ of that item.  We thus assume there is an effect $\psi_k$ based on the true category $k$ of the item being rated.  This will contribute a term $\psi_{z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>]}}$ for the $n$-th rating, which has category $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$ and true category $z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}$.  Another way to consider the true category effect is as the prior location for the item effects for an item of category $k$ and as a prior location for rater responses to items of true category $k$.</span>
+<span id="cb1-179"><a href="#cb1-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-180"><a href="#cb1-180" aria-hidden="true" tabindex="-1"></a><span class="fu">### Rater effects</span></span>
+<span id="cb1-181"><a href="#cb1-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-182"><a href="#cb1-182" aria-hidden="true" tabindex="-1"></a>In order to allow raters to vary in their accuracies and biases, we will model each rater to have their own probabilistic response to items of a given true category.  Specifically, we assume that each rater $j \in 1{:}J$ has a response simplex $\theta_{j, k} \in \Delta^{K-1}$ which says how they respond to items of category $k$, all else being equal.  A perfect rater has $\theta_{j, k, k'}$ equal to 1 if $k = k'$ and 0 otherwise.  That is, $\theta_{j, k, k}$ represents rater $j$'s accuracy on items of category $k$ and the off-diagonal elements of $\theta_j$ represent the biases. </span>
+<span id="cb1-183"><a href="#cb1-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-184"><a href="#cb1-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-185"><a href="#cb1-185" aria-hidden="true" tabindex="-1"></a><span class="fu">### Item effects</span></span>
+<span id="cb1-186"><a href="#cb1-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-187"><a href="#cb1-187" aria-hidden="true" tabindex="-1"></a>We will further assume that each item $i \in 1{:}I$ has a vector of effects $\varphi_i \in \mathbb{R}^K$.  If $\varphi_i = 0$, the item has no effect on ratings and raters will just return results according to $\theta_{j, k}$ for items of category $k$.  If $\varphi_{i, z<span class="co">[</span><span class="ot">i</span><span class="co">]</span>}$ is high, the item is relatively easy to rate, whereas if it's low, the item is difficult to rate, with the other terms determining the response bias.</span>
 <span id="cb1-188"><a href="#cb1-188" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-189"><a href="#cb1-189" aria-hidden="true" tabindex="-1"></a>The components of the scale parameters are assigned weakly informative half-normal priors independently by component, taking</span>
-<span id="cb1-190"><a href="#cb1-190" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-191"><a href="#cb1-191" aria-hidden="true" tabindex="-1"></a>\sigma^\theta_{k, k'}, \sigma^\varphi_k \sim \textrm{normal}_+(0, 3),</span>
+<span id="cb1-189"><a href="#cb1-189" aria-hidden="true" tabindex="-1"></a><span class="fu">### Sampling distribution for ratings</span></span>
+<span id="cb1-190"><a href="#cb1-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-191"><a href="#cb1-191" aria-hidden="true" tabindex="-1"></a>Given the rating and item-level effects, the generative model for ratings is a multi-logit regression,</span>
 <span id="cb1-192"><a href="#cb1-192" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-193"><a href="#cb1-193" aria-hidden="true" tabindex="-1"></a>for $k, k' \in 1{:}K$.  We assign Lewandowski-Kurowicka-Joe (LKJ) priors to the correlation matrix, </span>
-<span id="cb1-194"><a href="#cb1-194" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-195"><a href="#cb1-195" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-196"><a href="#cb1-196" aria-hidden="true" tabindex="-1"></a>\Omega^\theta_k, \Omega^\varphi_k \sim \textrm{LKJ}(5),</span>
-<span id="cb1-197"><a href="#cb1-197" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-198"><a href="#cb1-198" aria-hidden="true" tabindex="-1"></a>for $k \in 1{:}K$, where the LKJ density is defined for a symmetric positive-definite, unit-diagonal correlation matrix $\Omega$ and shape $\eta &gt; 0$ by</span>
-<span id="cb1-199"><a href="#cb1-199" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-200"><a href="#cb1-200" aria-hidden="true" tabindex="-1"></a>\textrm{LKJ}(\Omega \mid \eta) \propto \textrm{det}(\Omega)^{\eta - 1}.</span>
-<span id="cb1-201"><a href="#cb1-201" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-202"><a href="#cb1-202" aria-hidden="true" tabindex="-1"></a>For $\eta = 1$, the LKJ distribution is uniform over correlation matrices $\Omega$.  For $\eta &gt; 1$, it concentrates mass around the unit correlation matrix (with $\eta &lt; 0$ it concentrates toward the boundaries). Thus when used as a prior on a correlation matrix parameter, it has the effect of shrinking the correlation estimates (i.e., the off-diagonal elements of an estimated $\Omega$).</span>
-<span id="cb1-203"><a href="#cb1-203" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-204"><a href="#cb1-204" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-205"><a href="#cb1-205" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-206"><a href="#cb1-206" aria-hidden="true" tabindex="-1"></a><span class="fu"># Full data likelihood and marginal likelihood</span></span>
-<span id="cb1-207"><a href="#cb1-207" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-208"><a href="#cb1-208" aria-hidden="true" tabindex="-1"></a>For each item $i \in 1{:}I$ being rated, there is a latent discrete parameter $z_i \in 1{:}K$ for its true category, zero or more ratings, and an item-level coefficient $\varphi_i \in \mathbb{R}^K$.  We will marginalize out the $z_i$ explicitly and the value of $\varphi$ through sampling.  To simplify subsequent notation, we define</span>
-<span id="cb1-209"><a href="#cb1-209" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-210"><a href="#cb1-210" aria-hidden="true" tabindex="-1"></a>\textrm{idx}(i, ii) = <span class="sc">\{</span> n : ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span> = i <span class="sc">\}</span>,</span>
-<span id="cb1-211"><a href="#cb1-211" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-212"><a href="#cb1-212" aria-hidden="true" tabindex="-1"></a>the set of indexes of ratings for item $i \in 1{:}I$ and raters $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span> \in 1{:}I$ for $n \in 1{:}N$.</span>
-<span id="cb1-213"><a href="#cb1-213" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-214"><a href="#cb1-214" aria-hidden="true" tabindex="-1"></a>The so-called full data likelihood is $p(y, z \mid x, \omega)$, where $y$ is the observed ratings and $z$ is the latent true categories, conditioned on the item-level predictor matrix $x$ and the full sequence of parameters $\omega = \alpha, \beta, \xi, \psi, \phi, \theta, \Sigma^{\phi}, \Sigma^{\psi}$.  We can derive the likelihood $p(y \mid x, \omega)$ by marginalizing out the $z$, first noting that</span>
-<span id="cb1-215"><a href="#cb1-215" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-216"><a href="#cb1-216" aria-hidden="true" tabindex="-1"></a>p(y, z \mid x, \omega) = \prod_{i = 1}^I p<span class="sc">\!</span>\left(y<span class="co">[</span><span class="ot">\textrm{idx}(i, ii)</span><span class="co">]</span>, z<span class="co">[</span><span class="ot">i</span><span class="co">]</span> \,\big|\, x, \omega\right),</span>
+<span id="cb1-193"><a href="#cb1-193" aria-hidden="true" tabindex="-1"></a>y_n \sim \mathrm{categorical}<span class="sc">\!</span>\left(\textrm{softmax}<span class="sc">\!</span>\left(\xi + \psi_{z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}} + \varphi_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>} + \theta_{jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span>, \, z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}}\right)\right).</span>
+<span id="cb1-194"><a href="#cb1-194" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-195"><a href="#cb1-195" aria-hidden="true" tabindex="-1"></a>Breaking this down, item $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span> \in 1{:}I$ is being given a rating of $y_n \in 1{:}K$ by rater $jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span> \in 1{:}J$. The true rating for item $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$ is $z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>} \in 1{:}K$.  The effects being added are vectors in $\mathbb{R}^K$.  The $\textrm{softmax}()$ function transforms the unconstrained vector to a simplex, which means the vector components are on the log probability scale.  The first effect is the intercept $\xi$, which accounts for overall bias in response by the raters.  The second term $\psi_{z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}}$ is the effect of the true category $z{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}$.  The third term $\varphi_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}$ is the effect of the item being rated.  The final term $\theta_{jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span>, \, z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}}$ is the effect of rater $jj<span class="co">[</span><span class="ot">n</span><span class="co">]</span>$ responding to an item whose true category is $z_{ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span>}$.</span>
+<span id="cb1-196"><a href="#cb1-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-197"><a href="#cb1-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-198"><a href="#cb1-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-199"><a href="#cb1-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-200"><a href="#cb1-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-201"><a href="#cb1-201" aria-hidden="true" tabindex="-1"></a><span class="fu">## Full data likelihood and marginal likelihood</span></span>
+<span id="cb1-202"><a href="#cb1-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-203"><a href="#cb1-203" aria-hidden="true" tabindex="-1"></a>For each item $i \in 1{:}I$ being rated, there is a latent discrete parameter $z_i \in 1{:}K$ for its true category, zero or more ratings, and an item-level coefficient $\varphi_i \in \mathbb{R}^K$.  We will marginalize out the $z_i$ explicitly and the value of $\varphi$ through sampling.  To simplify subsequent notation, we define</span>
+<span id="cb1-204"><a href="#cb1-204" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-205"><a href="#cb1-205" aria-hidden="true" tabindex="-1"></a>\textrm{idx}(i, ii) = <span class="sc">\{</span> n : ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span> = i <span class="sc">\}</span>,</span>
+<span id="cb1-206"><a href="#cb1-206" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-207"><a href="#cb1-207" aria-hidden="true" tabindex="-1"></a>the set of indexes of ratings for item $i \in 1{:}I$ and raters $ii<span class="co">[</span><span class="ot">n</span><span class="co">]</span> \in 1{:}I$ for $n \in 1{:}N$.</span>
+<span id="cb1-208"><a href="#cb1-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-209"><a href="#cb1-209" aria-hidden="true" tabindex="-1"></a>The so-called full data likelihood is $p(y, z \mid x, \omega)$, where $y$ is the observed ratings and $z$ is the latent true categories, conditioned on the item-level predictor matrix $x$ and the full sequence of parameters $\omega = \alpha, \beta, \xi, \psi, \phi, \theta$.  We can derive the likelihood $p(y \mid x, \omega)$ by marginalizing out the $z$, first noting that</span>
+<span id="cb1-210"><a href="#cb1-210" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-211"><a href="#cb1-211" aria-hidden="true" tabindex="-1"></a>p(y, z \mid x, \omega) = \prod_{i = 1}^I p<span class="sc">\!</span>\left(y<span class="co">[</span><span class="ot">\textrm{idx}(i, ii)</span><span class="co">]</span>, z<span class="co">[</span><span class="ot">i</span><span class="co">]</span> \,\big|\, x, \omega\right),</span>
+<span id="cb1-212"><a href="#cb1-212" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-213"><a href="#cb1-213" aria-hidden="true" tabindex="-1"></a>because the coverage of the indexes is exhaustive and we make a single selection of $z<span class="co">[</span><span class="ot">i</span><span class="co">]</span>$ per item.  We then expand the data-item specific latent category $z<span class="co">[</span><span class="ot">i</span><span class="co">]</span>$ in he usual way by summation,</span>
+<span id="cb1-214"><a href="#cb1-214" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-215"><a href="#cb1-215" aria-hidden="true" tabindex="-1"></a>p(y[\textrm{idx}(i, ii) \,\big|\, x, \omega)</span>
+<span id="cb1-216"><a href="#cb1-216" aria-hidden="true" tabindex="-1"></a>= \sum_{k=1}^K p(y<span class="co">[</span><span class="ot">\textrm{idx}(i, ii)</span><span class="co">]</span>, z<span class="co">[</span><span class="ot">i</span><span class="co">]</span> = k \,\big|\, x, \omega).</span>
 <span id="cb1-217"><a href="#cb1-217" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-218"><a href="#cb1-218" aria-hidden="true" tabindex="-1"></a>because the coverage of the indexes is exhaustive and we make a single selection of $z<span class="co">[</span><span class="ot">i</span><span class="co">]</span>$ per item.  We then expand the data-item specific latent category $z<span class="co">[</span><span class="ot">i</span><span class="co">]</span>$ in he usual way by summation,</span>
-<span id="cb1-219"><a href="#cb1-219" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-220"><a href="#cb1-220" aria-hidden="true" tabindex="-1"></a>p(y[\textrm{idx}(i, ii) \,\big|\, x, \omega)</span>
-<span id="cb1-221"><a href="#cb1-221" aria-hidden="true" tabindex="-1"></a>= \sum_{k=1}^K p(y<span class="co">[</span><span class="ot">\textrm{idx}(i, ii)</span><span class="co">]</span>, z<span class="co">[</span><span class="ot">i</span><span class="co">]</span> = k \,\big|\, x, \omega).</span>
-<span id="cb1-222"><a href="#cb1-222" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb1-223"><a href="#cb1-223" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-224"><a href="#cb1-224" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-225"><a href="#cb1-225" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session information {.appendix .unnumbered}</span></span>
-<span id="cb1-226"><a href="#cb1-226" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-227"><a href="#cb1-227" aria-hidden="true" tabindex="-1"></a><span class="in">```{r session-info}</span></span>
-<span id="cb1-228"><a href="#cb1-228" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb1-229"><a href="#cb1-229" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-218"><a href="#cb1-218" aria-hidden="true" tabindex="-1"></a>Then we use the chain rule to decompose</span>
+<span id="cb1-219"><a href="#cb1-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-220"><a href="#cb1-220" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-221"><a href="#cb1-221" aria-hidden="true" tabindex="-1"></a>\begin{array}{rcl}</span>
+<span id="cb1-222"><a href="#cb1-222" aria-hidden="true" tabindex="-1"></a>p<span class="sc">\!</span>\left(y<span class="co">[</span><span class="ot">\textrm{idx}(i, ii)</span><span class="co">]</span>, z<span class="co">[</span><span class="ot">i</span><span class="co">]</span> = k] \,\big|\, x, \omega\right)</span>
+<span id="cb1-223"><a href="#cb1-223" aria-hidden="true" tabindex="-1"></a>&amp; = &amp; </span>
+<span id="cb1-224"><a href="#cb1-224" aria-hidden="true" tabindex="-1"></a>p<span class="sc">\!</span>\left(z<span class="co">[</span><span class="ot">i</span><span class="co">]</span> = k \,\big|\, \alpha, \beta, x \right)</span>
+<span id="cb1-225"><a href="#cb1-225" aria-hidden="true" tabindex="-1"></a>\, \cdot \,</span>
+<span id="cb1-226"><a href="#cb1-226" aria-hidden="true" tabindex="-1"></a>p<span class="sc">\!</span>\left(y<span class="co">[</span><span class="ot">\textrm{idx}(i, ii)</span><span class="co">]</span> \,|\, z<span class="co">[</span><span class="ot">i</span><span class="co">]</span> = k, \xi, \psi, \varphi, \theta\right)</span>
+<span id="cb1-227"><a href="#cb1-227" aria-hidden="true" tabindex="-1"></a><span class="sc">\\</span><span class="co">[</span><span class="ot">6pt</span><span class="co">]</span></span>
+<span id="cb1-228"><a href="#cb1-228" aria-hidden="true" tabindex="-1"></a>&amp; = &amp;</span>
+<span id="cb1-229"><a href="#cb1-229" aria-hidden="true" tabindex="-1"></a>p<span class="sc">\!</span>\left(z<span class="co">[</span><span class="ot">i</span><span class="co">]</span> = k \,\big|\, \alpha, \beta, x\right)</span>
+<span id="cb1-230"><a href="#cb1-230" aria-hidden="true" tabindex="-1"></a>\, \cdot</span>
+<span id="cb1-231"><a href="#cb1-231" aria-hidden="true" tabindex="-1"></a>\prod_{n \ \in \ \textrm{idx}(i, ii)} p<span class="sc">\!</span>\left(y<span class="co">[</span><span class="ot">n</span><span class="co">]</span> \,\big|\, z<span class="co">[</span><span class="ot">i</span><span class="co">]</span> = k, \xi, \psi, \varphi, \theta\right).</span>
+<span id="cb1-232"><a href="#cb1-232" aria-hidden="true" tabindex="-1"></a>\end{array}</span>
+<span id="cb1-233"><a href="#cb1-233" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-234"><a href="#cb1-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-235"><a href="#cb1-235" aria-hidden="true" tabindex="-1"></a><span class="fu"># Priors</span></span>
+<span id="cb1-236"><a href="#cb1-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-237"><a href="#cb1-237" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for prevalence regression coefficients</span></span>
+<span id="cb1-238"><a href="#cb1-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-239"><a href="#cb1-239" aria-hidden="true" tabindex="-1"></a>For the prevalence regression, we provide weakly informative priors for the components of the intercept $\alpha \in \mathbb{R}^K$,</span>
+<span id="cb1-240"><a href="#cb1-240" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-241"><a href="#cb1-241" aria-hidden="true" tabindex="-1"></a>\alpha_k \sim \textrm{normal}(0, 3),</span>
+<span id="cb1-242"><a href="#cb1-242" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-243"><a href="#cb1-243" aria-hidden="true" tabindex="-1"></a>and the components of the slopes $\beta \in \mathbb{R}^{L \times K}$,</span>
+<span id="cb1-244"><a href="#cb1-244" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-245"><a href="#cb1-245" aria-hidden="true" tabindex="-1"></a>\beta_{l, k} \sim \textrm{normal}(0, 3).</span>
+<span id="cb1-246"><a href="#cb1-246" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-247"><a href="#cb1-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-248"><a href="#cb1-248" aria-hidden="true" tabindex="-1"></a><span class="fu">## Sum-to-zero constraint for unconstrained simplex parameters</span></span>
+<span id="cb1-249"><a href="#cb1-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-250"><a href="#cb1-250" aria-hidden="true" tabindex="-1"></a>The underlying dimensionality of a simplex is one less than the number of categories it ranges over.  In order to match our unconstrained parameterization on the log odds scale to the dimensionality of a simplex, we will constrain it to sum to zero.  This removes what would otherwise be an additive non-identifiability in the regression that would allow us to add a constant $c$ to every dimension any of the effects without changing the sampling distribution.</span>
+<span id="cb1-251"><a href="#cb1-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-252"><a href="#cb1-252" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for global effect</span></span>
+<span id="cb1-253"><a href="#cb1-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-254"><a href="#cb1-254" aria-hidden="true" tabindex="-1"></a>We assign the global intercept a weakly informative prior,</span>
+<span id="cb1-255"><a href="#cb1-255" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-256"><a href="#cb1-256" aria-hidden="true" tabindex="-1"></a>\xi \sim \textrm{normal}(0, 3 \cdot \textrm{I}),</span>
+<span id="cb1-257"><a href="#cb1-257" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-258"><a href="#cb1-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-259"><a href="#cb1-259" aria-hidden="true" tabindex="-1"></a>where $\textrm{I}$ is the identity matrix.</span>
+<span id="cb1-260"><a href="#cb1-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-261"><a href="#cb1-261" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for category-level effects</span></span>
+<span id="cb1-262"><a href="#cb1-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-263"><a href="#cb1-263" aria-hidden="true" tabindex="-1"></a>Without any prior knowledge of which categories are likely to be correlated with category $k$, we will assume a weakly inforamtive prior on the category-level effects,</span>
+<span id="cb1-264"><a href="#cb1-264" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-265"><a href="#cb1-265" aria-hidden="true" tabindex="-1"></a>\psi_k \sim \textrm{normal}(0, 3 \cdot \textrm{I}),</span>
+<span id="cb1-266"><a href="#cb1-266" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-267"><a href="#cb1-267" aria-hidden="true" tabindex="-1"></a>for $k \in 1{:}K$.</span>
+<span id="cb1-268"><a href="#cb1-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-269"><a href="#cb1-269" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-270"><a href="#cb1-270" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for item-level effects</span></span>
+<span id="cb1-271"><a href="#cb1-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-272"><a href="#cb1-272" aria-hidden="true" tabindex="-1"></a>The item-level effects $\varphi_i \in \mathbb{R}^K$ are assigned multivariate normal priors centered at zero,</span>
+<span id="cb1-273"><a href="#cb1-273" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-274"><a href="#cb1-274" aria-hidden="true" tabindex="-1"></a>\varphi_i \sim \textrm{normal}(0, \Sigma^\varphi),</span>
+<span id="cb1-275"><a href="#cb1-275" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-276"><a href="#cb1-276" aria-hidden="true" tabindex="-1"></a>for $i \in 1{:}I$, where $\Sigma^{\varphi}$ is a symmetric, positive-definite covariance matrix parameteter.</span>
+<span id="cb1-277"><a href="#cb1-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-278"><a href="#cb1-278" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prior for rater-level effects</span></span>
+<span id="cb1-279"><a href="#cb1-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-280"><a href="#cb1-280" aria-hidden="true" tabindex="-1"></a>The rater-level effects $\theta_{j, k} \in \mathbb{R}^K$ are assigned to a prior conditioned on the true category $k$,</span>
+<span id="cb1-281"><a href="#cb1-281" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-282"><a href="#cb1-282" aria-hidden="true" tabindex="-1"></a>\theta_{j, k}</span>
+<span id="cb1-283"><a href="#cb1-283" aria-hidden="true" tabindex="-1"></a>\sim \textrm{normal}(0, \Sigma^\theta_k),</span>
+<span id="cb1-284"><a href="#cb1-284" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-285"><a href="#cb1-285" aria-hidden="true" tabindex="-1"></a>where $\Sigma^\theta_k$ is a positive definite covariance matrix for $k \in 1{:}K$.</span>
+<span id="cb1-286"><a href="#cb1-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-287"><a href="#cb1-287" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-288"><a href="#cb1-288" aria-hidden="true" tabindex="-1"></a><span class="fu">## Hyperpriors for the covariance of varying effects</span></span>
+<span id="cb1-289"><a href="#cb1-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-290"><a href="#cb1-290" aria-hidden="true" tabindex="-1"></a>We have symmetric, positive-definite covariance parameters $\Sigma^\varphi$ and $\Sigma^\theta_k$ for $k \in 1{:}K$. We factor covariance matrices into a vector of scales and a correlation matrix,</span>
+<span id="cb1-291"><a href="#cb1-291" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-292"><a href="#cb1-292" aria-hidden="true" tabindex="-1"></a>\Sigma^\varphi xtrm{diag}(\sigma^\varphi) \cdot \Omega^\varphi \cdot \textrm{diag}(\sigma^\varphi),</span>
+<span id="cb1-293"><a href="#cb1-293" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-294"><a href="#cb1-294" aria-hidden="true" tabindex="-1"></a>for strictly positive $\sigma^\varphi \in \mathbb{R}_+^K$ and a correlation matrix $\Omega^\varphi$ (i.e., a symmetric, positive definite matrix with unit diagonal).  We factor the rater-level covariances by category $k$, taking</span>
+<span id="cb1-295"><a href="#cb1-295" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-296"><a href="#cb1-296" aria-hidden="true" tabindex="-1"></a>\Sigma^\theta_k = \textrm{diag}(\sigma^\theta_k) \cdot \Omega^\theta_k \cdot \textrm{diag}(\sigma^\theta_k)</span>
+<span id="cb1-297"><a href="#cb1-297" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-298"><a href="#cb1-298" aria-hidden="true" tabindex="-1"></a>for $k \in 1{:}K$, where $\sigma^\theta_k \in \mathbb{R}_+^K$ is a vector of strictly positive scales and $\Omega^\theta_k$ is a correlation matrix.  </span>
+<span id="cb1-299"><a href="#cb1-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-300"><a href="#cb1-300" aria-hidden="true" tabindex="-1"></a>The components of the scale parameters are assigned weakly informative half-normal priors independently by component, taking</span>
+<span id="cb1-301"><a href="#cb1-301" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-302"><a href="#cb1-302" aria-hidden="true" tabindex="-1"></a>\sigma^\theta_{k, k'}, \sigma^\varphi_k \sim \textrm{normal}_+(0, 3),</span>
+<span id="cb1-303"><a href="#cb1-303" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-304"><a href="#cb1-304" aria-hidden="true" tabindex="-1"></a>for $k, k' \in 1{:}K$.  We assign Lewandowski-Kurowicka-Joe (LKJ) priors to the correlation matrix, </span>
+<span id="cb1-305"><a href="#cb1-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-306"><a href="#cb1-306" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-307"><a href="#cb1-307" aria-hidden="true" tabindex="-1"></a>\Omega^\theta_k, \Omega^\varphi_k \sim \textrm{LKJ}(5),</span>
+<span id="cb1-308"><a href="#cb1-308" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-309"><a href="#cb1-309" aria-hidden="true" tabindex="-1"></a>for $k \in 1{:}K$, where the LKJ density is defined for a symmetric positive-definite, unit-diagonal correlation matrix $\Omega$ and shape $\eta &gt; 0$ by</span>
+<span id="cb1-310"><a href="#cb1-310" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-311"><a href="#cb1-311" aria-hidden="true" tabindex="-1"></a>\textrm{LKJ}(\Omega \mid \eta) \propto \textrm{det}(\Omega)^{\eta - 1}.</span>
+<span id="cb1-312"><a href="#cb1-312" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-313"><a href="#cb1-313" aria-hidden="true" tabindex="-1"></a>For $\eta = 1$, the LKJ distribution is uniform over correlation matrices $\Omega$.  For $\eta &gt; 1$, it concentrates mass around the unit correlation matrix (with $\eta &lt; 0$ it concentrates toward the boundaries). Thus when used as a prior on a correlation matrix parameter, it has the effect of shrinking the correlation estimates (i.e., the off-diagonal elements of an estimated $\Omega$).</span>
+<span id="cb1-314"><a href="#cb1-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-315"><a href="#cb1-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-316"><a href="#cb1-316" aria-hidden="true" tabindex="-1"></a><span class="fu"># Previous work</span></span>
+<span id="cb1-317"><a href="#cb1-317" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-318"><a href="#cb1-318" aria-hidden="true" tabindex="-1"></a>Our model of categorical data rating is very similar to models used in epidemiology for the results of diagnostic tests with unknown sensitivity and specificity.  Raters play the role of diagnostic tests with items being classified playing the role of patients.  Our model directly derives from the model of @dawid1979maximum, which appeared in the epidemiology literature.  Following @passonneau2014benefits, the rating model presented in this paper reparameterizes Dawid and Skene's model on the log odds scale to allow multiple additive effects such as item-level effects and introduces priors for regularization.  It extends the model of Passonneau and Carpenter by adding multivariate priors with covariance parameters in order to capture dependencies between categorical responses across items and annotators.</span>
+<span id="cb1-319"><a href="#cb1-319" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-320"><a href="#cb1-320" aria-hidden="true" tabindex="-1"></a>If the item-level effects are all zero, the likelihood reduces to a reparameterized version of Dawid and Skene's. Following @raykar2010learning, the model introduced here also jointly specifies a logistic regression classifier for item prevalence;  this is a common move in epidemiology to model the dependence of disease prevalence on predictors such as time, location, age, sex, etc.</span>
+<span id="cb1-321"><a href="#cb1-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-322"><a href="#cb1-322" aria-hidden="true" tabindex="-1"></a>Following @paun2018comparing, we use full Bayesian inference rather than the point estimation calculated by expecation maximization (EM) as employed by Dawid and Skene, Raykar et al., and Passonneau and Carpenter.  Full Bayes takes parameter estimation uncertainty into account for posterior predictive inference, and typically leads to better calibrated posterior predictive inference.  We further show that jointly training a logistic regression classifier leads to better performance, which we trace to the regularization effects provided by probabilistic training.</span>
+<span id="cb1-323"><a href="#cb1-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-324"><a href="#cb1-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-325"><a href="#cb1-325" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session information {.appendix .unnumbered}</span></span>
+<span id="cb1-326"><a href="#cb1-326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-327"><a href="#cb1-327" aria-hidden="true" tabindex="-1"></a><span class="in">```{r session-info}</span></span>
+<span id="cb1-328"><a href="#cb1-328" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb1-329"><a href="#cb1-329" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 
