@@ -18,8 +18,8 @@ date: last-modified
 description: |
   to be submitted to the journal *Computo*.
 abstract: >+
-  We introduce a Bayesian model of categorical data rating and classification.  Rater effects capture raters' accuracy and bias and item-level effects capture the bias introduced by the items being classified such as difficulty.  We show that item-level effects are crucial for ensuring calibrated predictions.  We use multivariate priors to capture mean task accuracy, bias, and correlation among responses, which allows sharper and better calibrated predictions for new data raters as might be found in an ongoing data rating task with crowdsourcing.  Item-level predictors (aka features) can be used to jointly train a classifier, where no predictors results in a prevalence-only model. We show that training a classifier with a probabilistic data set regularizes estimates and improves the calibration of probabilistic classification.
-keywords: [data rating, Bayesian modeling, multivariate priors, classification, item difficulty]
+  We introduce a Bayesian model of categorical data rating (aka coding or annotation) and classification that reparameterizes the model of @dawid1979maximum on the log odds scale in order to add item-level effects and hierarchical, multivariate priors.  Rater effects capture raters' accuracy and bias and item-level effects capture the bias introduced by the items being classified such as difficulty.  We show that item-level effects are crucial for ensuring calibrated predictions.  We use multivariate priors to capture mean task accuracy, bias, and correlation among responses, which allows sharper and better calibrated predictions observed or new raters, as found in an ongoing data rating task with crowdsourcing.  We extend the analysis of @raykar2010learning, using item-level predictors (aka features or covariates) to jointly estimate (aka train) a classifier.  With. no item-level predictors, our model reduces to the standard prevalence-only model.  Moving beyond the point estimates of Raykar et al., we train a fully Bayesian classifier and show how proper posterior predictive inference outperforms plug-in point estimates.  We further demonstrate that training on a probabilistic corpus, either sequentially by weighting or jointly with full Bayes, leads to implicit regularization and outperforms alternative non-probabilistic approaches to training.
+keywords: [crowdsourcing, data rating, Bayesian modeling, multivariate priors, classification, item difficulty]
 citation:
   type: article-journal
   container-title: "Computo"
@@ -44,15 +44,89 @@ caption, .table-caption {
 </style>
 ```
 
-# Introduction
+# Crowdsourcing classifiers
 
-Supervised training of classifiers is based on labeled data sets.  Labeled data typically arises from humans or systems rating the data (also known as "coding" or "annotating" in different literatures).  Because human and machine raters are never 100% accurate, the problem arises as to how to deal with disagreements in ratings.  For example, given a radiology image, one human rater might say it shows a stage 1 cancer tumor and another may say it is nothing or given a social media post, one rater might say it is positive toward a product and another might say it is neutral.  How do we adjudicate these disagreements among raters and get on with building classifiers?  One traditional approach is to vote---use multiple raters and take a majority vote.  Often this is done in stages, where if two raters disagree, a third is brought in to settle the dispute.  This can be problematic when both raters make the same error or when there is disparity in accuracy or correlated bias among the raters.  And in the end, we have no measure of certainty. Another traditional approach is to censor data where there is disagreement---that is, use only items in the training data for which the raters agreed.  This approach may lead to clean data, but it will not be representative of the "wild type" data from which it was selected.  
+Supervised training of classifiers is based on labeled data sets.  Labeled data typically arises from humans or systems rating the data (also known as "coding" or "annotating" in different literatures).  Because human and machine raters are never 100% accurate, the problem arises as to how to deal with disagreements in ratings.  For example, given a radiology image, one human rater might say it shows a stage 1 cancer tumor and another may say it is stage 2 or not a tumor at all;  or given a social media post, one rater might say it is positive toward a product and another might say it is neutral or perhaps not even about the product.  How do we adjudicate these disagreements among raters and get on with building classifiers?  One traditional approach is to vote---use multiple raters and take a majority vote.  Often this is done in stages, where if two raters disagree, a third is brought in to settle the dispute.  This can be problematic when both raters make the same error or when there is disparity in accuracy or correlated bias among the raters.  And in the end, these voting schemes leave us with no measure of certainty in our ratings. Another traditional approach is to censor data where there is disagreement---that is, use only items in the training data on which all of the raters agreed.  This approach may lead to clean data, but it will not be representative of the "wild type" data from which it was selected.  
 
-In order to make the best use of our data, we need to appropriately model it to correct for the bias and accuracy of the raters as well as the difficulty and biases introduced by the items being annotated.  In the end, we will be left with a "soft" data set, with probabilities assigned to outcomes for each item.  A traditional data set uses a one-hot encoding (where one category has probabity 1 and the others probability 0) and is often derived by assigning the most probable category.  We will show in this paper that taking the best category is inferior to selecting a category at random based on the probability distribution, which in turn is inferior to training directly with the probabilistic weights.
+In order to make the best use of our data, we need to appropriately model it to correct for the bias and accuracy of the raters as well as the difficulty and biases introduced by the items being annotated (see, e.g., [@dawid1979maximum; @passonneau2014benefits]).  In the end, we will be left with a "soft" data set, with probabilities assigned to outcomes for each item.  A traditional data set uses a one-hot encoding (where one category has probabity 1 and the others probability 0) and is often derived by assigning the most probable category.  We will show in this paper that taking the best category is inferior to selecting a category at random based on the probability distribution, which in turn is inferior to training directly with the probabilistic weights.
 
-Among the contributions of this paper are a new crowdsourcing and classifier training model that introduces (1) item-level effects for difficulty and item bias, (2) multivariate priors on item-level and rater-level effects, and (3) joint classifier and data set training with full Bayesian inference.  The model strictly generalizes the model of [@dawid-skene].  We show how the item-level effects are necessary to achieve calibrated prediction on new data, and how training a model jointly with full Bayesian inference is preferable to factoring the problem.
+Among the contributions of this paper are a new crowdsourcing and classifier training model that introduces (1) item-level effects for difficulty and item bias, (2) multivariate priors on item-level and rater-level effects, and (3) joint classifier and data set training with full Bayesian inference.  The model strictly generalizes the widely used models of @dawid1979maximum and @raykar2010larning and extends inference from point estimation to full Bayes.  We show how (1) item-level effects are necessary to achieve calibrated predictions, (2) the multivariate priors borrow strength to improve inference, especially for raters with no or little data, and (3) training a model jointly with full Bayesian inference leads to better inference than a factorized approach.
 
-# Data format
+
+# Probabilistic classifier training
+
+Our goal is to train a probabilistic classifier, by which we mean one which returns calibrated probabilistic predictions (see, e.g., [@gneiting2007probabilistic]).  Roughly speaking, calibration means that if the system says there's an 80% chance of an item being a category, then there really is an 80% chance of it being that category.  We use frequentist notions of calibration for this, with $N$ predictions of 80% leading to an expected $\textrm{binomial}(N, 0.8)$ distribution over correct items.  
+
+With typical gold-standard training data, each item is assinged a unique category.  With probabilistic training, we instead train with a probability distribution over categories.  In this section, we provide simulations that show why probabilisic training is preferable, and barring that, why sampling a single label from the probability distribution for the training data is preferable to using the most probable category.  
+
+## Logistic regression classifiers
+
+We will use a simple binary logistic regression with a vector of $L$ predictors as a running example, because it is simple, but there is nothing special about this particular classifier or choice of data shape.  If we have $N$ data items, the predictors form a matrix $x \in \mathbb{R}^{N \times L}$, whereas the outcomes take the form of a boolean vector $z \in \{0, 1\}^N$. 
+
+### Data generating model for logistic regression
+
+The data generating model for the true category $z_n \in \{0, 1\}$ for item $n \in 1{:}N$ is based on an intercept parameter $\alpha \in \mathbb{R}$ and slope parameter $\beta \in \mathbb{R}$,
+$$
+z_n \sim \textrm{bernoulli}\!\left(\textrm{logit}^{-1}\!\left(\alpha + \beta \cdot x_n^{\top}\right)\right),
+$$
+where $x_n$ is the $n$-th row of the data matrix $x$.
+
+
+### Weakly informative priors for regression coefficients
+
+We will assign independent, weakly informative priors to the intercept
+$$
+\alpha \sim \textrm{normal}(0, 3)
+$$
+and to the slopes
+$$
+\beta_l \sim \textrm{normal}(0, 3),
+$$
+for $l \in 1{:}L$.  These are chosen to be in line with standardized predictors (i.e., columns of $x$ are approximately mean zero and unit variance) for logistic regression (see, e.g., [@gelman2008weakly]).  For example, $\textrm{logit}^{-1}(-6) = 0.0025$ and $\textrm{logit}^{-1}(6) = 0.9975$, and we don't expect effects (intercept or slope times predictor) to be larger than this in our classifiers.
+
+### Bayesian posterior predictive inference
+
+Given training data $x, y$, the posterior distribution over the parameters is 
+$$
+\begin{array}{rcl}
+p(\alpha, \beta \mid x, y)
+& \propto & p(\alpha, \beta) \cdot p(y \mid x, \alpha, \beta)
+\\[6pt]
+& = & \textrm{normal}(\alpha \mid 0, 3)
+\cdot \prod_{l = 1}^L \textrm{normal}(\beta_l \mid 0, 3)
+\cdot \prod_{n = 1}^N \textrm{bernoulli}\!\left(y_n \,\big|\, \textrm{logit}^{-1}\!\left(\alpha + \beta \cdot x_n^\top\right)\right).
+\end{array}
+$$
+Now suppose we have a new predictor $\tilde{x} \in \mathbb{R}^L$.  The posterior predictive distribution over the associated outcome $\tilde{y} \in \{0, 1\}$ will be
+$$
+\begin{array}{rcl}
+p(\tilde{y} \mid \tilde{x}, y, x)
+& = & \mathbb{E}\!\left[\, p(\tilde{y} \mid \tilde{x}, \alpha, \beta) \mid x, y \, \right]
+\\[6pt]
+& = & \displaystyle \int p(\tilde{y} \mid \tilde{x}, \alpha, \beta) \cdot p(\alpha, \beta \mid x, y) \ \textrm{d} (\alpha, \beta).
+\end{array}
+$$
+
+### Inference with point estimates
+
+We also consider estimation with point estimates, where instead of full Bayes, we take a point estimate of our parameters and then plug in for inference.  That is, we set
+$$
+\widehat{\alpha}, \widehat{\beta}
+= \textrm{arg max}_{\alpha, \ \beta}
+\ p(y \mid \alpha, \beta, x) \cdot p(\alpha, \beta),
+$$
+which can be viewed as a penalized maximum likelihood estimate (MLE) if the prior $p(\alpha, \beta)$ is considered a penalty, or viewed as a maximum a posteriori (MAP) estimate.  Inference for new items then proceeds by plugging in parameters,
+$$
+p(\tilde{y} \mid \tilde{x}, x, y)
+\approx
+p(\tilde{y} \mid \tilde{x}, \widehat{\alpha}, \widehat{\beta}),
+$$
+where the point estimates $\widehat{\alpha}, \widehat{\beta}$ are derived as MAP estimates as above.
+
+
+# Observed rating data
+
+In this section, we describe the observed data that we model as well as the constants required.
 
 ## Rating data
 
@@ -120,6 +194,43 @@ y_n \sim \mathrm{categorical}\!\left(\textrm{softmax}\!\left(\xi + \psi_{z_{ii[n
 $$
 Breaking this down, item $ii[n] \in 1{:}I$ is being given a rating of $y_n \in 1{:}K$ by rater $jj[n] \in 1{:}J$. The true rating for item $ii[n]$ is $z_{ii[n]} \in 1{:}K$.  The effects being added are vectors in $\mathbb{R}^K$.  The $\textrm{softmax}()$ function transforms the unconstrained vector to a simplex, which means the vector components are on the log probability scale.  The first effect is the intercept $\xi$, which accounts for overall bias in response by the raters.  The second term $\psi_{z_{ii[n]}}$ is the effect of the true category $z{ii[n]}$.  The third term $\varphi_{ii[n]}$ is the effect of the item being rated.  The final term $\theta_{jj[n], \, z_{ii[n]}}$ is the effect of rater $jj[n]$ responding to an item whose true category is $z_{ii[n]}$.
 
+
+
+
+
+## Full data likelihood and marginal likelihood
+
+For each item $i \in 1{:}I$ being rated, there is a latent discrete parameter $z_i \in 1{:}K$ for its true category, zero or more ratings, and an item-level coefficient $\varphi_i \in \mathbb{R}^K$.  We will marginalize out the $z_i$ explicitly and the value of $\varphi$ through sampling.  To simplify subsequent notation, we define
+$$
+\textrm{idx}(i, ii) = \{ n : ii[n] = i \},
+$$
+the set of indexes of ratings for item $i \in 1{:}I$ and raters $ii[n] \in 1{:}I$ for $n \in 1{:}N$.
+
+The so-called full data likelihood is $p(y, z \mid x, \omega)$, where $y$ is the observed ratings and $z$ is the latent true categories, conditioned on the item-level predictor matrix $x$ and the full sequence of parameters $\omega = \alpha, \beta, \xi, \psi, \phi, \theta$.  We can derive the likelihood $p(y \mid x, \omega)$ by marginalizing out the $z$, first noting that
+$$
+p(y, z \mid x, \omega) = \prod_{i = 1}^I p\!\left(y[\textrm{idx}(i, ii)], z[i] \,\big|\, x, \omega\right),
+$$
+because the coverage of the indexes is exhaustive and we make a single selection of $z[i]$ per item.  We then expand the data-item specific latent category $z[i]$ in he usual way by summation,
+$$
+p(y[\textrm{idx}(i, ii) \,\big|\, x, \omega)
+= \sum_{k=1}^K p(y[\textrm{idx}(i, ii)], z[i] = k \,\big|\, x, \omega).
+$$
+Then we use the chain rule to decompose
+
+$$
+\begin{array}{rcl}
+p\!\left(y[\textrm{idx}(i, ii)], z[i] = k] \,\big|\, x, \omega\right)
+& = & 
+p\!\left(z[i] = k \,\big|\, \alpha, \beta, x \right)
+\, \cdot \,
+p\!\left(y[\textrm{idx}(i, ii)] \,|\, z[i] = k, \xi, \psi, \varphi, \theta\right)
+\\[6pt]
+& = &
+p\!\left(z[i] = k \,\big|\, \alpha, \beta, x\right)
+\, \cdot
+\prod_{n \ \in \ \textrm{idx}(i, ii)} p\!\left(y[n] \,\big|\, z[i] = k, \xi, \psi, \varphi, \theta\right).
+\end{array}
+$$
 
 # Priors
 
@@ -202,24 +313,13 @@ $$
 For $\eta = 1$, the LKJ distribution is uniform over correlation matrices $\Omega$.  For $\eta > 1$, it concentrates mass around the unit correlation matrix (with $\eta < 0$ it concentrates toward the boundaries). Thus when used as a prior on a correlation matrix parameter, it has the effect of shrinking the correlation estimates (i.e., the off-diagonal elements of an estimated $\Omega$).
 
 
+# Previous work
 
-# Full data likelihood and marginal likelihood
+Our model of categorical data rating is very similar to models used in epidemiology for the results of diagnostic tests with unknown sensitivity and specificity.  Raters play the role of diagnostic tests with items being classified playing the role of patients.  Our model directly derives from the model of @dawid1979maximum, which appeared in the epidemiology literature.  Following @passonneau2014benefits, the rating model presented in this paper reparameterizes Dawid and Skene's model on the log odds scale to allow multiple additive effects such as item-level effects and introduces priors for regularization.  It extends the model of Passonneau and Carpenter by adding multivariate priors with covariance parameters in order to capture dependencies between categorical responses across items and annotators.
 
-For each item $i \in 1{:}I$ being rated, there is a latent discrete parameter $z_i \in 1{:}K$ for its true category, zero or more ratings, and an item-level coefficient $\varphi_i \in \mathbb{R}^K$.  We will marginalize out the $z_i$ explicitly and the value of $\varphi$ through sampling.  To simplify subsequent notation, we define
-$$
-\textrm{idx}(i, ii) = \{ n : ii[n] = i \},
-$$
-the set of indexes of ratings for item $i \in 1{:}I$ and raters $ii[n] \in 1{:}I$ for $n \in 1{:}N$.
+If the item-level effects are all zero, the likelihood reduces to a reparameterized version of Dawid and Skene's. Following @raykar2010learning, the model introduced here also jointly specifies a logistic regression classifier for item prevalence;  this is a common move in epidemiology to model the dependence of disease prevalence on predictors such as time, location, age, sex, etc.
 
-The so-called full data likelihood is $p(y, z \mid x, \omega)$, where $y$ is the observed ratings and $z$ is the latent true categories, conditioned on the item-level predictor matrix $x$ and the full sequence of parameters $\omega = \alpha, \beta, \xi, \psi, \phi, \theta, \Sigma^{\phi}, \Sigma^{\psi}$.  We can derive the likelihood $p(y \mid x, \omega)$ by marginalizing out the $z$, first noting that
-$$
-p(y, z \mid x, \omega) = \prod_{i = 1}^I p\!\left(y[\textrm{idx}(i, ii)], z[i] \,\big|\, x, \omega\right),
-$$
-because the coverage of the indexes is exhaustive and we make a single selection of $z[i]$ per item.  We then expand the data-item specific latent category $z[i]$ in he usual way by summation,
-$$
-p(y[\textrm{idx}(i, ii) \,\big|\, x, \omega)
-= \sum_{k=1}^K p(y[\textrm{idx}(i, ii)], z[i] = k \,\big|\, x, \omega).
-$$
+Following @paun2018comparing, we use full Bayesian inference rather than the point estimation calculated by expecation maximization (EM) as employed by Dawid and Skene, Raykar et al., and Passonneau and Carpenter.  Full Bayes takes parameter estimation uncertainty into account for posterior predictive inference, and typically leads to better calibrated posterior predictive inference.  We further show that jointly training a logistic regression classifier leads to better performance, which we trace to the regularization effects provided by probabilistic training.
 
 
 # Session information {.appendix .unnumbered}
