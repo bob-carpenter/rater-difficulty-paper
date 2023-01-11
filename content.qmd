@@ -53,23 +53,25 @@ In order to make the best use of our data, we need to appropriately model it to 
 Among the contributions of this paper are a new crowdsourcing and classifier training model that introduces (1) item-level effects for difficulty and item bias, (2) multivariate priors on item-level and rater-level effects, and (3) joint classifier and data set training with full Bayesian inference.  The model strictly generalizes the widely used models of @dawid1979maximum and @raykar2010larning and extends inference from point estimation to full Bayes.  We show how (1) item-level effects are necessary to achieve calibrated predictions, (2) the multivariate priors borrow strength to improve inference, especially for raters with no or little data, and (3) training a model jointly with full Bayesian inference leads to better inference than a factorized approach.
 
 
-# Probabilistic classifier training
+# Probabilistic training of probabilistic classifiers
 
-Our goal is to train a probabilistic classifier, by which we mean one which returns calibrated probabilistic predictions (see, e.g., [@gneiting2007probabilistic]).  Roughly speaking, calibration means that if the system says there's an 80% chance of an item being a category, then there really is an 80% chance of it being that category.  We use frequentist notions of calibration for this, with $N$ predictions of 80% leading to an expected $\textrm{binomial}(N, 0.8)$ distribution over correct items.  
+Our goal is to train a probabilistic classifier, by which we mean one which returns probabilistic predictions.  Ideally, such predictions would be calibrated in the usual statistical sense of having appropriate coverage (see, e.g., @gneiting2007probabilistic).  Roughly speaking, calibration means that if the system says there's an 80% chance of an item being a category, then there really is an 80% chance of it being that category.  For example, with $N$ predictions of an 80% chance of rain, the actual number of rain days will be distributed as $\textrm{binomial}(N, 0.8)$.
 
-With typical gold-standard training data, each item is assinged a unique category.  With probabilistic training, we instead train with a probability distribution over categories.  In this section, we provide simulations that show why probabilisic training is preferable, and barring that, why sampling a single label from the probability distribution for the training data is preferable to using the most probable category.  
+Even though we are building probabilistic classifiers, our training data is typically assigned a unique category in gold-standard training sets. When we crowdsource our data, we have the opportunity to develop probabilistic training data sets.  That is, we might have some disagreement among data raters and some inherent noise in their ratings, so that we are not 100% sure of any of the categories in our data set.  For example, with probabilistic training we might train a somewhat ambiguous handwritten image as being 90% likely to be the digit '6', 9% likely to be the digit '0', and 1% likely to be the digit '9'.  
+
+We show that taking training data uncertainty into account leads to tighter estimates as measured by proper scoring metrics such as squared error or log loss (see, e.g., @gneiting2007strictly).  Specifically, we provide simulations that show why probabilistic training is preferable, and barring that, why sampling a single label from the probability distribution for the training data is preferable to deterministically selecting the most probable category.  
 
 ## Logistic regression classifiers
 
-We will use a simple binary logistic regression with a vector of $L$ predictors as a running example, because it is simple, but there is nothing special about this particular classifier or choice of data shape.  If we have $N$ data items, the predictors form a matrix $x \in \mathbb{R}^{N \times L}$, whereas the outcomes take the form of a boolean vector $z \in \{0, 1\}^N$. 
+We will evaluate a binary logistic regression classifier with a vector of predictors for each item.  We choose logistic regression because it is simple---the same argument holds for more expressive classifiers such as neural networks.  Suppose we have $L$ predictors and $N$ data items, so that the predictors form a matrix $x \in \mathbb{R}^{N \times L}$.  The observed outcomes are binary, so take the form of a boolean vector $z \in \{0, 1\}^N$. 
 
 ### Data generating model for logistic regression
 
-The data generating model for the true category $z_n \in \{0, 1\}$ for item $n \in 1{:}N$ is based on an intercept parameter $\alpha \in \mathbb{R}$ and slope parameter $\beta \in \mathbb{R}$,
+The data generating model for the true category $z_n \in \{0, 1\}$ for item $n \in 1{:}N$ is based on an intercept parameter $\alpha \in \mathbb{R}$ and slope vector $\beta \in \mathbb{R}^L$,
 $$
-z_n \sim \textrm{bernoulli}\!\left(\textrm{logit}^{-1}\!\left(\alpha + \beta \cdot x_n^{\top}\right)\right),
+z_n \sim \textrm{bernoulli}\!\left(\textrm{logit}^{-1}\!\left(\alpha + x_n \cdot \beta\right)\right),
 $$
-where $x_n$ is the $n$-th row of the data matrix $x$.
+where $x_n \in \mathbb{R}^L$ is the $n$-th row of the data matrix $x$.
 
 
 ### Weakly informative priors for regression coefficients
@@ -84,7 +86,7 @@ $$
 $$
 for $l \in 1{:}L$.  These are chosen to be in line with standardized predictors (i.e., columns of $x$ are approximately mean zero and unit variance) for logistic regression (see, e.g., [@gelman2008weakly]).  For example, $\textrm{logit}^{-1}(-6) = 0.0025$ and $\textrm{logit}^{-1}(6) = 0.9975$, and we don't expect effects (intercept or slope times predictor) to be larger than this in our classifiers.
 
-### Bayesian posterior predictive inference
+### Posterior predictive inference
 
 Given training data $x, y$, the posterior distribution over the parameters is 
 $$
@@ -111,17 +113,129 @@ $$
 
 We also consider estimation with point estimates, where instead of full Bayes, we take a point estimate of our parameters and then plug in for inference.  That is, we set
 $$
-\widehat{\alpha}, \widehat{\beta}
-= \textrm{arg max}_{\alpha, \ \beta}
-\ p(y \mid \alpha, \beta, x) \cdot p(\alpha, \beta),
+\alpha^*, \beta^*
+= \textrm{arg max}_{\alpha,\,\beta}
+\ \, p(y \mid \alpha, \beta, x) \cdot p(\alpha, \beta),
 $$
 which can be viewed as a penalized maximum likelihood estimate (MLE) if the prior $p(\alpha, \beta)$ is considered a penalty, or viewed as a maximum a posteriori (MAP) estimate.  Inference for new items then proceeds by plugging in parameters,
 $$
 p(\tilde{y} \mid \tilde{x}, x, y)
 \approx
-p(\tilde{y} \mid \tilde{x}, \widehat{\alpha}, \widehat{\beta}),
+p(\tilde{y} \mid \tilde{x}, \alpha^*, \beta^*),
 $$
 where the point estimates $\widehat{\alpha}, \widehat{\beta}$ are derived as MAP estimates as above.
+
+Another form of point estimate that we may use is the Bayesian posterior mean.  For example, our estimate for $\alpha$ is
+$$
+\begin{array}{rcl}
+\widehat{\alpha}
+& = &
+\mathbb{E}\!\left[\,
+\alpha \mid x, y
+\,\right]
+\\[8pt]
+& = & \int \alpha \cdot p(\alpha \mid x, y) \ \textrm{d}\alpha,
+\end{array}
+$$
+and $\widehat{\beta}$ is defined the same way as $\mathbb{E}[\beta \mid x, y]$.  Such an estimate is similar to what would result from taking a point estimate from a variational approximation to the posterior and plugging in the point estimate for inference.
+
+## Simulated data
+
+### Simulated predictors
+
+We will sample two situations, one where the predictors are independent and one where they're highly correlated.  In the independent case, we generate predictor vectors according to a standard normal distribution,
+$$
+x_n \sim \textrm{normal}(0, \textrm{I}).
+$$
+In the correlated case, we will generate
+$$
+x_n \sim \textrm{normal}(0, \Sigma),
+$$
+where $\Sigma$ is a symmetric, positive-definite, $L \times L$ matrix, which is defined by
+$$
+\Sigma_{i, j} = \rho^{\left|i - j\right|}
+$$
+for some $\rho \in (-1, 1)$.  Both approaches to simulating predictors produce indibidual predictors that are marginally standard normal.
+
+### Simulated regression coefficients
+
+We will simulate regression coefficients independently according to a slightly more limited distribution than our priors,
+$$
+\alpha \in \textrm{normal}(0, 1),
+$$
+and
+$$
+\beta \in \textrm{normal}(0, 2 \cdot \textrm{I}).
+$$
+
+### Simulated outcomes
+
+For a given item $n \in 1{:}N$ with a predictor (row) vector $x_n \in \mathbb{R}^L$, we have
+$$
+\textrm{Pr}[y_n = 1] = \textrm{logit}^{-1}(\alpha + x_n \cdot \beta).
+$$
+
+We consider three different ways to train.
+
+1. *Sampling*:  We begin with the approach that follows the actual generative model.  In this approach, we probabilistically sample the category of each item according to its probability,
+$$
+y_n \sim \textrm{bernoulli}\!\left(\textrm{logit}^{-1}\!\left( \alpha + x_n \cdot \beta \right)\right).
+$$
+
+2. *Best category*:  In this approach, which is popular in machine learning settings, we take the most probable category for each training instance,
+$$
+y_n = \textrm{I}\!\left(\textrm{logit}^{-1}\!\left( \alpha + x_n \cdot \beta \right) > \frac{1}{2}\right),
+$$
+where $\textrm{I}(c)$ is the indicator function, with $\textrm{I}(c) = 1$ if the condition $c$ is true and $\textrm{I}(c) = 0$ otherwise.  In words, $y_n = 1$ if its probability of being 1 is greater than one half and $y_n = 0$ if the probability is one half or lower.
+
+3. *Weights*:  In this approach, we never generate a true $y_n$, but instead just store the weights,
+$$
+w_n = \textrm{logit}^{-1}(\alpha + x_n \cdot \beta).
+$$
+In this sceneario, we do not need to resolve the true value of $y_n$ for training.
+
+
+## Probababilistic training as linear regression on log odds
+
+In approach (1) and (2), where we sample or take the best guess for $y_n$, we train our logistic regression as usual.  In approach (3) with weights, there are two options.  In one approach, we can train a linear regression of $\textrm{logit}(w_n)$ on $x_n$.  This method exploits the relationship between a logistic regression and a linear regression on the log odds.  While this is possible for logistic regression, it's not always an option in more general classifiers, so we consider one more approach to weighted training.
+
+
+## Probabilistic training as weighted regularization
+
+In the second approach to weighted training, we train a logistic regression with weighted instances.  The first approach is supported by standard software, but the second requires weighting of the training instances.  This is easy to carry out in a probabilistic programming framework, where we can define the target likelihood using weight as:
+
+$$
+p(w \mid x, \alpha, \beta) = 
+\prod_{n=1}^N 
+\textrm{bernoulli}\left(1 \,\big|\, \textrm{logit}^{-1}(\alpha + x_n \cdot \beta)\right)^{w_n} 
+\cdot 
+\textrm{bernoulli}\left(0 \,\big|\, \textrm{logit}^{-1}(\alpha + x_n \cdot \beta)\right)^{1 - w_n},
+$$
+or on the log scale as we will implement the density,
+$$
+\log p(w \mid x, \alpha, \beta)
+= \sum_{n = 1}^N w_n \cdot \log \textrm{bernoulli}\!\left(1 \,\big|\, \textrm{logit}^{-1}(\alpha + x_n \cdot \beta)\right)
++ (1 - w_n) \cdot \log \textrm{bernoulli}\!\left(0 \,\big|\, \textrm{logit}^{-1}(\alpha + x_n \cdot \beta)\right).
+$$
+
+That is, we train with both the positive and negative example category ($y_n = 1$ *and* $y_n = 0$), but with different weights ($w_n$ and $1 - w_n$).  If we evaluate the gradient of the likelihood, the contributions for $y_n = 1$ and $y_n = 0$ point in opposite directions,
+$$
+\nabla_{\alpha, \beta} \, \log \textrm{bernoulli}\!\left(1 \,\big|\, \textrm{logit}^{-1}(\alpha + x_n \cdot \beta)\right)
+= -\nabla_{\alpha, \beta} \, \log \textrm{bernoulli}\!\left(0 \,\big|\, \textrm{logit}^{-1}(\alpha + x_n \cdot \beta)\right),
+$$
+so that we wind up shrinking the update as $\textrm{Pr}[y_n = 1] \rightarrow \frac{1}{2}$.  The total gradient for a weighted item is
+$$
+\begin{array}{l}
+\nabla_{\alpha, \beta} \ w_n \cdot \log \textrm{bernoulli}\!\left(1 \,\big|\, \textrm{logit}^{-1}(\alpha + x_n \cdot \beta)\right)
++ (1 - w_n) \cdot \log \textrm{bernoulli}\!\left(0 \,\big|\, \textrm{logit}^{-1}(\alpha + x_n \cdot \beta)\right)
+\\[6pt]
+\ \ = (2 \cdot w_n - 1) \cdot \nabla_{\alpha, \beta} \, \log \textrm{bernoulli}\!\left(1 \,\big|\, \textrm{logit}^{-1}(\alpha + x_n \cdot \beta)\right).
+\end{array}
+$$
+That is, we train the positive category weighted by $2 \cdot w_n - 1$.  The overall effect is to scale the contribution of examples based on their uncertainty.  Looking at the boundaries, if $w_n = 1$ or $w_n = 0$, we reduce to ordinary training with weight 1 or -1 (equivalently, ordinary training with $y_n = 1$ or $y_n = 0$).  When $w_n < 1$ and $w_n > 0$, then we have the effect of downweighting the effect on training the most likely category.  For a completely uncertain example, where $\textrm{Pr}[y_n = 1] = \frac{1}{2}$, the overall gradient $\nabla_{\alpha,\beta} \, p(y_n \mid \alpha, \beta) = 0$ and the training example has no effect.  
+
+## Simulation results
+
 
 
 # Observed rating data
