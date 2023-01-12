@@ -88,15 +88,17 @@ for $l \in 1{:}L$.  These are chosen to be in line with standardized predictors 
 
 ### Posterior predictive inference
 
-Given training data $x, y$, the posterior distribution over the parameters is 
+Given training data $x, y$ and parameters $\alpha$ and $\beta$, Bayes's rule allows us to express the posterior distribution over the parameters up to a proportion as
 $$
 \begin{array}{rcl}
 p(\alpha, \beta \mid x, y)
 & \propto & p(\alpha, \beta) \cdot p(y \mid x, \alpha, \beta)
 \\[6pt]
-& = & \textrm{normal}(\alpha \mid 0, 3)
+& = & 
+\textrm{normal}(\alpha \mid 0, 3)
 \cdot \prod_{l = 1}^L \textrm{normal}(\beta_l \mid 0, 3)
-\cdot \prod_{n = 1}^N \textrm{bernoulli}\!\left(y_n \,\big|\, \textrm{logit}^{-1}\!\left(\alpha + \beta \cdot x_n^\top\right)\right).
+\\[4pt]
+& & \cdot \, \prod_{n = 1}^N \textrm{bernoulli}\!\left(y_n \,\big|\, \textrm{logit}^{-1}\!\left(\alpha + \beta \cdot x_n^\top\right)\right).
 \end{array}
 $$
 Now suppose we have a new predictor $\tilde{x} \in \mathbb{R}^L$.  The posterior predictive distribution over the associated outcome $\tilde{y} \in \{0, 1\}$ will be
@@ -105,7 +107,7 @@ $$
 p(\tilde{y} \mid \tilde{x}, y, x)
 & = & \mathbb{E}\!\left[\, p(\tilde{y} \mid \tilde{x}, \alpha, \beta) \mid x, y \, \right]
 \\[6pt]
-& = & \displaystyle \int p(\tilde{y} \mid \tilde{x}, \alpha, \beta) \cdot p(\alpha, \beta \mid x, y) \ \textrm{d} (\alpha, \beta).
+& = & \displaystyle \int_{\mathbb{R}^{1 + L}} p(\tilde{y} \mid \tilde{x}, \alpha, \beta) \cdot p(\alpha, \beta \mid x, y) \ \textrm{d} (\alpha, \beta).
 \end{array}
 $$
 
@@ -134,7 +136,7 @@ $$
 \alpha \mid x, y
 \,\right]
 \\[8pt]
-& = & \int \alpha \cdot p(\alpha \mid x, y) \ \textrm{d}\alpha,
+& = & \displaystyle \int_{\mathbb{R}} \alpha \cdot p(\alpha \mid x, y) \ \textrm{d}\alpha,
 \end{array}
 $$
 and $\widehat{\beta}$ is defined the same way as $\mathbb{E}[\beta \mid x, y]$.  Such an estimate is similar to what would result from taking a point estimate from a variational approximation to the posterior and plugging in the point estimate for inference.
@@ -151,11 +153,11 @@ In the correlated case, we will generate
 $$
 x_n \sim \textrm{normal}(0, \Sigma),
 $$
-where $\Sigma$ is a symmetric, positive-definite, $L \times L$ matrix, which is defined by
+where $\Sigma$ is a symmetric, positive-definite, $L \times L$ matrix with entries
 $$
 \Sigma_{i, j} = \rho^{\left|i - j\right|}
 $$
-for some $\rho \in (-1, 1)$.  Both approaches to simulating predictors produce indibidual predictors that are marginally standard normal.
+for some $\rho \in (-1, 1)$.  Both approaches to produce predictors that are marginally standard normal (i.e., $x_{n, l} \sim \textrm{normal}(0, 1)$).
 
 ### Simulated regression coefficients
 
